@@ -11,15 +11,20 @@
             </div>
 
             <div class="career-chain" id="career-chain">
-                <!-- Clubs will be revealed here progressively -->
-            </div>
-
-            <div class="reveal-controls">
-                <button id="reveal-btn" class="btn btn-accent">
-                    <span class="icon">👆</span> Reveal Next Club
-                </button>
-                <span class="clubs-counter" id="clubs-counter">0 / {{ count($challenge->careerClubs) }} clubs
-                    revealed</span>
+                @foreach($challenge->careerClubs->sortBy('sort_order') as $index => $careerClub)
+                    @if($index > 0)
+                        <span class="chain-arrow">→</span>
+                    @endif
+                    <div class="club-item">
+                        <div class="club-logo-container">
+                            <img src="{{ $careerClub->club->logo_url ?: 'https://placehold.co/60x60/f8fafc/6366f1?text=' . urlencode(substr($careerClub->club->name, 0, 1)) }}"
+                                alt="{{ $careerClub->club->name }}" class="club-logo"
+                                onerror="this.onerror=null; this.src='https://placehold.co/60x60/f8fafc/6366f1?text=' + encodeURIComponent(this.alt.substring(0, 1));">
+                        </div>
+                        <div class="club-name" title="{{ $careerClub->club->name }}">{{ $careerClub->club->name }}</div>
+                        <div class="club-year">{{ $careerClub->join_year }}</div>
+                    </div>
+                @endforeach
             </div>
 
             <div class="controls">
@@ -133,11 +138,23 @@
                 }
             }
 
-            .club-logo {
+            .club-logo-container {
                 width: 60px;
                 height: 60px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: #f8fafc;
+                border: 1px solid #f1f5f9;
+                border-radius: 12px;
+                overflow: hidden;
+            }
+
+            .club-logo {
+                max-width: 100%;
+                max-height: 100%;
                 object-fit: contain;
-                filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+                filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.05));
             }
 
             .club-name {
@@ -179,48 +196,6 @@
                     opacity: 1;
                     transform: translateX(3px);
                 }
-            }
-
-            .reveal-controls {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                gap: 1.5rem;
-                margin-top: 1.5rem;
-            }
-
-            .btn-accent {
-                background: var(--career-gradient);
-                color: white;
-                border: none;
-                padding: 1rem 2rem;
-                font-size: 1rem;
-                font-weight: 600;
-                border-radius: 12px;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
-            }
-
-            .btn-accent:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
-            }
-
-            .btn-accent:disabled {
-                opacity: 0.5;
-                cursor: not-allowed;
-                transform: none;
-            }
-
-            .btn-accent .icon {
-                margin-right: 0.5rem;
-            }
-
-            .clubs-counter {
-                font-size: 0.9rem;
-                color: var(--text-dim);
-                font-weight: 500;
             }
 
             .controls {
@@ -402,12 +377,6 @@
                 }
             }
 
-            .empty-chain-message {
-                color: var(--text-dim);
-                font-size: 1rem;
-                text-align: center;
-            }
-
             @media (max-width: 900px) {
                 .interaction-section {
                     grid-template-columns: 1fr;
@@ -437,85 +406,13 @@
     @push('scripts')
         <script>
             const challengeId = {{ $challenge->id }};
-            const totalClubs = {{ count($challenge->careerClubs) }};
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const shownHints = [];
-            let revealedCount = 0;
-
             document.getElementById('submit-btn').addEventListener('click', checkAnswer);
             document.getElementById('answer-input').addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') checkAnswer();
             });
             document.getElementById('hint-btn').addEventListener('click', getHint);
-            document.getElementById('reveal-btn').addEventListener('click', revealNextClub);
-
-            // Initialize with empty message
-            updateChainDisplay();
-
-            async function revealNextClub() {
-                if (revealedCount >= totalClubs) return;
-
-                const response = await fetch(`/career/${challengeId}/next-club`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
-                    },
-                    body: JSON.stringify({ revealed_count: revealedCount })
-                });
-
-                const data = await response.json();
-
-                if (data.club) {
-                    addClubToChain(data.club);
-                    revealedCount = data.revealed_count;
-                    updateCounter();
-
-                    if (revealedCount >= totalClubs) {
-                        document.getElementById('reveal-btn').disabled = true;
-                        document.getElementById('reveal-btn').innerHTML = '✅ All Clubs Revealed';
-                    }
-                } else {
-                    alert(data.message);
-                }
-            }
-
-            function addClubToChain(club) {
-                const chain = document.getElementById('career-chain');
-
-                // Remove empty message if present
-                const emptyMsg = chain.querySelector('.empty-chain-message');
-                if (emptyMsg) emptyMsg.remove();
-
-                // Add arrow if not the first club
-                if (revealedCount > 0) {
-                    const arrow = document.createElement('span');
-                    arrow.className = 'chain-arrow';
-                    arrow.innerHTML = '→';
-                    chain.appendChild(arrow);
-                }
-
-                // Add club item
-                const clubDiv = document.createElement('div');
-                clubDiv.className = 'club-item';
-                clubDiv.innerHTML = `
-                            <img src="${club.logo_url}" alt="${club.name}" class="club-logo" onerror="this.src='https://via.placeholder.com/60?text=Club'">
-                            <span class="club-name" title="${club.name}">${club.name}</span>
-                            <span class="club-year">${club.year}</span>
-                        `;
-                chain.appendChild(clubDiv);
-            }
-
-            function updateChainDisplay() {
-                const chain = document.getElementById('career-chain');
-                if (revealedCount === 0) {
-                    chain.innerHTML = '<p class="empty-chain-message">Click "Reveal Next Club" to start revealing the career path!</p>';
-                }
-            }
-
-            function updateCounter() {
-                document.getElementById('clubs-counter').textContent = `${revealedCount} / ${totalClubs} clubs revealed`;
-            }
 
             async function checkAnswer() {
                 const answer = document.getElementById('answer-input').value;
@@ -539,7 +436,6 @@
                 if (data.correct) {
                     document.getElementById('submit-btn').disabled = true;
                     document.getElementById('answer-input').disabled = true;
-                    document.getElementById('reveal-btn').disabled = true;
                     highlightSuccess();
                 }
             }

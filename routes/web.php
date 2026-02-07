@@ -22,7 +22,6 @@ Route::post('/stadiums/{stadium}/hint', [StadiumSpotterController::class, 'getHi
 Route::get('/games/career/{challenge?}', [CareerController::class, 'play'])->name('games.career.play');
 Route::post('/career/{challenge}/check', [CareerController::class, 'checkAnswer'])->name('career.check');
 Route::post('/career/{challenge}/hint', [CareerController::class, 'getHint'])->name('career.hint');
-Route::post('/career/{challenge}/next-club', [CareerController::class, 'getNextClub'])->name('career.next-club');
 
 // Kit Detective Game Routes
 Route::get('/games/kit-detective/{challenge?}', [KitDetectiveController::class, 'play'])->name('games.kit.play');

@@ -66,34 +66,4 @@ class CareerController extends Controller
             'message' => 'No more hints available!',
         ]);
     }
-
-    /**
-     * Get the next club in the career chain to reveal
-     */
-    public function getNextClub(Request $request, int $challengeId)
-    {
-        $challenge = CareerChallenge::with('careerClubs.club')->findOrFail($challengeId);
-        $revealedCount = $request->revealed_count ?? 0;
-        
-        $careerClubs = $challenge->careerClubs()->orderBy('sort_order')->get();
-        
-        if ($revealedCount < $careerClubs->count()) {
-            $nextClub = $careerClubs[$revealedCount];
-            return response()->json([
-                'club' => [
-                    'name' => $nextClub->club->name,
-                    'logo_url' => $nextClub->club->logo_url,
-                    'year' => $nextClub->join_year,
-                ],
-                'revealed_count' => $revealedCount + 1,
-                'total_clubs' => $careerClubs->count(),
-            ]);
-        }
-
-        return response()->json([
-            'message' => 'All clubs revealed!',
-            'revealed_count' => $revealedCount,
-            'total_clubs' => $careerClubs->count(),
-        ]);
-    }
 }
