@@ -12,8 +12,12 @@
                     @php
                         $route = match ($game->slug) {
                             'stadium-spotter' => route('games.stadium.play'),
+                            'career' => route('games.career.play'),
+                            'kit-detective' => route('games.kit.play'),
+                            'trophy-hunter' => route('games.trophy.play'),
+                            'guess-silhouette' => route('games.silhouette.play'),
                             'celebration-station' => route('games.celebration.play'),
-                            default => route('games.bw.play', $game->slug),
+                            default => route('games.bw.play', ['game' => $game->slug]),
                         };
                     @endphp
                     <a href="{{ $route }}" class="game-card">
