@@ -178,6 +178,47 @@
                 gap: 1rem;
             }
         }
+
+        /* Autocomplete Styles */
+        .autocomplete-wrapper {
+            position: relative;
+            flex: 1;
+        }
+
+        .autocomplete-items {
+            position: absolute;
+            border: 1px solid var(--glass-border);
+            border-bottom: none;
+            border-top: none;
+            z-index: 99;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .autocomplete-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--glass-border);
+            font-size: 0.95rem;
+            color: var(--text-main);
+            transition: background 0.2s;
+            text-align: left;
+        }
+
+        .autocomplete-item:hover {
+            background-color: #f1f5f9;
+            color: var(--stadium-green);
+        }
+
+        .autocomplete-active {
+            background-color: var(--stadium-green) !important;
+            color: white !important;
+        }
     </style>
     @stack('styles')
 </head>
@@ -205,6 +246,7 @@
         &copy; {{ date('Y') }} Black & White Guessing Game. Neat & Simple.
     </footer>
 
+    <script src="{{ asset('js/autocomplete.js') }}"></script>
     @stack('scripts')
 </body>
 

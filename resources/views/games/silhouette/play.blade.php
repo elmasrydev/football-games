@@ -36,8 +36,13 @@
                 </div>
 
                 <div class="answer-form">
-                    <input type="text" id="answer-input" placeholder="Player name..." autocomplete="off">
+                    <div class="autocomplete-wrapper">
+                        <input type="text" id="answer-input" placeholder="Player name..." autocomplete="off">
+                        <div id="autocomplete-list" class="autocomplete-items"></div>
+                    </div>
                     <button id="submit-btn" class="btn btn-primary">Guess</button>
+                    <button id="reveal-btn" class="btn btn-outline" style="border-color: #ef4444; color: #ef4444;">Reveal
+                        Answer</button>
                 </div>
 
                 <div id="feedback" class="feedback"></div>
@@ -211,10 +216,12 @@
             .answer-form {
                 display: flex;
                 gap: 0.75rem;
+                flex-wrap: wrap;
             }
 
             .answer-form input {
                 flex: 1;
+                min-width: 200px;
                 padding: 1rem;
                 background: #0f0f23;
                 border: 1px solid #4a4a6a;
@@ -354,10 +361,14 @@
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const shownHints = [];
 
+            // Initialize global autocomplete
+            initAutocomplete('answer-input', 'autocomplete-list', '{{ route('career.players.search') }}');
+
             document.getElementById('submit-btn').addEventListener('click', checkAnswer);
             document.getElementById('answer-input').addEventListener('keypress', function (e) {
                 if (e.key === 'Enter') checkAnswer();
             });
+            document.getElementById('reveal-btn').addEventListener('click', revealAnswer);
             document.getElementById('hint-btn').addEventListener('click', getHint);
 
             async function checkAnswer() {
@@ -385,6 +396,7 @@
 
                     if (data.correct) {
                         document.getElementById('submit-btn').disabled = true;
+                        document.getElementById('reveal-btn').disabled = true;
                         document.getElementById('answer-input').disabled = true;
 
                         // Reveal full image if available
@@ -393,12 +405,43 @@
                         }
                         overlay.style.display = 'flex';
 
-                        document.querySelector('.question-card').style.borderColor = '#2ea043';
-                        document.querySelector('.silhouette-image-container').style.borderColor = '#2ea043';
+                        highlightSuccess();
                     }
                 } catch (error) {
                     console.error('Error checking answer:', error);
                 }
+            }
+
+            async function revealAnswer() {
+                if (!confirm('Are you sure you want to reveal the answer?')) return;
+
+                const response = await fetch(`/silhouettes/${challengeId}/reveal`);
+                const data = await response.json();
+
+                const feedback = document.getElementById('feedback');
+                feedback.innerText = `The answer was: ${data.answer}`;
+                feedback.className = 'feedback success';
+                document.getElementById('answer-input').value = data.answer;
+
+                const silhouetteImage = document.getElementById('silhouette-image');
+                const overlay = document.getElementById('correct-overlay');
+
+                if (data.reveal_image) {
+                    silhouetteImage.src = data.reveal_image;
+                }
+                overlay.style.display = 'flex';
+
+                document.getElementById('submit-btn').disabled = true;
+                document.getElementById('reveal-btn').disabled = true;
+                document.getElementById('answer-input').disabled = true;
+                highlightSuccess();
+            }
+
+            function highlightSuccess() {
+                document.querySelector('.question-card').style.borderColor = '#2ea043';
+                document.querySelector('.silhouette-image-container').style.borderColor = '#2ea043';
+                document.querySelector('.question-card').style.borderStyle = 'solid';
+                document.querySelector('.question-card').style.borderWidth = '2px';
             }
 
             async function getHint() {

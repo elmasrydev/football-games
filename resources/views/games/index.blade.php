@@ -17,7 +17,8 @@
                             'trophy-hunter' => route('games.trophy.play'),
                             'guess-silhouette' => route('games.silhouette.play'),
                             'celebration-station' => route('games.celebration.play'),
-                            default => route('games.bw.play', ['game' => $game->slug]),
+                            'black-and-white' => route('games.bw.play', ['game' => 'black-and-white']),
+                            default => $game->slug ? route('games.bw.play', ['game' => $game->slug]) : '#',
                         };
                     @endphp
                     <a href="{{ $route }}" class="game-card">

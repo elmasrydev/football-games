@@ -46,3 +46,8 @@ Route::get('/games/celebration-station/{video?}', [CelebrationStationController:
 Route::get('/games/{game}/{video?}', [BlackWhiteController::class, 'play'])->name('games.bw.play');
 Route::post('/videos/{video}/check', [BlackWhiteController::class, 'checkAnswer'])->name('videos.check');
 Route::post('/videos/{video}/hint', [BlackWhiteController::class, 'getHint'])->name('videos.hint');
+Route::get('/videos/{video}/reveal', [BlackWhiteController::class, 'revealAnswer'])->name('videos.reveal');
+
+Route::get('/career/{challenge}/reveal', [CareerController::class, 'revealAnswer'])->name('career.reveal');
+Route::get('/kits/{challenge}/reveal', [KitDetectiveController::class, 'revealAnswer'])->name('kits.reveal');
+Route::get('/silhouettes/{challenge}/reveal', [SilhouetteController::class, 'revealAnswer'])->name('silhouettes.reveal');

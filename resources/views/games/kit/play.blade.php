@@ -36,8 +36,13 @@
                 </div>
 
                 <div class="answer-form">
-                    <input type="text" id="answer-input" placeholder="Team and Year..." autocomplete="off">
+                    <div class="autocomplete-wrapper">
+                        <input type="text" id="answer-input" placeholder="Team and Year..." autocomplete="off">
+                        <div id="autocomplete-list" class="autocomplete-items"></div>
+                    </div>
                     <button id="submit-btn" class="btn btn-primary">Check Kit</button>
+                    <button id="reveal-btn" class="btn btn-outline" style="border-color: #ef4444; color: #ef4444;">Reveal
+                        Answer</button>
                 </div>
 
                 <div id="feedback" class="feedback"></div>
@@ -212,10 +217,12 @@
             .answer-form {
                 display: flex;
                 gap: 0.75rem;
+                flex-wrap: wrap;
             }
 
             .answer-form input {
                 flex: 1;
+                min-width: 200px;
                 padding: 1rem;
                 background: #f8faf9;
                 border: 1px solid var(--glass-border);
@@ -343,11 +350,14 @@
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const shownHints = [];
 
+            // Initialize global autocomplete
+            initAutocomplete('answer-input', 'autocomplete-list', '{{ route('career.players.search') }}');
+
             document.getElementById('submit-btn').addEventListener('click', checkAnswer);
             document.getElementById('answer-input').addEventListener('keypress', function (e) {
                 if (e.key === 'Enter') checkAnswer();
             });
-
+            document.getElementById('reveal-btn').addEventListener('click', revealAnswer);
             document.getElementById('hint-btn').addEventListener('click', getHint);
 
             async function checkAnswer() {
@@ -375,6 +385,7 @@
 
                     if (data.correct) {
                         document.getElementById('submit-btn').disabled = true;
+                        document.getElementById('reveal-btn').disabled = true;
                         document.getElementById('answer-input').disabled = true;
 
                         // Reveal full image
@@ -384,13 +395,43 @@
                         }
                         overlay.style.display = 'flex';
 
-                        document.querySelector('.question-card').style.borderColor = '#27ae60';
-                        document.querySelector('.question-card').style.borderStyle = 'solid';
-                        document.querySelector('.question-card').style.borderWidth = '2px';
+                        highlightSuccess();
                     }
                 } catch (error) {
                     console.error('Error checking answer:', error);
                 }
+            }
+
+            async function revealAnswer() {
+                if (!confirm('Are you sure you want to reveal the answer?')) return;
+
+                const response = await fetch(`/kits/${challengeId}/reveal`);
+                const data = await response.json();
+
+                const feedback = document.getElementById('feedback');
+                feedback.innerText = `The answer was: ${data.answer}`;
+                feedback.className = 'feedback success';
+                document.getElementById('answer-input').value = data.answer;
+
+                const kitImage = document.getElementById('kit-image');
+                const overlay = document.getElementById('correct-overlay');
+
+                if (data.full_image) {
+                    kitImage.src = data.full_image;
+                    kitImage.style.objectFit = 'contain';
+                }
+                overlay.style.display = 'flex';
+
+                document.getElementById('submit-btn').disabled = true;
+                document.getElementById('reveal-btn').disabled = true;
+                document.getElementById('answer-input').disabled = true;
+                highlightSuccess();
+            }
+
+            function highlightSuccess() {
+                document.querySelector('.question-card').style.borderColor = '#27ae60';
+                document.querySelector('.question-card').style.borderStyle = 'solid';
+                document.querySelector('.question-card').style.borderWidth = '2px';
             }
 
             async function getHint() {

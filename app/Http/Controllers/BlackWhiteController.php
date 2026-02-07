@@ -41,6 +41,13 @@ class BlackWhiteController extends Controller
         ]);
     }
 
+    public function revealAnswer(Video $video)
+    {
+        return response()->json([
+            'answer' => $video->answer,
+        ]);
+    }
+
     public function getHint(Request $request, Video $video)
     {
         $shownHintIds = $request->input('shown_hints', []);

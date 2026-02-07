@@ -53,8 +53,17 @@ class KitDetectiveController extends Controller
             'correct' => $correct,
             'message' => $correct
                 ? "Correct! That's the {$challenge->team_name} {$challenge->kit_year} kit!"
-                : "Not quite. Keep looking at the details!",
+                : "Wrong answer. Try again!",
             'full_image' => $correct ? asset('storage/' . $challenge->full_image_path) : null
+        ]);
+    }
+
+    public function revealAnswer(int $challengeId)
+    {
+        $challenge = KitChallenge::findOrFail($challengeId);
+        return response()->json([
+            'answer' => $challenge->team_name . ' ' . $challenge->kit_year,
+            'full_image' => asset('storage/' . $challenge->full_image_path)
         ]);
     }
 

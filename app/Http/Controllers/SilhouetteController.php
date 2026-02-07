@@ -42,8 +42,19 @@ class SilhouetteController extends Controller
             'correct' => $correct,
             'message' => $correct
                 ? "Correct! It's {$challenge->player_name}!"
-                : "Not quite right. Try again!",
+                : "Wrong answer. Try again!",
             'reveal_image' => $correct && $challenge->reveal_image_path
+                ? asset('storage/' . $challenge->reveal_image_path)
+                : null,
+        ]);
+    }
+
+    public function revealAnswer(int $challengeId)
+    {
+        $challenge = SilhouetteChallenge::findOrFail($challengeId);
+        return response()->json([
+            'answer' => $challenge->player_name,
+            'reveal_image' => $challenge->reveal_image_path
                 ? asset('storage/' . $challenge->reveal_image_path)
                 : null,
         ]);

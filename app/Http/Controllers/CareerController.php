@@ -42,7 +42,15 @@ class CareerController extends Controller
             'correct' => $correct,
             'message' => $correct
                 ? "Correct! Well done!"
-                : "Not quite. The answer is: {$challenge->player_name}",
+                : "Wrong answer. Try again!",
+        ]);
+    }
+
+    public function revealAnswer(int $challengeId)
+    {
+        $challenge = CareerChallenge::findOrFail($challengeId);
+        return response()->json([
+            'answer' => $challenge->player_name,
         ]);
     }
 

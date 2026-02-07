@@ -31,8 +31,13 @@
                 </div>
 
                 <div class="answer-form">
-                    <input type="text" id="answer-input" placeholder="Write your answer here..." autocomplete="off">
+                    <div class="autocomplete-wrapper">
+                        <input type="text" id="answer-input" placeholder="Write your answer here..." autocomplete="off">
+                        <div id="autocomplete-list" class="autocomplete-items"></div>
+                    </div>
                     <button id="submit-btn" class="btn btn-primary">Check Answer</button>
+                    <button id="reveal-btn" class="btn btn-outline" style="border-color: #ef4444; color: #ef4444;">Reveal
+                        Answer</button>
                 </div>
 
                 <div id="feedback" class="feedback"></div>
@@ -134,10 +139,12 @@
             .answer-form {
                 display: flex;
                 gap: 0.75rem;
+                flex-wrap: wrap;
             }
 
             .answer-form input {
                 flex: 1;
+                min-width: 200px;
                 padding: 1rem;
                 background: #f8faf9;
                 border: 1px solid var(--glass-border);
@@ -261,6 +268,12 @@
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const shownHints = [];
 
+            // Conditionally initialize global autocomplete for player-centric games
+            const playerCentricGames = ['celebration-station', 'trophy-hunter', 'black-and-white'];
+            if (playerCentricGames.includes('{{ $game->slug }}')) {
+                initAutocomplete('answer-input', 'autocomplete-list', '{{ route('career.players.search') }}');
+            }
+
             function parseTime(timeStr) {
                 if (!timeStr) return 0;
                 if (!isNaN(timeStr)) return parseFloat(timeStr);
@@ -280,7 +293,7 @@
             document.getElementById('answer-input').addEventListener('keypress', function (e) {
                 if (e.key === 'Enter') checkAnswer();
             });
-
+            document.getElementById('reveal-btn').addEventListener('click', revealAnswer);
             document.getElementById('hint-btn').addEventListener('click', getHint);
 
             // YouTube IFrame API
@@ -371,12 +384,36 @@
 
                     if (data.correct) {
                         document.getElementById('submit-btn').disabled = true;
+                        document.getElementById('reveal-btn').disabled = true;
                         document.getElementById('answer-input').disabled = true;
-                        confetti();
+                        highlightSuccess();
                     }
                 } catch (error) {
                     console.error('Error checking answer:', error);
                 }
+            }
+
+            async function revealAnswer() {
+                if (!confirm('Are you sure you want to reveal the answer?')) return;
+
+                const response = await fetch(`/videos/${videoId}/reveal`);
+                const data = await response.json();
+
+                const feedback = document.getElementById('feedback');
+                feedback.innerText = `The answer was: ${data.answer}`;
+                feedback.className = 'feedback success';
+                document.getElementById('answer-input').value = data.answer;
+
+                document.getElementById('submit-btn').disabled = true;
+                document.getElementById('reveal-btn').disabled = true;
+                document.getElementById('answer-input').disabled = true;
+                highlightSuccess();
+            }
+
+            function highlightSuccess() {
+                document.querySelector('.question-card').style.borderColor = '#27ae60';
+                document.querySelector('.question-card').style.borderStyle = 'solid';
+                document.querySelector('.question-card').style.borderWidth = '2px';
             }
 
             async function getHint() {
@@ -405,14 +442,6 @@
                 } catch (error) {
                     console.error('Error getting hint:', error);
                 }
-            }
-
-            function confetti() {
-                // Simple confetti effect could be added here if desired
-                // For now just a subtle visual cue
-                document.querySelector('.question-card').style.borderColor = '#27ae60';
-                document.querySelector('.question-card').style.borderStyle = 'solid';
-                document.querySelector('.question-card').style.borderWidth = '2px';
             }
 
             // Update URL to be shareable if it's currently just the general game URL
