@@ -119,7 +119,7 @@
                 flex-direction: column;
                 align-items: center;
                 gap: 0.5rem;
-                padding: 1rem;
+                padding: 1rem 0.5rem;
                 background: white;
                 border-radius: 16px;
                 box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
@@ -168,10 +168,15 @@
                 font-weight: 600;
                 color: var(--pitch-dark);
                 text-align: center;
-                max-width: 90px;
+                height: 2.6rem;
+                line-height: 1.3rem;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
                 overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
+                white-space: normal;
+                word-break: break-word;
+                overflow-wrap: anywhere;
             }
 
             .club-year {
