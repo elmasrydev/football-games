@@ -44,7 +44,10 @@
                 </div>
 
                 <div class="answer-form">
-                    <input type="text" id="answer-input" placeholder="Type player name..." autocomplete="off">
+                    <div class="autocomplete-wrapper">
+                        <input type="text" id="answer-input" placeholder="Type player name..." autocomplete="off">
+                        <div id="autocomplete-list" class="autocomplete-items"></div>
+                    </div>
                     <button id="submit-btn" class="btn btn-primary">Check Answer</button>
                 </div>
 
@@ -295,6 +298,46 @@
                 box-shadow: 0 0 12px rgba(99, 102, 241, 0.1);
             }
 
+            /* Autocomplete Styles */
+            .autocomplete-wrapper {
+                position: relative;
+                flex: 1;
+            }
+
+            .autocomplete-items {
+                position: absolute;
+                border: 1px solid var(--glass-border);
+                border-bottom: none;
+                border-top: none;
+                z-index: 99;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: white;
+                border-radius: 0 0 12px 12px;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+                overflow: hidden;
+            }
+
+            .autocomplete-item {
+                padding: 12px 16px;
+                cursor: pointer;
+                border-bottom: 1px solid var(--glass-border);
+                font-size: 0.95rem;
+                color: var(--text-main);
+                transition: background 0.2s;
+            }
+
+            .autocomplete-item:hover {
+                background-color: #f1f5f9;
+                color: var(--career-primary);
+            }
+
+            .autocomplete-active {
+                background-color: var(--career-primary) !important;
+                color: white !important;
+            }
+
             .feedback {
                 min-height: 1.5rem;
                 font-weight: 700;
@@ -413,6 +456,91 @@
                 if (e.key === 'Enter') checkAnswer();
             });
             document.getElementById('hint-btn').addEventListener('click', getHint);
+
+            // Autocomplete Logic
+            const answerInput = document.getElementById('answer-input');
+            const autocompleteList = document.getElementById('autocomplete-list');
+            let currentFocus = -1;
+
+            answerInput.addEventListener('input', function (e) {
+                const val = this.value;
+                closeAllLists();
+                if (!val || val.length < 2) return false;
+
+                currentFocus = -1;
+                fetchSuggestions(val);
+            });
+
+            answerInput.addEventListener('keydown', function (e) {
+                let x = document.getElementById('autocomplete-list');
+                if (x) x = x.getElementsByTagName('div');
+                if (e.keyCode == 40) { // Down
+                    currentFocus++;
+                    addActive(x);
+                } else if (e.keyCode == 38) { // Up
+                    currentFocus--;
+                    addActive(x);
+                } else if (e.keyCode == 13) { // Enter
+                    if (currentFocus > -1) {
+                        e.preventDefault();
+                        if (x) x[currentFocus].click();
+                    }
+                }
+            });
+
+            async function fetchSuggestions(val) {
+                try {
+                    const response = await fetch(`/career/players/search?query=${encodeURIComponent(val)}`);
+                    const suggestions = await response.json();
+
+                    if (suggestions.length === 0) return;
+
+                    closeAllLists();
+
+                    suggestions.forEach(name => {
+                        const b = document.createElement('div');
+                        b.className = 'autocomplete-item';
+                        b.innerHTML = `<strong>${name.substr(0, val.length)}</strong>${name.substr(val.length)}`;
+                        b.innerHTML += `<input type='hidden' value="${name.replace('"', '&quot;')}">`;
+
+                        b.addEventListener('click', function (e) {
+                            answerInput.value = this.getElementsByTagName('input')[0].value;
+                            closeAllLists();
+                        });
+
+                        autocompleteList.appendChild(b);
+                    });
+                } catch (error) {
+                    console.error('Error fetching suggestions:', error);
+                }
+            }
+
+            function addActive(x) {
+                if (!x) return false;
+                removeActive(x);
+                if (currentFocus >= x.length) currentFocus = 0;
+                if (currentFocus < 0) currentFocus = (x.length - 1);
+                x[currentFocus].classList.add('autocomplete-active');
+            }
+
+            function removeActive(x) {
+                for (let i = 0; i < x.length; i++) {
+                    x[i].classList.remove('autocomplete-active');
+                }
+            }
+
+            function closeAllLists(elmnt) {
+                const x = document.getElementsByClassName('autocomplete-items');
+                for (let i = 0; i < x.length; i++) {
+                    if (elmnt != x[i] && elmnt != answerInput) {
+                        x[i].innerHTML = '';
+                    }
+                }
+            }
+
+            document.addEventListener('click', function (e) {
+                closeAllLists(e.target);
+            });
 
             async function checkAnswer() {
                 const answer = document.getElementById('answer-input').value;

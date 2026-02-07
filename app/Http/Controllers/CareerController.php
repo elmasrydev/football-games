@@ -66,4 +66,20 @@ class CareerController extends Controller
             'message' => 'No more hints available!',
         ]);
     }
+
+    public function searchPlayers(Request $request)
+    {
+        $query = $request->query('query');
+        
+        if (strlen($query) < 2) {
+            return response()->json([]);
+        }
+
+        $players = \App\Models\Player::where('name', 'LIKE', "%{$query}%")
+            ->limit(10)
+            ->distinct()
+            ->pluck('name');
+
+        return response()->json($players);
+    }
 }
