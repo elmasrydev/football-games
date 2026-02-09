@@ -42,7 +42,7 @@ class StadiumSpotterController extends Controller
             'correct' => $correct,
             'message' => $correct
                 ? "Correct! Well done!"
-                : "Not quite. The answer is: {$challenge->stadium_name}",
+                : "Not quite. Try again!",
         ]);
     }
 

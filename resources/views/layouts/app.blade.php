@@ -251,6 +251,87 @@
             background-color: var(--stadium-green) !important;
             color: white !important;
         }
+
+        /* Hint Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .modal-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+            transform: scale(0.9);
+            animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes modalPop {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal-card h3 {
+            font-family: 'Outfit', sans-serif;
+            margin-bottom: 1rem;
+            color: var(--pitch-dark);
+        }
+
+        .modal-card p {
+            color: var(--text-dim);
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+
+        .modal-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .hint-icon {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .hint-icon svg {
+            width: 1.25rem;
+            height: 1.25rem;
+            color: #fbbf24;
+            /* Amber bulb */
+        }
     </style>
     @stack('styles')
 </head>
@@ -289,7 +370,56 @@
         </div>
     </footer>
 
-    <script src="{{ asset('js/autocomplete.js') }}"></script>
+    <div id="hint-modal" class="modal-overlay">
+        <div class="modal-card">
+            <div style="margin-bottom: 1rem;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" style="width: 3rem; height: 3rem; color: #fbbf24; margin: 0 auto;">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 18v-3m0 0a8.1 8.1 0 0 0 4.5-1.55c3.3-2.45 3.3-6.45 0-8.9A8.1 8.1 0 0 0 12 3a8.1 8.1 0 0 0-4.5 1.55c-3.3 2.45-3.3 6.45 0 8.9A8.1 8.1 0 0 0 12 15Zm0 3v2m0 0h-3m3 0h3" />
+                </svg>
+            </div>
+            <h3>Need a Hint?</h3>
+            <p>Watch a short video ad to receive a hint for the current puzzle. You can choose to skip this if you
+                prefer.</p>
+            <div class="modal-actions">
+                <button id="modal-watch-ad" class="btn btn-primary">Watch Ad for Hint</button>
+                <button id="modal-close" class="btn btn-outline" style="border-color: #94a3b8; color: #64748b;">No
+                    Thanks</button>
+            </div>
+        </div>
+    </div>
+
+    <script
+        src="{{ asset('js/autocomplete.js') }}?v={{ file_exists(public_path('js/autocomplete.js')) ? filemtime(public_path('js/autocomplete.js')) : time() }}"></script>
+    <script>
+        function openHintModal(onConfirm) {
+            const modal = document.getElementById('hint-modal');
+            const watchBtn = document.getElementById('modal-watch-ad');
+            const closeBtn = document.getElementById('modal-close');
+
+            modal.style.display = 'flex';
+
+            const cleanup = () => {
+                modal.style.display = 'none';
+                watchBtn.removeEventListener('click', confirmHandler);
+                closeBtn.removeEventListener('click', cleanup);
+            };
+
+            const confirmHandler = () => {
+                cleanup();
+                onConfirm();
+            };
+
+            const outsideClick = (e) => {
+                if (e.target === modal) cleanup();
+            };
+
+            watchBtn.addEventListener('click', confirmHandler);
+            closeBtn.addEventListener('click', cleanup);
+            modal.addEventListener('click', outsideClick);
+        }
+    </script>
     @stack('scripts')
 </body>
 

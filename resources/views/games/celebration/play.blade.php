@@ -36,8 +36,13 @@
             </div>
 
             <div class="hints-section">
-                <button id="hint-btn" class="btn btn-outline">
-                    <span>Get a Hint</span>
+                <button id="hint-btn" class="btn btn-outline hint-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 18v-3m0 0a8.1 8.1 0 0 0 4.5-1.55c3.3-2.45 3.3-6.45 0-8.9A8.1 8.1 0 0 0 12 3a8.1 8.1 0 0 0-4.5 1.55c-3.3 2.45-3.3 6.45 0 8.9A8.1 8.1 0 0 0 12 15Zm0 3v2m0 0h-3m3 0h3" />
+                    </svg>
+                    <span>Need a Hint?</span>
                 </button>
                 <div id="hints-display" class="hints-display">
                     <!-- Hints will appear here -->
@@ -272,18 +277,21 @@
                 feedback.classList.remove('error');
             });
 
-            document.getElementById('hint-btn').addEventListener('click', getHint);
+            document.getElementById('hint-btn').addEventListener('click', () => {
+                openHintModal(getHint);
+            });
 
             // YouTube IFrame API
             if (youtubeId) {
                 const tag = document.createElement('script');
-                tag.src = "https://www.youtube.com/iframe_api";
+                tag.src = "https://www.youtube-nocookie.com/iframe_api";
                 const firstScriptTag = document.getElementsByTagName('script')[0];
                 firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
                 let player;
                 window.onYouTubeIframeAPIReady = function () {
                     player = new YT.Player('player', {
+                        host: 'https://www.youtube-nocookie.com',
                         height: '450',
                         width: '100%',
                         videoId: youtubeId,

@@ -92,16 +92,38 @@ function initAutocomplete(inputId, listId, searchUrl) {
 function clearAutocomplete(inputId, listId) {
     const input = document.getElementById(inputId);
     const list = document.getElementById(listId);
+    
     if (input) {
         input.value = '';
+        input.disabled = false;
         input.focus();
-        // Hide feedback if any
+        
+        // Re-enable form buttons if they were disabled
+        const submitBtn = document.getElementById('submit-btn');
+        if (submitBtn) submitBtn.disabled = false;
+        
+        const giveUpBtn = document.getElementById('give-up-btn');
+        if (giveUpBtn) giveUpBtn.disabled = false;
+        
+        const clearBtn = document.getElementById('clear-btn');
+        if (clearBtn) clearBtn.disabled = false;
+
+        // Reset feedback
         const feedback = document.getElementById('feedback');
         if (feedback) {
             feedback.style.display = 'none';
+            feedback.innerText = '';
             feedback.className = 'feedback';
         }
+
+        // Reset card borders if any
+        const card = document.querySelector('.question-card');
+        if (card) {
+            card.style.borderColor = '';
+            card.style.boxShadow = '';
+        }
     }
+    
     if (list) {
         list.innerHTML = '';
     }

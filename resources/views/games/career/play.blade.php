@@ -49,7 +49,14 @@
             </div>
 
             <div class="hints-section">
-                <button id="hint-btn" class="btn btn-outline">Get a Hint</button>
+                <button id="hint-btn" class="btn btn-outline hint-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 18v-3m0 0a8.1 8.1 0 0 0 4.5-1.55c3.3-2.45 3.3-6.45 0-8.9A8.1 8.1 0 0 0 12 3a8.1 8.1 0 0 0-4.5 1.55c-3.3 2.45-3.3 6.45 0 8.9A8.1 8.1 0 0 0 12 15Zm0 3v2m0 0h-3m3 0h3" />
+                    </svg>
+                    <span>Need a Hint?</span>
+                </button>
                 <div id="hints-display" class="hints-display"></div>
             </div>
         </div>
@@ -408,7 +415,9 @@
             });
             document.getElementById('give-up-btn').addEventListener('click', revealAnswer);
             document.getElementById('clear-btn').addEventListener('click', () => clearAutocomplete('answer-input', 'autocomplete-list'));
-            document.getElementById('hint-btn').addEventListener('click', getHint);
+            document.getElementById('hint-btn').addEventListener('click', () => {
+                openHintModal(getHint);
+            });
 
             async function checkAnswer() {
                 const answer = document.getElementById('answer-input').value;
