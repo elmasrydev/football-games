@@ -118,14 +118,46 @@
             padding: 2rem;
         }
 
-        footer {
-            padding: 2rem;
+        .main-footer {
+            padding: 3rem 2rem;
+            background: white;
+            border-top: 1px solid var(--glass-border);
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
             text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: var(--stadium-green);
+        }
+
+        .copyright {
             font-size: 0.8rem;
             color: var(--text-dim);
-            border-top: 1px solid var(--glass-border);
+            opacity: 0.7;
             letter-spacing: 0.5px;
-            text-transform: uppercase;
         }
 
         .btn {
@@ -242,8 +274,19 @@
         @yield('content')
     </main>
 
-    <footer>
-        &copy; {{ date('Y') }} Black & White Guessing Game. Neat & Simple.
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="{{ route('about') }}">About Us</a>
+                <a href="{{ route('contact') }}">Contact Us</a>
+                <a href="{{ route('privacy') }}">Privacy Policy</a>
+                <a href="{{ route('terms') }}">Terms of Service</a>
+                <a href="{{ route('disclaimer') }}">Disclaimer</a>
+            </div>
+            <p class="copyright">
+                &copy; {{ date('Y') }} Football Mystery. All rights reserved. Built for the love of the game.
+            </p>
+        </div>
     </footer>
 
     <script src="{{ asset('js/autocomplete.js') }}"></script>

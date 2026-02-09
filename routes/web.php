@@ -8,6 +8,7 @@ use App\Http\Controllers\CareerController;
 use App\Http\Controllers\KitDetectiveController;
 use App\Http\Controllers\TrophyHunterController;
 use App\Http\Controllers\SilhouetteController;
+use App\Http\Controllers\PageController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -51,3 +52,10 @@ Route::get('/videos/{video}/reveal', [BlackWhiteController::class, 'revealAnswer
 Route::get('/career/{challenge}/reveal', [CareerController::class, 'revealAnswer'])->name('career.reveal');
 Route::get('/kits/{challenge}/reveal', [KitDetectiveController::class, 'revealAnswer'])->name('kits.reveal');
 Route::get('/silhouettes/{challenge}/reveal', [SilhouetteController::class, 'revealAnswer'])->name('silhouettes.reveal');
+
+// Informational Pages
+Route::get('/about', [PageController::class, 'about'])->name('about');
+Route::get('/contact', [PageController::class, 'contact'])->name('contact');
+Route::get('/privacy', [PageController::class, 'privacy'])->name('privacy');
+Route::get('/terms', [PageController::class, 'terms'])->name('terms');
+Route::get('/disclaimer', [PageController::class, 'disclaimer'])->name('disclaimer');
