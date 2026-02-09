@@ -48,10 +48,12 @@ class SilhouetteChallengeResource extends Resource
 
                 Forms\Components\Section::make('Answer Details')
                     ->schema([
-                        Forms\Components\TextInput::make('player_name')
-                            ->required()
-                            ->maxLength(255)
-                            ->placeholder('e.g., Cristiano Ronaldo'),
+                        Forms\Components\Select::make('player_name')
+                            ->label('Player Name')
+                            ->searchable()
+                            ->getSearchResultsUsing(fn (string $search): array => \App\Models\Player::where('name', 'like', "%{$search}%")->limit(20)->pluck('name', 'name')->toArray())
+                            ->getOptionLabelUsing(fn ($value): ?string => $value)
+                            ->required(),
                         Forms\Components\Select::make('difficulty')
                             ->options([
                                 'easy' => 'Easy',

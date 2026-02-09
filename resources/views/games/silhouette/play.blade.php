@@ -35,15 +35,7 @@
                     <small>Look at the pose, the stance, the silhouette...</small>
                 </div>
 
-                <div class="answer-form">
-                    <div class="autocomplete-wrapper">
-                        <input type="text" id="answer-input" placeholder="Player name..." autocomplete="off">
-                        <div id="autocomplete-list" class="autocomplete-items"></div>
-                    </div>
-                    <button id="submit-btn" class="btn btn-primary">Guess</button>
-                    <button id="reveal-btn" class="btn btn-outline" style="border-color: #ef4444; color: #ef4444;">Reveal
-                        Answer</button>
-                </div>
+                <x-player-answer-form placeholder="Player name..." />
 
                 <div id="feedback" class="feedback"></div>
             </div>
@@ -213,25 +205,6 @@
                 display: block;
             }
 
-            .answer-form {
-                display: flex;
-                gap: 0.75rem;
-                flex-wrap: wrap;
-            }
-
-            .answer-form input {
-                flex: 1;
-                min-width: 200px;
-                padding: 1rem;
-                background: #0f0f23;
-                border: 1px solid #4a4a6a;
-                border-radius: 10px;
-                font-size: 1rem;
-                color: #fff;
-                font-family: inherit;
-                transition: var(--transition);
-            }
-
             .answer-form input:focus {
                 outline: none;
                 border-color: var(--stadium-green);
@@ -373,7 +346,8 @@
                 const feedback = document.getElementById('feedback');
                 feedback.classList.remove('error');
             });
-            document.getElementById('reveal-btn').addEventListener('click', revealAnswer);
+            document.getElementById('give-up-btn').addEventListener('click', revealAnswer);
+            document.getElementById('clear-btn').addEventListener('click', () => clearAutocomplete('answer-input', 'autocomplete-list'));
             document.getElementById('hint-btn').addEventListener('click', getHint);
 
             async function checkAnswer() {
@@ -401,7 +375,8 @@
 
                     if (data.correct) {
                         document.getElementById('submit-btn').disabled = true;
-                        document.getElementById('reveal-btn').disabled = true;
+                        document.getElementById('give-up-btn').disabled = true;
+                        document.getElementById('clear-btn').disabled = true;
                         document.getElementById('answer-input').disabled = true;
 
                         // Reveal full image if available
@@ -418,7 +393,7 @@
             }
 
             async function revealAnswer() {
-                if (!confirm('Are you sure you want to reveal the answer?')) return;
+                if (!confirm('Are you sure you want to Give Up and reveal the answer?')) return;
 
                 const response = await fetch(`/silhouettes/${challengeId}/reveal`);
                 const data = await response.json();
@@ -437,7 +412,8 @@
                 overlay.style.display = 'flex';
 
                 document.getElementById('submit-btn').disabled = true;
-                document.getElementById('reveal-btn').disabled = true;
+                document.getElementById('give-up-btn').disabled = true;
+                document.getElementById('clear-btn').disabled = true;
                 document.getElementById('answer-input').disabled = true;
                 highlightSuccess();
             }

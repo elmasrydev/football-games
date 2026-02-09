@@ -30,11 +30,12 @@ class CareerChallengeResource extends Resource
                 
                 Forms\Components\Section::make('Player Information')
                     ->schema([
-                        Forms\Components\TextInput::make('player_name')
+                        Forms\Components\Select::make('player_name')
                             ->label('Player Name (Answer)')
+                            ->searchable()
+                            ->getSearchResultsUsing(fn (string $search): array => \App\Models\Player::where('name', 'like', "%{$search}%")->limit(20)->pluck('name', 'name')->toArray())
+                            ->getOptionLabelUsing(fn ($value): ?string => $value)
                             ->required()
-                            ->maxLength(255)
-                            ->placeholder('e.g., Cristiano Ronaldo')
                             ->columnSpanFull(),
                         Forms\Components\FileUpload::make('player_image')
                             ->label('Player Image (Optional)')

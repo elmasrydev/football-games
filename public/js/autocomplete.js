@@ -49,8 +49,9 @@ function initAutocomplete(inputId, listId, searchUrl) {
                 b.addEventListener('click', function(e) {
                     answerInput.value = this.getElementsByTagName('input')[0].value;
                     closeAllLists();
-                    // Trigger enter key behavior if needed
-                    answerInput.dispatchEvent(new KeyboardEvent('keypress', { 'key': 'Enter' }));
+                    // Removed automatic Enter key provocation
+                    // focus the input back
+                    answerInput.focus();
                 });
                 
                 autocompleteList.appendChild(b);
@@ -86,4 +87,22 @@ function initAutocomplete(inputId, listId, searchUrl) {
     document.addEventListener('click', function (e) {
         closeAllLists(e.target);
     });
+}
+
+function clearAutocomplete(inputId, listId) {
+    const input = document.getElementById(inputId);
+    const list = document.getElementById(listId);
+    if (input) {
+        input.value = '';
+        input.focus();
+        // Hide feedback if any
+        const feedback = document.getElementById('feedback');
+        if (feedback) {
+            feedback.style.display = 'none';
+            feedback.className = 'feedback';
+        }
+    }
+    if (list) {
+        list.innerHTML = '';
+    }
 }

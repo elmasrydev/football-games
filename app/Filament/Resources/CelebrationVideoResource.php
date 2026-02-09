@@ -62,7 +62,11 @@ class CelebrationVideoResource extends Resource
                     ->required()
                     ->placeholder('e.g. Which player is known for this celebration?')
                     ->columnSpanFull(),
-                Forms\Components\TextInput::make('answer')
+                Forms\Components\Select::make('answer')
+                    ->label('Answer')
+                    ->searchable()
+                    ->getSearchResultsUsing(fn (string $search): array => \App\Models\Player::where('name', 'like', "%{$search}%")->limit(20)->pluck('name', 'name')->toArray())
+                    ->getOptionLabelUsing(fn ($value): ?string => $value)
                     ->required()
                     ->placeholder('e.g. Cristiano Ronaldo'),
                 Forms\Components\Toggle::make('is_active')

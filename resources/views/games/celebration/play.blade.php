@@ -30,15 +30,7 @@
                     <p>{{ $video->question }}</p>
                 </div>
 
-                <div class="answer-form">
-                    <div class="autocomplete-wrapper">
-                        <input type="text" id="answer-input" placeholder="Who is this player?" autocomplete="off">
-                        <div id="autocomplete-list" class="autocomplete-items"></div>
-                    </div>
-                    <button id="submit-btn" class="btn btn-primary">Check Answer</button>
-                    <button id="reveal-btn" class="btn btn-outline" style="border-color: #ef4444; color: #ef4444;">Reveal
-                        Answer</button>
-                </div>
+                <x-player-answer-form placeholder="Who is this player?" />
 
                 <div id="feedback" class="feedback"></div>
             </div>
@@ -134,23 +126,6 @@
                 font-weight: 700;
                 color: var(--pitch-dark);
                 line-height: 1.3;
-            }
-
-            .answer-form {
-                display: flex;
-                gap: 0.75rem;
-            }
-
-            .answer-form input {
-                flex: 1;
-                padding: 1rem;
-                background: #f8faf9;
-                border: 1px solid var(--glass-border);
-                border-radius: 10px;
-                font-size: 1rem;
-                color: var(--text-main);
-                font-family: inherit;
-                transition: var(--transition);
             }
 
             .answer-form input:focus {
@@ -288,10 +263,12 @@
             document.getElementById('answer-input').addEventListener('keypress', function (e) {
                 if (e.key === 'Enter') checkAnswer();
             });
-            document.getElementById('reveal-btn').addEventListener('click', revealAnswer);
+            document.getElementById('give-up-btn').addEventListener('click', revealAnswer);
+            document.getElementById('clear-btn').addEventListener('click', () => clearAutocomplete('answer-input', 'autocomplete-list'));
 
             document.getElementById('answer-input').addEventListener('input', function () {
                 const feedback = document.getElementById('feedback');
+                feedback.style.display = 'none';
                 feedback.classList.remove('error');
             });
 
@@ -372,7 +349,8 @@
 
                     if (data.correct) {
                         document.getElementById('submit-btn').disabled = true;
-                        document.getElementById('reveal-btn').disabled = true;
+                        document.getElementById('give-up-btn').disabled = true;
+                        document.getElementById('clear-btn').disabled = true;
                         document.getElementById('answer-input').disabled = true;
                         document.querySelector('.question-card').style.borderColor = '#27ae60';
                     }
@@ -382,7 +360,7 @@
             }
 
             async function revealAnswer() {
-                if (!confirm('Are you sure you want to reveal the answer?')) return;
+                if (!confirm('Are you sure you want to Give Up and reveal the answer?')) return;
 
                 try {
                     const response = await fetch(`/videos/${videoId}/reveal`);
@@ -394,7 +372,8 @@
                     document.getElementById('answer-input').value = data.answer;
 
                     document.getElementById('submit-btn').disabled = true;
-                    document.getElementById('reveal-btn').disabled = true;
+                    document.getElementById('give-up-btn').disabled = true;
+                    document.getElementById('clear-btn').disabled = true;
                     document.getElementById('answer-input').disabled = true;
                     document.querySelector('.question-card').style.borderColor = '#27ae60';
                 } catch (error) {

@@ -61,7 +61,11 @@ class BlackWhiteVideoResource extends Resource
                 Forms\Components\Textarea::make('question')
                     ->required()
                     ->columnSpanFull(),
-                Forms\Components\TextInput::make('answer')
+                Forms\Components\Select::make('answer')
+                    ->label('Answer')
+                    ->searchable()
+                    ->getSearchResultsUsing(fn (string $search): array => \App\Models\Player::where('name', 'like', "%{$search}%")->limit(20)->pluck('name', 'name')->toArray())
+                    ->getOptionLabelUsing(fn ($value): ?string => $value)
                     ->required(),
                 Forms\Components\Toggle::make('is_active')
                     ->label('Active')

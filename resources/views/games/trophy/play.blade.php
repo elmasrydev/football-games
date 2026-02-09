@@ -31,10 +31,7 @@
                     <small>(e.g., "Champions League 2005" or "World Cup 2010")</small>
                 </div>
 
-                <div class="answer-form">
-                    <input type="text" id="answer-input" placeholder="Competition & Year..." autocomplete="off">
-                    <button id="submit-btn" class="btn btn-primary">Check Answer</button>
-                </div>
+                <x-player-answer-form placeholder="Competition & Year..." />
 
                 <div id="feedback" class="feedback"></div>
             </div>
@@ -133,23 +130,6 @@
                 color: var(--text-dim);
                 display: block;
                 margin-top: 0.5rem;
-            }
-
-            .answer-form {
-                display: flex;
-                gap: 0.75rem;
-            }
-
-            .answer-form input {
-                flex: 1;
-                padding: 1rem;
-                background: #fffef5;
-                border: 1px solid #ffd700;
-                border-radius: 10px;
-                font-size: 1rem;
-                color: var(--text-main);
-                font-family: inherit;
-                transition: var(--transition);
             }
 
             .answer-form input:focus {
@@ -295,6 +275,8 @@
                 const feedback = document.getElementById('feedback');
                 feedback.classList.remove('error');
             });
+            document.getElementById('give-up-btn').addEventListener('click', revealAnswer);
+            document.getElementById('clear-btn').addEventListener('click', () => clearAutocomplete('answer-input', 'autocomplete-list'));
             document.getElementById('hint-btn').addEventListener('click', getHint);
 
             // YouTube IFrame API
@@ -370,6 +352,8 @@
 
                     if (data.correct) {
                         document.getElementById('submit-btn').disabled = true;
+                        document.getElementById('give-up-btn').disabled = true;
+                        document.getElementById('clear-btn').disabled = true;
                         document.getElementById('answer-input').disabled = true;
                         document.querySelector('.question-card').style.borderColor = '#ffd700';
                         document.querySelector('.question-card').style.boxShadow = '0 0 30px rgba(255, 215, 0, 0.5)';
@@ -377,6 +361,26 @@
                 } catch (error) {
                     console.error('Error checking answer:', error);
                 }
+            }
+
+            async function revealAnswer() {
+                if (!confirm('Are you sure you want to Give Up and reveal the answer?')) return;
+
+                const response = await fetch(`/trophies/${videoId}/reveal`);
+                const data = await response.json();
+
+                const feedback = document.getElementById('feedback');
+                feedback.innerText = `The answer was: ${data.answer}`;
+                feedback.className = 'feedback success';
+                document.getElementById('answer-input').value = data.answer;
+
+                document.getElementById('submit-btn').disabled = true;
+                document.getElementById('give-up-btn').disabled = true;
+                document.getElementById('clear-btn').disabled = true;
+                document.getElementById('answer-input').disabled = true;
+
+                document.querySelector('.question-card').style.borderColor = '#ffd700';
+                document.querySelector('.question-card').style.boxShadow = '0 0 30px rgba(255, 215, 0, 0.5)';
             }
 
             async function getHint() {
