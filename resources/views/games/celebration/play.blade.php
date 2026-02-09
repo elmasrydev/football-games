@@ -32,8 +32,13 @@
                 </div>
 
                 <div class="answer-form">
-                    <input type="text" id="answer-input" placeholder="Who is this player?" autocomplete="off">
+                    <div class="autocomplete-wrapper">
+                        <input type="text" id="answer-input" placeholder="Who is this player?" autocomplete="off">
+                        <div id="autocomplete-list" class="autocomplete-items"></div>
+                    </div>
                     <button id="submit-btn" class="btn btn-primary">Check Answer</button>
+                    <button id="reveal-btn" class="btn btn-outline" style="border-color: #ef4444; color: #ef4444;">Reveal
+                        Answer</button>
                 </div>
 
                 <div id="feedback" class="feedback"></div>
@@ -277,9 +282,18 @@
             const endTime = parseTime("{{ $video->end_time }}");
             const youtubeId = "{{ $video->youtube_id }}";
 
+            // Initialize autocomplete
+            initAutocomplete('answer-input', 'autocomplete-list', '{{ route('career.players.search') }}');
+
             document.getElementById('submit-btn').addEventListener('click', checkAnswer);
             document.getElementById('answer-input').addEventListener('keypress', function (e) {
                 if (e.key === 'Enter') checkAnswer();
+            });
+            document.getElementById('reveal-btn').addEventListener('click', revealAnswer);
+
+            document.getElementById('answer-input').addEventListener('input', function () {
+                const feedback = document.getElementById('feedback');
+                feedback.classList.remove('error');
             });
 
             document.getElementById('hint-btn').addEventListener('click', getHint);
@@ -359,11 +373,33 @@
 
                     if (data.correct) {
                         document.getElementById('submit-btn').disabled = true;
+                        document.getElementById('reveal-btn').disabled = true;
                         document.getElementById('answer-input').disabled = true;
                         document.querySelector('.question-card').style.borderColor = '#27ae60';
                     }
                 } catch (error) {
                     console.error('Error checking answer:', error);
+                }
+            }
+
+            async function revealAnswer() {
+                if (!confirm('Are you sure you want to reveal the answer?')) return;
+
+                try {
+                    const response = await fetch(`/videos/${videoId}/reveal`);
+                    const data = await response.json();
+
+                    const feedback = document.getElementById('feedback');
+                    feedback.innerText = `The answer was: ${data.answer}`;
+                    feedback.className = 'feedback success';
+                    document.getElementById('answer-input').value = data.answer;
+
+                    document.getElementById('submit-btn').disabled = true;
+                    document.getElementById('reveal-btn').disabled = true;
+                    document.getElementById('answer-input').disabled = true;
+                    document.querySelector('.question-card').style.borderColor = '#27ae60';
+                } catch (error) {
+                    console.error('Error revealing answer:', error);
                 }
             }
 

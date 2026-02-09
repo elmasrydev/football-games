@@ -357,6 +357,11 @@
             document.getElementById('answer-input').addEventListener('keypress', function (e) {
                 if (e.key === 'Enter') checkAnswer();
             });
+
+            document.getElementById('answer-input').addEventListener('input', function () {
+                const feedback = document.getElementById('feedback');
+                feedback.classList.remove('error');
+            });
             document.getElementById('reveal-btn').addEventListener('click', revealAnswer);
             document.getElementById('hint-btn').addEventListener('click', getHint);
 
