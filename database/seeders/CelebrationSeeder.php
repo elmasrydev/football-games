@@ -11,12 +11,12 @@ class CelebrationSeeder extends Seeder
 {
     public function run(): void
     {
-        $game = Game::where('slug', 'celebration-station')->first();
+        $game = Game::where('slug', 'highlight-moments')->first();
         
         if (!$game) {
             $game = Game::create([
-                'title' => 'Celebration Station',
-                'slug' => 'celebration-station',
+                'title' => 'Highlight Moments',
+                'slug' => 'highlight-moments',
                 'description' => 'Identify the football legend by their iconic goal celebration. No filters, just the moves.',
                 'image' => 'games/celebration-station.png',
             ]);
@@ -78,6 +78,6 @@ class CelebrationSeeder extends Seeder
         Hint::updateOrCreate(['video_id' => $mbappe->id, 'sort_order' => 1], ['content' => 'He scored a hat-trick in the 2022 World Cup final.']);
         Hint::updateOrCreate(['video_id' => $mbappe->id, 'sort_order' => 2], ['content' => 'He is the face of French football and played for PSG.']);
 
-        $this->command->info('✅ Celebration Station game and 4 iconic celebrations updated with valid links!');
+        $this->command->info('✅ Highlight Moments game and 4 iconic moments updated!');
     }
 }

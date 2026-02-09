@@ -15,9 +15,8 @@
             </div>
 
             <div class="controls">
-                <a href="{{ route('games.celebration.play') }}" class="btn btn-outline"
-                    title="Get another random celebration">
-                    <span>Try Another Celebration</span>
+                <a href="{{ route('games.celebration.play') }}" class="btn btn-outline" title="Get another random moment">
+                    <span>Try Another Moment</span>
                 </a>
             </div>
         </div>
@@ -25,7 +24,7 @@
         <div class="interaction-section">
             <div class="question-card">
                 <div class="question-header">
-                    <h3>Celebration Challenge</h3>
+                    <h3>Highlight Moment Challenge</h3>
                 </div>
                 <div class="question-body">
                     <p>{{ $video->question }}</p>
@@ -432,7 +431,7 @@
             }
 
             if (!window.location.pathname.endsWith('/' + videoId)) {
-                const shareableUrl = `/games/celebration-station/${videoId}`;
+                const shareableUrl = `/games/highlight-moments/${videoId}`;
                 window.history.replaceState({ path: shareableUrl }, '', shareableUrl);
             }
         </script>

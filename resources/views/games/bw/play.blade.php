@@ -269,7 +269,7 @@
             const shownHints = [];
 
             // Conditionally initialize global autocomplete for player-centric games
-            const playerCentricGames = ['celebration-station', 'trophy-hunter', 'black-and-white'];
+            const playerCentricGames = ['celebration-station', 'highlight-moments', 'trophy-hunter', 'black-and-white'];
             if (playerCentricGames.includes('{{ $game->slug }}')) {
                 initAutocomplete('answer-input', 'autocomplete-list', '{{ route('career.players.search') }}');
             }

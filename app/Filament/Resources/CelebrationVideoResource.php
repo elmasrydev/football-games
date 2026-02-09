@@ -20,16 +20,16 @@ class CelebrationVideoResource extends Resource
 
     protected static ?string $navigationGroup = 'Games';
 
-    protected static ?string $navigationLabel = 'Celebrations';
+    protected static ?string $navigationLabel = 'Highlight Moments';
 
-    protected static ?string $modelLabel = 'Celebration';
+    protected static ?string $modelLabel = 'Highlight Moment';
 
-    protected static ?string $slug = 'celebration-videos';
+    protected static ?string $slug = 'highlight-moments-videos';
 
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->whereHas('game', fn ($q) => $q->where('slug', 'celebration-station'));
+            ->whereHas('game', fn ($q) => $q->where('slug', 'highlight-moments'));
     }
 
     public static function form(Form $form): Form
@@ -37,7 +37,7 @@ class CelebrationVideoResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Hidden::make('game_id')
-                    ->default(fn () => Game::where('slug', 'celebration-station')->first()?->id),
+                    ->default(fn () => Game::where('slug', 'highlight-moments')->first()?->id),
                 Forms\Components\TextInput::make('youtube_url')
                     ->live(onBlur: true),
                 Forms\Components\FileUpload::make('uploaded_video')

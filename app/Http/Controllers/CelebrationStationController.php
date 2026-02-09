@@ -10,7 +10,7 @@ class CelebrationStationController extends Controller
 {
     public function play(?int $videoId = null)
     {
-        $game = Game::where('slug', 'celebration-station')->where('is_active', true)->firstOrFail();
+        $game = Game::where('slug', 'highlight-moments')->where('is_active', true)->firstOrFail();
 
         $video = $videoId
             ? Video::where('game_id', $game->id)->where('is_active', true)->findOrFail($videoId)

@@ -16,7 +16,7 @@
                             'kit-detective' => route('games.kit.play'),
                             'trophy-hunter' => route('games.trophy.play'),
                             'guess-silhouette' => route('games.silhouette.play'),
-                            'celebration-station' => route('games.celebration.play'),
+                            'highlight-moments' => route('games.celebration.play'),
                             'black-and-white' => route('games.bw.play', ['game' => 'black-and-white']),
                             default => $game->slug ? route('games.bw.play', ['game' => $game->slug]) : '#',
                         };

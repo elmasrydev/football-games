@@ -39,8 +39,8 @@ Route::get('/games/guess-silhouette/{challenge?}', [SilhouetteController::class,
 Route::post('/silhouettes/{challenge}/check', [SilhouetteController::class, 'checkAnswer'])->name('silhouettes.check');
 Route::post('/silhouettes/{challenge}/hint', [SilhouetteController::class, 'getHint'])->name('silhouettes.hint');
 
-// Celebration Station Game Routes
-Route::get('/games/celebration-station/{video?}', [CelebrationStationController::class, 'play'])->name('games.celebration.play');
+// Highlight Moments Game Routes
+Route::get('/games/highlight-moments/{video?}', [CelebrationStationController::class, 'play'])->name('games.celebration.play');
 
 // Black & White Game Routes (wildcard catches all other games)
 Route::get('/games/{game}/{video?}', [BlackWhiteController::class, 'play'])->name('games.bw.play');
