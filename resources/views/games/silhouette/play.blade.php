@@ -349,7 +349,8 @@
 
             document.getElementById('answer-input').addEventListener('input', function () {
                 const feedback = document.getElementById('feedback');
-                feedback.classList.remove('error');
+                feedback.className = 'feedback';
+                feedback.innerText = '';
             });
             document.getElementById('give-up-btn').addEventListener('click', revealAnswer);
             document.getElementById('clear-btn').addEventListener('click', () => clearAutocomplete('answer-input', 'autocomplete-list'));

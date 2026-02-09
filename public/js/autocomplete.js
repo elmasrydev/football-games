@@ -111,9 +111,9 @@ function clearAutocomplete(inputId, listId) {
         // Reset feedback
         const feedback = document.getElementById('feedback');
         if (feedback) {
-            feedback.style.display = 'none';
             feedback.innerText = '';
             feedback.className = 'feedback';
+            feedback.style.display = ''; // Remove inline display: none/block to allow CSS classes to work
         }
 
         // Reset card borders if any

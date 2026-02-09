@@ -273,8 +273,9 @@
 
             document.getElementById('answer-input').addEventListener('input', function () {
                 const feedback = document.getElementById('feedback');
-                feedback.style.display = 'none';
-                feedback.classList.remove('error');
+                feedback.className = 'feedback';
+                feedback.innerText = '';
+                feedback.style.display = '';
             });
 
             document.getElementById('hint-btn').addEventListener('click', () => {
