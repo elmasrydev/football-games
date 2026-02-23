@@ -21,7 +21,9 @@ class ClubSeeder extends Seeder
         }
 
         $this->command->info("Truncating clubs table...");
+        \Illuminate\Support\Facades\Schema::disableForeignKeyConstraints();
         Club::truncate();
+        \Illuminate\Support\Facades\Schema::enableForeignKeyConstraints();
 
         $this->command->info("Importing club data from local CSV...");
         
