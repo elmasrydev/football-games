@@ -22,38 +22,28 @@ class ClubResource extends Resource
     {
         return $form
             ->schema([
+                Forms\Components\TextInput::make('club_id')
+                    ->required()
+                    ->numeric()
+                    ->disabled(fn ($record) => $record !== null),
                 Forms\Components\TextInput::make('name')
                     ->required()
-                    ->maxLength(255)
-                    ->columnSpanFull(),
-                Forms\Components\TextInput::make('logo_url')
-                    ->label('Logo URL')
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('domestic_competition_id')
+                    ->label('Competition ID (League)')
+                    ->maxLength(50),
+                Forms\Components\TextInput::make('coach_name')
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('stadium_name')
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('stadium_seats')
+                    ->numeric(),
+                Forms\Components\TextInput::make('total_market_value')
+                    ->maxLength(100),
+                Forms\Components\TextInput::make('url')
                     ->url()
                     ->maxLength(500)
-                    ->placeholder('https://example.com/logo.svg')
                     ->columnSpanFull(),
-                Forms\Components\TextInput::make('country')
-                    ->required()
-                    ->maxLength(100),
-                Forms\Components\Select::make('league')
-                    ->options([
-                        'Premier League' => 'Premier League (England)',
-                        'La Liga' => 'La Liga (Spain)',
-                        'Bundesliga' => 'Bundesliga (Germany)',
-                        'Serie A' => 'Serie A (Italy)',
-                        'Ligue 1' => 'Ligue 1 (France)',
-                        'Primeira Liga' => 'Primeira Liga (Portugal)',
-                        'Eredivisie' => 'Eredivisie (Netherlands)',
-                        'Saudi Pro League' => 'Saudi Pro League',
-                        'MLS' => 'MLS (USA)',
-                        'Scottish Premiership' => 'Scottish Premiership',
-                        'Super Lig' => 'Super Lig (Turkey)',
-                        'Brasileirao' => 'Brasileirao (Brazil)',
-                        'Primera Division' => 'Primera Division (Argentina)',
-                        'Other' => 'Other',
-                    ])
-                    ->searchable()
-                    ->required(),
             ]);
     }
 
@@ -61,27 +51,20 @@ class ClubResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('logo_url')
-                    ->label('Logo')
-                    ->circular()
-                    ->size(40),
+                Tables\Columns\TextColumn::make('club_id')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('country')
+                Tables\Columns\TextColumn::make('domestic_competition_id')
+                    ->label('League')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('league')
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'Premier League' => 'danger',
-                        'La Liga' => 'warning',
-                        'Bundesliga' => 'success',
-                        'Serie A' => 'info',
-                        'Ligue 1' => 'primary',
-                        default => 'gray',
-                    })
-                    ->searchable()
+                Tables\Columns\TextColumn::make('coach_name')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('stadium_name')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('total_market_value')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -89,20 +72,9 @@ class ClubResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('league')
-                    ->options([
-                        'Premier League' => 'Premier League',
-                        'La Liga' => 'La Liga',
-                        'Bundesliga' => 'Bundesliga',
-                        'Serie A' => 'Serie A',
-                        'Ligue 1' => 'Ligue 1',
-                        'Saudi Pro League' => 'Saudi Pro League',
-                        'Primeira Liga' => 'Primeira Liga',
-                        'Eredivisie' => 'Eredivisie',
-                        'MLS' => 'MLS',
-                    ]),
-                Tables\Filters\SelectFilter::make('country')
-                    ->options(fn () => Club::distinct()->pluck('country', 'country')->toArray()),
+                Tables\Filters\SelectFilter::make('domestic_competition_id')
+                    ->label('League')
+                    ->options(fn () => Club::distinct()->whereNotNull('domestic_competition_id')->pluck('domestic_competition_id', 'domestic_competition_id')->toArray()),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
