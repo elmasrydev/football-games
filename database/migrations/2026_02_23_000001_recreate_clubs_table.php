@@ -12,19 +12,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Drop foreign key in career_clubs first
-        if (Schema::hasTable('career_clubs')) {
-            Schema::table('career_clubs', function (Blueprint $table) {
-                try {
-                    $table->dropForeign(['club_id']);
-                } catch (\Exception $e) {
-                }
-            });
-        }
-
+        // Disable foreign key constraints for the entire process
         Schema::disableForeignKeyConstraints();
+
+        // Drop existing table
         Schema::dropIfExists('clubs');
-        Schema::enableForeignKeyConstraints();
 
         Schema::create('clubs', function (Blueprint $table) {
             $table->unsignedBigInteger('club_id')->primary();
@@ -47,14 +39,13 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // Truncate career_clubs before re-adding foreign key because IDs will change
+        // Truncate career_clubs to ensure data consistency with new club IDs
         if (Schema::hasTable('career_clubs')) {
             DB::table('career_clubs')->truncate();
-            
-            Schema::table('career_clubs', function (Blueprint $table) {
-                $table->foreign('club_id')->references('club_id')->on('clubs')->onDelete('cascade');
-            });
         }
+
+        // Re-enable constraints
+        Schema::enableForeignKeyConstraints();
     }
 
     /**
@@ -62,12 +53,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('career_clubs', function (Blueprint $table) {
-            try {
-                $table->dropForeign(['club_id']);
-            } catch (\Exception $e) {}
-        });
-        
         Schema::dropIfExists('clubs');
     }
 };
