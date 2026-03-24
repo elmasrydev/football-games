@@ -16,7 +16,7 @@
 
             <div class="answer-slots" id="answer-slots">
                 @foreach(range(1, $challenge->players_count) as $i)
-                    <div class="player-slot" data-order="{{ $i-1 }}" id="slot-{{ $i-1 }}">
+                    <div class="player-slot" data-order="{{ $i }}" id="slot-{{ $i }}">
                         <div class="slot-number">{{ $i }}</div>
                         <div class="slot-content">?</div>
                     </div>
