@@ -8,6 +8,7 @@ use App\Http\Controllers\CareerController;
 use App\Http\Controllers\KitDetectiveController;
 use App\Http\Controllers\TrophyHunterController;
 use App\Http\Controllers\SilhouetteController;
+use App\Http\Controllers\GroupChallengeController;
 use App\Http\Controllers\PageController;
 use Illuminate\Support\Facades\Route;
 
@@ -42,6 +43,13 @@ Route::post('/silhouettes/{challenge}/hint', [SilhouetteController::class, 'getH
 
 // Highlight Moments Game Routes
 Route::get('/games/highlight-moments/{video?}', [CelebrationStationController::class, 'play'])->name('games.celebration.play');
+
+// Group Players Game Routes
+Route::get('/games/group-players/{challenge?}', [GroupChallengeController::class, 'play'])->name('games.group.play');
+Route::post('/group/{challenge}/check', [GroupChallengeController::class, 'checkAnswer'])->name('group.check');
+Route::post('/group/{challenge}/hint', [GroupChallengeController::class, 'getHint'])->name('group.hint');
+Route::get('/group/{challenge}/reveal', [GroupChallengeController::class, 'revealAnswer'])->name('group.reveal');
+Route::get('/group/players/search', [GroupChallengeController::class, 'searchPlayers'])->name('group.players.search');
 
 // Black & White Game Routes (wildcard catches all other games)
 Route::get('/games/{game}/{video?}', [BlackWhiteController::class, 'play'])->name('games.bw.play');
