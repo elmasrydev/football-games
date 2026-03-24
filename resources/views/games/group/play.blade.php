@@ -180,6 +180,11 @@
             @media (max-width: 900px) {
                 .interaction-section { grid-template-columns: 1fr; }
             }
+
+            @keyframes popIn {
+                0% { transform: scale(0.9); opacity: 0; }
+                100% { transform: scale(1.05); opacity: 1; }
+            }
         </style>
     @endpush
 
@@ -281,12 +286,7 @@
                 document.getElementById('hint-btn').disabled = true;
                 
                 // Celebrate!
-                confetti(); // Assuming confetti is available in the layout or we add it
-            }
-
-            @keyframes popIn {
-                0% { transform: scale(0.9); opacity: 0; }
-                100% { transform: scale(1.05); opacity: 1; }
+                if (typeof confetti === 'function') confetti();
             }
         </script>
     @endpush

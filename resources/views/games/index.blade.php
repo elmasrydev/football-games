@@ -17,6 +17,7 @@
                             'trophy-hunter' => route('games.trophy.play'),
                             'guess-silhouette' => route('games.silhouette.play'),
                             'highlight-moments' => route('games.celebration.play'),
+                            'group-players' => route('games.group.play'),
                             'black-and-white' => route('games.bw.play', ['game' => 'black-and-white']),
                             default => $game->slug ? route('games.bw.play', ['game' => $game->slug]) : '#',
                         };
