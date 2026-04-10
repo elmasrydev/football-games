@@ -13,7 +13,6 @@ class KitChallenge extends Model
         'image_path',
         'full_image_path',
         'team_name',
-        'kit_year',
         'difficulty',
         'is_active',
     ];

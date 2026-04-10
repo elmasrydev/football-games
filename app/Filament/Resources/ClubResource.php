@@ -29,6 +29,10 @@ class ClubResource extends Resource
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
+                Forms\Components\FileUpload::make('logo')
+                    ->image()
+                    ->directory('club-logos')
+                    ->disk('public'),
                 Forms\Components\TextInput::make('domestic_competition_id')
                     ->label('Competition ID (League)')
                     ->maxLength(50),
@@ -56,6 +60,8 @@ class ClubResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\ImageColumn::make('logo')
+                    ->disk('public'),
                 Tables\Columns\TextColumn::make('domestic_competition_id')
                     ->label('League')
                     ->searchable()

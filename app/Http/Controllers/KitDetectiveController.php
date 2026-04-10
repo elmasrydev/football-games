@@ -32,27 +32,18 @@ class KitDetectiveController extends Controller
         $userAnswer = strtolower(trim($request->answer));
         
         $correctTeam = strtolower($challenge->team_name);
-        $correctYear = strtolower($challenge->kit_year);
         
-        // Check if the answer contains both the team and the year or just is very close
-        $hasTeam = str_contains($userAnswer, $correctTeam) || (levenshtein($userAnswer, $correctTeam) <= 2);
-        
-        // For the year, we want more precision
-        $hasYear = str_contains($userAnswer, $correctYear);
+        // Check if the answer is the team name or very close
+        $correct = str_contains($userAnswer, $correctTeam) || (levenshtein($userAnswer, $correctTeam) <= 2);
 
-        $correct = $hasTeam && $hasYear;
-
-        // Fallback: if they just got the team exactly right but didn't provide the year, we can give partial success or ask for year
-        // But for simplicity, let's say they need both or a very good match for the full string
-        $fullAnswer = strtolower($challenge->team_name . ' ' . $challenge->kit_year);
         if (!$correct) {
-             $correct = $userAnswer === $fullAnswer || (levenshtein($userAnswer, $fullAnswer) <= 3);
+             $correct = $userAnswer === $correctTeam || (levenshtein($userAnswer, $correctTeam) <= 3);
         }
 
         return response()->json([
             'correct' => $correct,
             'message' => $correct
-                ? "Correct! That's the {$challenge->team_name} {$challenge->kit_year} kit!"
+                ? "Correct! That's the {$challenge->team_name} kit!"
                 : "Wrong answer. Try again!",
             'full_image' => $correct ? asset('storage/' . $challenge->full_image_path) : null
         ]);
@@ -62,7 +53,7 @@ class KitDetectiveController extends Controller
     {
         $challenge = KitChallenge::findOrFail($challengeId);
         return response()->json([
-            'answer' => $challenge->team_name . ' ' . $challenge->kit_year,
+            'answer' => $challenge->team_name,
             'full_image' => asset('storage/' . $challenge->full_image_path)
         ]);
     }

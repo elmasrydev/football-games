@@ -65,9 +65,26 @@ class CareerChallengeResource extends Resource
                             ->schema([
                                 Forms\Components\Select::make('club_id')
                                     ->label('Club')
-                                    ->options(Club::all()->pluck('name', 'id'))
+                                    ->options(Club::all()->pluck('name', 'club_id'))
                                     ->searchable()
                                     ->preload()
+                                    ->createOptionForm([
+                                        Forms\Components\TextInput::make('club_id')
+                                            ->label('Club ID (Unique Number)')
+                                            ->required()
+                                            ->numeric()
+                                            ->unique('clubs', 'club_id'),
+                                        Forms\Components\TextInput::make('name')
+                                            ->required()
+                                            ->maxLength(255),
+                                        Forms\Components\FileUpload::make('logo')
+                                            ->image()
+                                            ->directory('club-logos')
+                                            ->disk('public'),
+                                    ])
+                                    ->createOptionUsing(function (array $data): int {
+                                        return Club::create($data)->club_id;
+                                    })
                                     ->required()
                                     ->columnSpan(2),
                                 Forms\Components\TextInput::make('join_year')

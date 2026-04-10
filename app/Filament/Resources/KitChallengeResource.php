@@ -48,10 +48,6 @@ class KitChallengeResource extends Resource
                             ->required()
                             ->maxLength(255)
                             ->placeholder('e.g., Real Madrid'),
-                        Forms\Components\TextInput::make('kit_year')
-                            ->required()
-                            ->maxLength(255)
-                            ->placeholder('e.g., 2011-12'),
                         Forms\Components\Select::make('difficulty')
                             ->options([
                                 'easy' => 'Easy',
@@ -93,8 +89,6 @@ class KitChallengeResource extends Resource
                 Tables\Columns\TextColumn::make('team_name')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('kit_year')
-                    ->searchable(),
                 Tables\Columns\TextColumn::make('difficulty')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {

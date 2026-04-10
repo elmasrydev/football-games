@@ -14,6 +14,7 @@ class Club extends Model
         'club_id',
         'club_code',
         'name',
+        'logo',
         'domestic_competition_id',
         'total_market_value',
         'squad_size',
