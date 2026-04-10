@@ -88,7 +88,16 @@ class CareerController extends Controller
             return response()->json([]);
         }
 
-        $players = \App\Models\Player::where('name', 'LIKE', "%{$query}%")
+        $players = \App\Models\Player::where(function($q) use ($query) {
+                $q->where('name', 'LIKE', "{$query}%")
+                  ->orWhere('name', 'LIKE', "% {$query}%");
+            })
+            ->orderByRaw("
+                CASE 
+                    WHEN name = ? THEN 1
+                    WHEN name LIKE ? THEN 2
+                    ELSE 3
+                END", [$query, "{$query}%"])
             ->limit(10)
             ->distinct()
             ->pluck('name');

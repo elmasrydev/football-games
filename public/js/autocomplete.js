@@ -43,7 +43,18 @@ function initAutocomplete(inputId, listId, searchUrl) {
             suggestions.forEach(name => {
                 const b = document.createElement('div');
                 b.className = 'autocomplete-item';
-                b.innerHTML = `<strong>${name.substr(0, val.length)}</strong>${name.substr(val.length)}`;
+                
+                // Highlight the matching part
+                const matchIndex = name.toLowerCase().indexOf(val.toLowerCase());
+                if (matchIndex !== -1) {
+                    const before = name.substr(0, matchIndex);
+                    const match = name.substr(matchIndex, val.length);
+                    const after = name.substr(matchIndex + val.length);
+                    b.innerHTML = `${before}<strong>${match}</strong>${after}`;
+                } else {
+                    b.innerHTML = name;
+                }
+                
                 b.innerHTML += `<input type='hidden' value="${name.replace('"', '&quot;')}">`;
                 
                 b.addEventListener('click', function(e) {
