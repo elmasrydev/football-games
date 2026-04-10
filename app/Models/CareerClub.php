@@ -21,6 +21,6 @@ class CareerClub extends Model
 
     public function club(): BelongsTo
     {
-        return $this->belongsTo(Club::class);
+        return $this->belongsTo(Club::class, 'club_id', 'club_id');
     }
 }

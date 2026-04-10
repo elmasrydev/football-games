@@ -42,8 +42,8 @@ class CareerChallenge extends Model
     {
         return $this->careerClubs->map(function ($careerClub) {
             return [
-                'club' => $careerClub->club->name,
-                'logo' => $careerClub->club->logo_url,
+                'club' => optional($careerClub->club)->name ?? 'Unknown',
+                'logo' => optional($careerClub->club)->logo_url,
                 'year' => $careerClub->join_year,
             ];
         })->toArray();
@@ -61,7 +61,8 @@ class CareerChallenge extends Model
         }
 
         return $clubs->map(function ($careerClub) {
-            return $careerClub->club->name . ' (' . $careerClub->join_year . ')';
+            $name = optional($careerClub->club)->name ?? 'Unknown';
+            return $name . ' (' . $careerClub->join_year . ')';
         })->join(' → ');
     }
 }

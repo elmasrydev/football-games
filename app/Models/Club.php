@@ -33,6 +33,20 @@ class Club extends Model
 
     public function careerClubs(): HasMany
     {
-        return $this->hasMany(CareerClub::class);
+        return $this->hasMany(CareerClub::class, 'club_id', 'club_id');
+    }
+
+    public function getLogoUrlAttribute(): ?string
+    {
+        // "Normal data" club logo (external URL based on club_id)
+        $normalLogo = "https://images.transfermarkt.at/images/logo/norm/{$this->club_id}.png";
+
+        // Fallback to admin uploaded logo if normal data is not what we want
+        // or if we want to prioritize it (user said first try normal then fallback to admin)
+        if ($this->logo) {
+            return asset('storage/' . $this->logo);
+        }
+
+        return $normalLogo;
     }
 }

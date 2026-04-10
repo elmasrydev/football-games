@@ -17,11 +17,15 @@
                     @endif
                     <div class="club-item">
                         <div class="club-logo-container">
-                            <img src="{{ $careerClub->club->logo_url ?: 'https://placehold.co/60x60/f8fafc/6366f1?text=' . urlencode(substr($careerClub->club->name, 0, 1)) }}"
-                                alt="{{ $careerClub->club->name }}" class="club-logo"
-                                onerror="this.onerror=null; this.src='https://placehold.co/60x60/f8fafc/6366f1?text=' + encodeURIComponent(this.alt.substring(0, 1));">
+                            @if($careerClub->club)
+                                <img src="{{ $careerClub->club->logo_url ?: 'https://placehold.co/60x60/f8fafc/6366f1?text=' . urlencode(substr($careerClub->club->name, 0, 1)) }}"
+                                    alt="{{ $careerClub->club->name }}" class="club-logo"
+                                    onerror="this.onerror=null; this.src='https://placehold.co/60x60/f8fafc/6366f1?text=' + encodeURIComponent(this.alt.substring(0, 1));">
+                            @else
+                                <div class="club-logo-placeholder">?</div>
+                            @endif
                         </div>
-                        <div class="club-name" title="{{ $careerClub->club->name }}">{{ $careerClub->club->name }}</div>
+                        <div class="club-name" title="{{ optional($careerClub->club)->name ?? 'Unknown' }}">{{ optional($careerClub->club)->name ?? 'Unknown' }}</div>
                         <div class="club-year">{{ $careerClub->join_year }}</div>
                     </div>
                 @endforeach
