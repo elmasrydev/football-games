@@ -351,6 +351,23 @@
         </div>
     </header>
 
+    <div class="stats-bar">
+        <x-game-stats />
+    </div>
+
+    <style>
+        .stats-bar {
+            background: white;
+            border-bottom: 1px solid var(--glass-border);
+            padding: 0.5rem 0;
+            display: flex;
+            justify-content: center;
+        }
+        .stats-bar .game-stats-hud {
+            margin-bottom: 0 !important;
+        }
+    </style>
+
     <main>
         @yield('content')
     </main>

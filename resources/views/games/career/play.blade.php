@@ -443,6 +443,8 @@
                 feedback.innerText = data.message;
                 feedback.className = 'feedback ' + (data.correct ? 'success' : 'error');
 
+                if (window.updateHUD) window.updateHUD(data.stats);
+
                 if (data.correct) {
                     document.getElementById('submit-btn').disabled = true;
                     document.getElementById('give-up-btn').disabled = true;

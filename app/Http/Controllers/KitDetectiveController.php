@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Game;
 use App\Models\KitChallenge;
 use Illuminate\Http\Request;
+use App\Traits\TracksGameStats;
 
 class KitDetectiveController extends Controller
 {
+    use TracksGameStats;
     public function play(?int $challengeId = null)
     {
         $game = Game::where('slug', 'kit-detective')->where('is_active', true)->firstOrFail();
@@ -40,12 +42,15 @@ class KitDetectiveController extends Controller
              $correct = $userAnswer === $correctTeam || (levenshtein($userAnswer, $correctTeam) <= 3);
         }
 
+        $stats = $this->updateStats($correct, $challengeId, 'kit');
+
         return response()->json([
             'correct' => $correct,
             'message' => $correct
                 ? "Correct! That's the {$challenge->team_name} kit!"
                 : "Wrong answer. Try again!",
-            'full_image' => $correct ? asset('storage/' . $challenge->full_image_path) : null
+            'full_image' => $correct ? asset('storage/' . $challenge->full_image_path) : null,
+            'stats' => $stats
         ]);
     }
 

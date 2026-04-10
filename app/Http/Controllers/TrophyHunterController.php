@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Game;
 use App\Models\Video;
 use Illuminate\Http\Request;
+use App\Traits\TracksGameStats;
 
 class TrophyHunterController extends Controller
 {
+    use TracksGameStats;
     public function play(?int $videoId = null)
     {
         $game = Game::where('slug', 'trophy-hunter')->where('is_active', true)->firstOrFail();
@@ -72,11 +74,14 @@ class TrophyHunterController extends Controller
                    str_contains($normalizedUser, $normalizedCorrect) ||
                    (levenshtein($normalizedUser, $normalizedCorrect) <= 3);
 
+        $stats = $this->updateStats($correct, $videoId, 'trophy');
+
         return response()->json([
             'correct' => $correct,
             'message' => $correct
                 ? "Correct! That's the {$video->answer}!"
                 : "Not quite right. Try again!",
+            'stats' => $stats
         ]);
     }
 

@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Game;
 use App\Models\Video;
 use Illuminate\Http\Request;
+use App\Traits\TracksGameStats;
 
 class BlackWhiteController extends Controller
 {
+    use TracksGameStats;
     public function play(Game $game, $video = null)
     {
         if (!$game->is_active) {
@@ -34,10 +36,12 @@ class BlackWhiteController extends Controller
         ]);
 
         $isCorrect = strtolower(trim($request->answer)) === strtolower(trim($video->answer));
+        $stats = $this->updateStats($isCorrect, $video->id, 'bw');
 
         return response()->json([
             'correct' => $isCorrect,
             'message' => $isCorrect ? 'Correct! Well done.' : 'Wrong answer. Try again!',
+            'stats' => $stats
         ]);
     }
 

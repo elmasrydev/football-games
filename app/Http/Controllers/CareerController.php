@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Game;
 use App\Models\CareerChallenge;
 use Illuminate\Http\Request;
+use App\Traits\TracksGameStats;
 
 class CareerController extends Controller
 {
+    use TracksGameStats;
     public function play(?int $challengeId = null)
     {
         $game = Game::where('slug', 'career')->where('is_active', true)->firstOrFail();
@@ -38,11 +40,14 @@ class CareerController extends Controller
                    (function_exists('levenshtein') &&
                     levenshtein($userAnswer, $correctAnswer) <= 3);
 
+        $stats = $this->updateStats($correct, $challengeId, 'career');
+
         return response()->json([
             'correct' => $correct,
             'message' => $correct
                 ? "Correct! Well done!"
                 : "Wrong answer. Try again!",
+            'stats' => $stats
         ]);
     }
 

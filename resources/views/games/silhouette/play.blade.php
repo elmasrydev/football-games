@@ -377,6 +377,8 @@
                     });
 
                     const data = await response.json();
+                    
+                    if (window.updateHUD) window.updateHUD(data.stats);
 
                     feedback.innerText = data.message;
                     feedback.className = 'feedback ' + (data.correct ? 'success' : 'error');

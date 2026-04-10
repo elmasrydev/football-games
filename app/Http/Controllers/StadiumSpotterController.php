@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Game;
 use App\Models\StadiumChallenge;
 use Illuminate\Http\Request;
+use App\Traits\TracksGameStats;
 
 class StadiumSpotterController extends Controller
 {
+    use TracksGameStats;
     public function play(?int $stadium = null)
     {
         $game = Game::where('slug', 'stadium-spotter')->where('is_active', true)->firstOrFail();
@@ -38,11 +40,14 @@ class StadiumSpotterController extends Controller
                    (function_exists('levenshtein') &&
                     levenshtein($userAnswer, $correctAnswer) <= 2);
 
+        $stats = $this->updateStats($correct, $stadiumId, 'stadium');
+
         return response()->json([
             'correct' => $correct,
             'message' => $correct
                 ? "Correct! Well done!"
                 : "Not quite. Try again!",
+            'stats' => $stats
         ]);
     }
 

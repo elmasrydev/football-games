@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Game;
 use App\Models\SilhouetteChallenge;
 use Illuminate\Http\Request;
+use App\Traits\TracksGameStats;
 
 class SilhouetteController extends Controller
 {
+    use TracksGameStats;
     public function play(?int $challengeId = null)
     {
         $game = Game::where('slug', 'guess-silhouette')->where('is_active', true)->firstOrFail();
@@ -38,6 +40,8 @@ class SilhouetteController extends Controller
                    str_contains($userAnswer, $correctAnswer) ||
                    (levenshtein($userAnswer, $correctAnswer) <= 2);
 
+        $stats = $this->updateStats($correct, $challengeId, 'silhouette');
+
         return response()->json([
             'correct' => $correct,
             'message' => $correct
@@ -46,6 +50,7 @@ class SilhouetteController extends Controller
             'reveal_image' => $correct && $challenge->reveal_image_path
                 ? asset('storage/' . $challenge->reveal_image_path)
                 : null,
+            'stats' => $stats
         ]);
     }
 

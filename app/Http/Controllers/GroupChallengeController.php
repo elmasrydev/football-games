@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Game;
 use App\Models\GroupChallenge;
 use Illuminate\Http\Request;
+use App\Traits\TracksGameStats;
 
 class GroupChallengeController extends Controller
 {
+    use TracksGameStats;
     public function play(?int $challengeId = null)
     {
         $game = Game::where('slug', 'group-players')->where('is_active', true)->firstOrFail();
@@ -53,18 +55,23 @@ class GroupChallengeController extends Controller
                        (function_exists('levenshtein') && levenshtein($userAnswer, $correctAnswer) <= 2);
             });
 
+        $isCorrect = (bool)$matchingPlayer;
+        $stats = $this->updateStats($isCorrect, $challengeId, 'group');
+
         if ($matchingPlayer) {
             return response()->json([
                 'correct' => true,
                 'player_name' => $matchingPlayer->player_name,
                 'sort_order' => $matchingPlayer->sort_order,
                 'message' => "Correct! That's {$matchingPlayer->player_name}!",
+                'stats' => $stats
             ]);
         }
 
         return response()->json([
             'correct' => false,
             'message' => "Wrong answer or already revealed. Try again!",
+            'stats' => $stats
         ]);
     }
 
