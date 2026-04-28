@@ -20,7 +20,7 @@
 
     <x-player-answer-form 
         :placeholder="'Your answer here...'" 
-        :answerType="(!empty($challenge->answer_type)) ? $challenge->answer_type : ((!empty($game->answer_type)) ? $game->answer_type : 'player')" 
+        :answerType="$challenge->autocomplete_type ?? $challenge->answer_type ?? $game->answer_type ?? 'player'" 
     />
 
     <div id="feedback" class="feedback"></div>

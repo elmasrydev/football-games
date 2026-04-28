@@ -2,11 +2,29 @@
 
 @section('content')
     <div class="container play-container">
+        {{-- Genre Switcher --}}
+        @if($genres->count() > 1)
+            <div class="genre-switcher">
+                <a href="{{ route('games.play', ['slug' => $game->slug]) }}" 
+                   class="genre-tab {{ !$selectedGenre ? 'active' : '' }}">
+                    <span class="genre-icon">✨</span>
+                    <span class="genre-name">All</span>
+                </a>
+                @foreach($genres as $genre)
+                    <a href="{{ route('games.play', ['slug' => $game->slug, 'genre' => $genre->slug]) }}" 
+                       class="genre-tab {{ $selectedGenre && $selectedGenre->id === $genre->id ? 'active' : '' }}">
+                        <span class="genre-icon">{{ $genre->icon }}</span>
+                        <span class="genre-name">{{ $genre->name_en }}</span>
+                    </a>
+                @endforeach
+            </div>
+        @endif
+
         {{-- Navigation Bar --}}
         <div class="game-navigation">
             <div class="nav-controls">
                 @if($currentLevel > 1)
-                    <a href="{{ route('games.play', ['slug' => $game->slug, 'genre' => $selectedGenre, 'level' => $currentLevel - 1]) }}" class="nav-btn prev">
+                    <a href="{{ route('games.play', ['slug' => $game->slug, 'genre' => $selectedGenre?->slug, 'level' => $currentLevel - 1]) }}" class="nav-btn prev">
                         ← Previous
                     </a>
                 @else
@@ -21,13 +39,19 @@
                 </div>
 
                 @if($currentLevel < $totalChallenges)
-                    <a href="{{ route('games.play', ['slug' => $game->slug, 'genre' => $selectedGenre, 'level' => $currentLevel + 1]) }}" class="nav-btn next">
+                    <a href="{{ route('games.play', ['slug' => $game->slug, 'genre' => $selectedGenre?->slug, 'level' => $currentLevel + 1]) }}" class="nav-btn next">
                         Next →
                     </a>
                 @else
                     <span class="nav-btn disabled">Next →</span>
                 @endif
             </div>
+        </div>
+
+        <div class="challenge-context">
+            <span class="genre-badge">
+                {{ $challenge->genre->icon }} {{ $challenge->genre->name_en }}
+            </span>
         </div>
 
         <div class="visual-section">
@@ -80,6 +104,69 @@
                 margin-bottom: 1rem;
                 display: flex;
                 justify-content: center;
+            }
+            
+            .genre-switcher {
+                display: flex;
+                gap: 0.8rem;
+                justify-content: center;
+                margin-bottom: 0.5rem;
+                padding: 0.5rem;
+                background: rgba(255, 255, 255, 0.4);
+                border-radius: 14px;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            }
+
+            .genre-tab {
+                display: flex;
+                align-items: center;
+                gap: 0.6rem;
+                padding: 0.6rem 1.2rem;
+                background: white;
+                border: 1px solid #e2e8f0;
+                border-radius: 10px;
+                text-decoration: none;
+                color: #4a5568;
+                font-weight: 700;
+                transition: all 0.3s ease;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            }
+
+            .genre-tab:hover {
+                transform: translateY(-2px);
+                border-color: var(--stadium-green);
+                color: var(--stadium-green);
+            }
+
+            .genre-tab.active {
+                background: var(--stadium-green);
+                border-color: var(--stadium-green);
+                color: white;
+                box-shadow: 0 4px 12px rgba(46, 160, 67, 0.2);
+            }
+
+            .genre-icon {
+                font-size: 1.2rem;
+            }
+
+            .challenge-context {
+                display: flex;
+                justify-content: center;
+                margin-top: -0.5rem;
+                margin-bottom: 1rem;
+            }
+
+            .genre-badge {
+                background: #f1f5f9;
+                color: #475569;
+                padding: 0.4rem 1rem;
+                border-radius: 50px;
+                font-size: 0.85rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                border: 1px solid #e2e8f0;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.02);
             }
             .nav-controls { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 800px; }
             .nav-btn { 

@@ -6,25 +6,22 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('group_challenge_hints', function (Blueprint $table) {
+        Schema::create('genres', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('group_challenge_id')->constrained()->onDelete('cascade');
-            $table->text('content');
+            $table->string('name_en');
+            $table->string('name_ar')->nullable();
+            $table->string('slug')->unique();
+            $table->string('icon')->nullable();
             $table->integer('sort_order')->default(0);
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('group_challenge_hints');
+        Schema::dropIfExists('genres');
     }
 };

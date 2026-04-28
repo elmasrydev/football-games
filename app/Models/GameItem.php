@@ -3,14 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
-use Illuminate\Database\Eloquent\Builder;
 
-class GameItem extends Model implements HasMedia
+class GameItem extends Model
 {
-    use InteractsWithMedia;
-
     protected $fillable = [
         'type',
         'name_en',
@@ -22,26 +17,21 @@ class GameItem extends Model implements HasMedia
     ];
 
     protected $casts = [
-        'metadata' => 'array',
+        'metadata' => 'json',
         'is_active' => 'boolean',
     ];
 
-    // ── Scopes ──
-
-    public function scopeOfType(Builder $query, string $type): Builder
+    public function scopeOfType($query, $type)
     {
         return $query->where('type', $type);
     }
 
-    public function scopeSearch(Builder $query, string $term): Builder
+    public function scopeSearch($query, $term)
     {
-        return $query->where(function ($q) use ($term) {
-            $q->where('name_en', 'LIKE', "%{$term}%")
-              ->orWhere('name_ar', 'LIKE', "%{$term}%");
-        });
+        return $query->where('name_en', 'LIKE', "%{$term}%");
     }
 
-    public function scopeActive(Builder $query): Builder
+    public function scopeActive($query)
     {
         return $query->where('is_active', true);
     }

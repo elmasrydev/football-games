@@ -13,10 +13,6 @@ class ChallengeHint extends Model
         'sort_order',
     ];
 
-    protected $casts = [
-        'sort_order' => 'integer',
-    ];
-
     public function challenge(): BelongsTo
     {
         return $this->belongsTo(Challenge::class);

@@ -6,25 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('hints', function (Blueprint $table) {
+        Schema::create('challenge_hints', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('video_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('challenge_id')->constrained()->onDelete('cascade');
             $table->text('content');
             $table->integer('sort_order')->default(0);
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('hints');
+        Schema::dropIfExists('challenge_hints');
     }
 };

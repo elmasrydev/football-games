@@ -29,8 +29,8 @@
                         </svg>
                     </button>
                     <a href="{{ $route }}" class="game-card">
-                        @if ($game->image)
-                            <img src="{{ asset('storage/' . $game->image) }}" alt="{{ $game->title }}">
+                        @if ($game->image_url)
+                            <img src="{{ $game->image_url }}" alt="{{ $game->title }}">
                         @else
                             <div class="placeholder-img">
                                 <span>{{ $game->title }}</span>

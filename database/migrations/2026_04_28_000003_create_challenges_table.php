@@ -14,25 +14,17 @@ return new class extends Migration
             $table->foreignId('genre_id')->constrained()->onDelete('cascade');
             $table->enum('difficulty', ['easy', 'medium', 'hard'])->default('medium');
             $table->enum('stimulus_type', ['image', 'video', 'text', 'scrambled_text', 'sequence'])->default('text');
-            $table->json('stimulus_data')->nullable(); // Flexible JSON for per-game-type fields
-            $table->string('answer'); // Primary answer
-            $table->json('answers')->nullable(); // For multi-answer games (transfer chain, group)
+            $table->json('stimulus_data')->nullable();
+            $table->string('answer');
+            $table->json('answers')->nullable();
+            $table->string('answer_type')->nullable();
             $table->boolean('is_active')->default(true);
-            $table->timestamps();
-        });
-
-        Schema::create('challenge_hints', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('challenge_id')->constrained()->onDelete('cascade');
-            $table->text('content');
-            $table->integer('sort_order')->default(0);
             $table->timestamps();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('challenge_hints');
         Schema::dropIfExists('challenges');
     }
 };

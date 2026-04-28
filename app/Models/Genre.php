@@ -25,4 +25,9 @@ class Genre extends Model
     {
         return $this->hasMany(Challenge::class);
     }
+
+    public function games(): HasMany
+    {
+        return $this->hasMany(Game::class);
+    }
 }

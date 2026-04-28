@@ -3,10 +3,26 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Game extends Model
+class Game extends Model implements HasMedia
 {
+    use InteractsWithMedia;
 
+    protected $fillable = [
+        'genre_id',
+        'title',
+        'name_ar',
+        'slug',
+        'description',
+        'image',
+        'game_type',
+        'answer_type',
+        'is_active',
+    ];
 
     protected $casts = [
         'is_active' => 'boolean',
@@ -17,19 +33,19 @@ class Game extends Model
         return 'slug';
     }
 
-    public function category(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function genre(): BelongsTo
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(Genre::class);
     }
 
-
-    public function challenges(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function challenges(): HasMany
     {
         return $this->hasMany(Challenge::class);
     }
 
-    public function genres(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function getImageUrlAttribute(): ?string
     {
-        return $this->belongsToMany(Genre::class, 'challenges')->distinct();
+        $media = $this->getFirstMediaUrl('cover');
+        return $media ?: ($this->image ? asset('storage/' . $this->image) : null);
     }
 }

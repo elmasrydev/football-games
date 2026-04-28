@@ -8,7 +8,6 @@ type Query {
     genres: [Genre!]! @all
     
     games: [Game!]! @all
-    categories: [Category!]! @all
 
     # Search queries
     searchPlayers(query: String!): [Player!]! @field(resolver: "App\\GraphQL\\Queries\\GameQueries@searchPlayers")
@@ -40,20 +39,9 @@ type Genre {
     sort_order: Int
     is_active: Boolean!
     challenges: [Challenge!]! @hasMany
-}
-
-type Category {
-    id: ID!
-    name_en: String!
-    name_ar: String!
-    description_en: String
-    description_ar: String
-    image: String
-    slug: String!
-    sort_order: Int
-    is_active: Boolean!
     games: [Game!]! @hasMany
 }
+
 
 type Game {
     id: ID!
@@ -65,7 +53,7 @@ type Game {
     game_type: String
     answer_type: String
     is_active: Boolean!
-    category: Category @belongsTo
+    genre: Genre @belongsTo
     challenges: [Challenge!]! @hasMany
     videos: [Video!]! @hasMany
 }

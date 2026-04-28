@@ -16,17 +16,18 @@ class GamePlayController extends Controller
     public function play(string $slug, ?int $challengeId = null)
     {
         $game = Game::where('slug', $slug)->where('is_active', true)->firstOrFail();
-        $genreId = request('genre');
+        $genreSlug = request('genre');
         $level = request('level'); 
 
+        // Find genre by slug for cleaner URLs
+        $selectedGenre = $genreSlug ? Genre::where('slug', $genreSlug)->first() : null;
+
         $query = Challenge::where('game_id', $game->id)->where('is_active', true);
-        if ($genreId) {
-            $query->where('genre_id', $genreId);
+        if ($selectedGenre) {
+            $query->where('genre_id', $selectedGenre->id);
         }
 
         $totalChallenges = $query->count();
-
-        // Use a clean clone for fetching the challenge to avoid order/offset pollution
         $fetchQuery = (clone $query)->orderBy('id', 'asc');
 
         if ($level) {
@@ -34,23 +35,27 @@ class GamePlayController extends Controller
         } elseif ($challengeId) {
             $challenge = $query->findOrFail($challengeId);
         } else {
-            // Default to latest
-            $challenge = $fetchQuery->orderBy('id', 'desc')->first();
+            // Explicitly get the newest challenge for this game/genre
+            $challenge = (clone $query)->orderBy('id', 'desc')->first();
         }
 
         if (!$challenge) {
             return redirect()->route('home')->with('info', 'No challenges available for this criteria yet!');
         }
 
-        // Calculate current level number reliably by counting challenges with ID <= current challenge ID
-        // within the same game/genre context.
+        // Level number matches the natural ASC order: COUNT where ID <= current ID
         $currentLevel = (clone $query)->where('id', '<=', $challenge->id)->count();
+
+        // Get only genres that have challenges for this game
+        $availableGenres = Genre::whereHas('challenges', function($q) use ($game) {
+            $q->where('game_id', $game->id)->where('is_active', true);
+        })->get();
 
         return view('games.play_unified', [
             'game' => $game,
             'challenge' => $challenge,
-            'genres' => Genre::all(),
-            'selectedGenre' => $genreId,
+            'genres' => $availableGenres,
+            'selectedGenre' => $selectedGenre,
             'totalChallenges' => $totalChallenges,
             'currentLevel' => $currentLevel,
         ]);

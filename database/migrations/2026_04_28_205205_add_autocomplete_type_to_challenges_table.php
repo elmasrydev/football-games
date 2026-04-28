@@ -8,15 +8,15 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('games', function (Blueprint $table) {
-            $table->string('answer_type')->nullable()->after('game_type');
+        Schema::table('challenges', function (Blueprint $table) {
+            $table->string('autocomplete_type')->nullable()->after('answer_type');
         });
     }
 
     public function down(): void
     {
-        Schema::table('games', function (Blueprint $table) {
-            $table->dropColumn('answer_type');
+        Schema::table('challenges', function (Blueprint $table) {
+            $table->dropColumn('autocomplete_type');
         });
     }
 };
