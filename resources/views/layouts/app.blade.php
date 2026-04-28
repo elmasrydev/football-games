@@ -332,6 +332,30 @@
             color: #fbbf24;
             /* Amber bulb */
         }
+        .bookmark-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-dim);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bookmark-btn:hover {
+            color: var(--stadium-green);
+        }
+
+        .bookmark-btn svg {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+
+        .bookmark-btn.active svg {
+            fill: #fbbf24;
+            color: #fbbf24;
+        }
     </style>
     @stack('styles')
 </head>
@@ -345,6 +369,7 @@
             </a>
             <nav>
                 <ul>
+                    <li><a href="{{ route('home') }}">Home</a></li>
                     <li><a href="{{ route('games.index') }}">Games</a></li>
                 </ul>
             </nav>
@@ -407,6 +432,7 @@
         </div>
     </div>
 
+    <script src="{{ asset('js/bookmarks.js') }}"></script>
     <script
         src="{{ asset('js/autocomplete.js') }}?v={{ file_exists(public_path('js/autocomplete.js')) ? filemtime(public_path('js/autocomplete.js')) : time() }}"></script>
     <script>

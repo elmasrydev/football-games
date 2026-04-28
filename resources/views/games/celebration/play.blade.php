@@ -18,6 +18,7 @@
                 <a href="{{ route('games.celebration.play') }}" class="btn btn-outline" title="Get another random moment">
                     <span>Try Another Moment</span>
                 </a>
+                <x-bookmark-button :gameId="$game->id" />
             </div>
         </div>
 

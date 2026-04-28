@@ -27,6 +27,7 @@
                 <a href="{{ route('games.group.play') }}" class="btn btn-outline">
                     Try Another Challenge
                 </a>
+                <x-bookmark-button :gameId="$game->id" />
             </div>
         </div>
 

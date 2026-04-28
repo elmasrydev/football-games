@@ -18,6 +18,7 @@
                 <a href="{{ route('games.bw.play', $game) }}" class="btn btn-outline" title="Get another random video">
                     <span>Try Another Video</span>
                 </a>
+                <x-bookmark-button :gameId="$game->id" />
             </div>
         </div>
 

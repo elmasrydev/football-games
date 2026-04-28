@@ -22,6 +22,7 @@
                 <a href="{{ route('games.silhouette.play') }}" class="btn btn-outline" title="Get another silhouette">
                     <span>Try Another Player</span>
                 </a>
+                <x-bookmark-button :gameId="$game->id" />
             </div>
         </div>
 

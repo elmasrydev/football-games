@@ -19,6 +19,7 @@
                 <a href="{{ route('games.kit.play') }}" class="btn btn-outline" title="Get another mystery kit">
                     <span>Try Another Kit</span>
                 </a>
+                <x-bookmark-button :gameId="$game->id" />
             </div>
         </div>
 

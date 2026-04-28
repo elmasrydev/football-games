@@ -1,0 +1,211 @@
+"A datetime string with format `Y-m-d H:i:s`, e.g. `2018-05-23 13:43:32`."
+scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTime")
+
+type Query {
+    # ── Unified API ──
+    challenges(game_id: Int @eq, genre_id: Int @eq): [Challenge!]! @all
+    challenge(id: ID! @eq): Challenge @find
+    genres: [Genre!]! @all
+    
+    games: [Game!]! @all
+    categories: [Category!]! @all
+
+    # Search queries
+    searchPlayers(query: String!): [Player!]! @field(resolver: "App\\GraphQL\\Queries\\GameQueries@searchPlayers")
+    searchClubs(query: String!): [Club!]! @field(resolver: "App\\GraphQL\\Queries\\GameQueries@searchClubs")
+    searchStadiums(query: String!): [StadiumSearchResult!]! @field(resolver: "App\\GraphQL\\Queries\\GameQueries@searchStadiums")
+    
+    # Unified Item Search
+    searchItems(query: String!, type: String!): [GameItem!]! @field(resolver: "App\\GraphQL\\Queries\\GameItemQueries@searchItems")
+    
+    players(name: String @where(operator: "like")): [Player!]! @all
+}
+
+type Player {
+    id: ID!
+    name: String!
+}
+
+type Club {
+    id: ID!
+    name: String!
+}
+
+type Genre {
+    id: ID!
+    name_en: String!
+    name_ar: String
+    slug: String!
+    icon: String
+    sort_order: Int
+    is_active: Boolean!
+    challenges: [Challenge!]! @hasMany
+}
+
+type Category {
+    id: ID!
+    name_en: String!
+    name_ar: String!
+    description_en: String
+    description_ar: String
+    image: String
+    slug: String!
+    sort_order: Int
+    is_active: Boolean!
+    games: [Game!]! @hasMany
+}
+
+type Game {
+    id: ID!
+    title: String!
+    name_ar: String
+    slug: String
+    description: String
+    image: String
+    game_type: String
+    answer_type: String
+    is_active: Boolean!
+    category: Category @belongsTo
+    challenges: [Challenge!]! @hasMany
+    videos: [Video!]! @hasMany
+}
+
+type Challenge {
+    id: ID!
+    game_id: Int!
+    genre_id: Int!
+    difficulty: String
+    stimulus_type: String!
+    stimulus_data: ChallengeStimulus
+    answer: String
+    answers: [String]
+    answer_type: String
+    current_level: Int @method(name: "getCurrentLevelAttribute")
+    total_levels: Int @method(name: "getTotalLevelsAttribute")
+    is_active: Boolean!
+    hints: [ChallengeHint!]! @hasMany
+    game: Game! @belongsTo
+    genre: Genre! @belongsTo
+
+    # ── Computed fields for backward compat & convenience ──
+    consonant_display: String @method(name: "getConsonantDisplayAttribute")
+    image_path: String @method(name: "getImagePathAttribute")
+    reveal_image_path: String @method(name: "getRevealImagePathAttribute")
+    youtube_url: String @method(name: "getYoutubeUrlAttribute")
+    youtube_id: String @method(name: "getYoutubeIdAttribute")
+    question: String @method(name: "getQuestionAttribute")
+    scrambled_word: String @method(name: "getScrambledWordAttribute")
+    part_a: String @method(name: "getPartAAttribute")
+    part_b: String @method(name: "getPartBAttribute")
+    club_a: String @method(name: "getClubAAttribute")
+    club_b: String @method(name: "getClubBAttribute")
+    start_time: String @method(name: "getStartTimeAttribute")
+    end_time: String @method(name: "getEndTimeAttribute")
+    country: String @method(name: "getCountryAttribute")
+    capacity: Int @method(name: "getCapacityAttribute")
+    player_name: String @method(name: "getPlayerNameAttribute")
+    stadium_name: String @method(name: "getStadiumNameAttribute")
+    team_name: String @method(name: "getTeamNameAttribute")
+    description: String @method(name: "getDescriptionAttribute")
+}
+
+type ChallengeStimulus {
+    image_path: String
+    full_image_path: String
+    reveal_image_path: String
+    youtube_url: String
+    uploaded_video: String
+    question: String
+    clue: String
+    start_time: String
+    end_time: String
+    scrambled_word: String
+    category: String
+    part_a: String
+    part_b: String
+    club_a: String
+    club_b: String
+    clubs: [CareerClubEntry]
+    title: String
+    image: String
+    players: [String]
+    players_count: Int
+    player_image: String
+    capacity: Int
+    opened_year: Int
+    country: String
+}
+
+type CareerClubEntry {
+    club_id: Int
+    year: String
+    sort_order: Int
+}
+
+type ChallengeHint {
+    id: ID!
+    challenge_id: Int!
+    content: String!
+    sort_order: Int!
+}
+
+type GameItem {
+    id: ID!
+    type: String!
+    name_en: String!
+    name_ar: String
+    country: String
+    external_id: String
+    metadata: String @method(name: "getMetadataAttribute")
+    image: String @method(name: "getFirstMediaUrl")
+    is_active: Boolean!
+}
+
+type StadiumSearchResult {
+    id: ID!
+    name: String!
+}
+
+type Mutation {
+    # ── Unified mutations ──
+    checkAnswer(id: ID!, answer: String!, revealed_orders: [Int!]): GameResult! @field(resolver: "App\\GraphQL\\Mutations\\GameMutations@checkAnswer")
+    getHint(id: ID!, shown_hints: [ID!]): HintResult! @field(resolver: "App\\GraphQL\\Mutations\\GameMutations@getHint")
+    revealAnswer(id: ID!): RevealResult! @field(resolver: "App\\GraphQL\\Mutations\\GameMutations@revealAnswer")
+
+    # ── Legacy mutations (kept for backward compatibility) ──
+    checkAnswer(id: ID!, answer: String!, revealed_orders: [Int!]): GameResult! @field(resolver: "App\\GraphQL\\Mutations\\GameMutations@checkAnswer")
+    getHint(id: ID!, shown_hints: [ID!]): HintResult! @field(resolver: "App\\GraphQL\\Mutations\\GameMutations@getHint")
+    revealAnswer(id: ID!): RevealResult! @field(resolver: "App\\GraphQL\\Mutations\\GameMutations@revealAnswer")
+}
+
+type GameResult {
+    correct: Boolean!
+    message: String!
+    matched_sort_order: Int
+    stats: GameStats
+}
+
+type GameStats {
+    streak: Int
+    last_played_at: String
+    total_correct: Int
+    total_questions: Int
+    games_played: Int
+}
+
+type HintResult {
+    hint: String
+    id: ID
+    message: String
+}
+
+type RevealResult {
+    answer: String
+    answers: [String]
+    message: String
+}
+
+type MultiRevealResult {
+    answers: [String!]
+    message: String
+}

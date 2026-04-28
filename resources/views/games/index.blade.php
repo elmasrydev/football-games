@@ -10,31 +10,28 @@
             <div class="games-grid">
                 @forelse($games as $game)
                     @php
-                        $route = match ($game->slug) {
-                            'stadium-spotter' => route('games.stadium.play'),
-                            'career' => route('games.career.play'),
-                            'kit-detective' => route('games.kit.play'),
-                            'trophy-hunter' => route('games.trophy.play'),
-                            'guess-silhouette' => route('games.silhouette.play'),
-                            'highlight-moments' => route('games.celebration.play'),
-                            'group-players' => route('games.group.play'),
-                            'black-and-white' => route('games.bw.play', ['game' => 'black-and-white']),
-                            default => $game->slug ? route('games.bw.play', ['game' => $game->slug]) : '#',
-                        };
+                        $route = route('games.play', $game->slug);
                     @endphp
-                    <a href="{{ $route }}" class="game-card">
-                        @if ($game->image)
-                            <img src="{{ asset('storage/' . $game->image) }}" alt="{{ $game->title }}">
-                        @else
-                            <div class="placeholder-img">
-                                <span>{{ $game->title }}</span>
+                    <div class="game-card-wrapper" style="position: relative;">
+                        <button class="bookmark-btn" onclick="event.preventDefault(); toggleBookmark({{ $game->id }})" data-id="{{ $game->id }}" style="position: absolute; top: 1rem; right: 1rem; z-index: 10;">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
+                            </svg>
+                        </button>
+                        <a href="{{ $route }}" class="game-card">
+                            @if ($game->image)
+                                <img src="{{ asset('storage/' . $game->image) }}" alt="{{ $game->title }}">
+                            @else
+                                <div class="placeholder-img">
+                                    <span>{{ $game->title }}</span>
+                                </div>
+                            @endif
+                            <div class="game-info">
+                                <h2>{{ $game->title }}</h2>
+                                <p>{{ $game->description }}</p>
                             </div>
-                        @endif
-                        <div class="game-info">
-                            <h2>{{ $game->title }}</h2>
-                            <p>{{ $game->description }}</p>
-                        </div>
-                    </a>
+                        </a>
+                    </div>
                 @empty
                     <div class="no-games">
                         <p>No games found. New mysteries are coming soon!</p>
@@ -161,5 +158,16 @@
                 box-shadow: var(--shadow);
             }
         </style>
+    @endpush
+
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const bookmarkedIds = getBookmarks();
+                bookmarkedIds.forEach(id => {
+                    updateBookmarkUI(id);
+                });
+            });
+        </script>
     @endpush
 @endsection

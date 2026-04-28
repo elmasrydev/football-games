@@ -8,7 +8,8 @@ class HomeController extends Controller
 {
     public function index()
     {
-        return view('home');
+        $games = Game::where('is_active', true)->get();
+        return view('home', compact('games'));
     }
 
     public function games()

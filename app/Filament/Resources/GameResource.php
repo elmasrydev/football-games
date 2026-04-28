@@ -35,10 +35,7 @@ class GameResource extends Resource
                     ->columnSpanFull(),
                 Forms\Components\FileUpload::make('image')
                     ->image(),
-                Forms\Components\Toggle::make('is_active')
-                    ->label('Active')
-                    ->default(true)
-                    ->helperText('Whether this game is visible to users on the home page.'),
+
             ]);
     }
 

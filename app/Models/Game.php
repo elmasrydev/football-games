@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Game extends Model
 {
-    protected $fillable = ['title', 'slug', 'description', 'image', 'is_active'];
+
 
     protected $casts = [
         'is_active' => 'boolean',
@@ -17,8 +17,19 @@ class Game extends Model
         return 'slug';
     }
 
-    public function videos(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function category(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->hasMany(Video::class);
+        return $this->belongsTo(Category::class);
+    }
+
+
+    public function challenges(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Challenge::class);
+    }
+
+    public function genres(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Genre::class, 'challenges')->distinct();
     }
 }

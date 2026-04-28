@@ -35,6 +35,7 @@
                 <a href="{{ route('games.career.play') }}" class="btn btn-outline">
                     Try Another Player
                 </a>
+                <x-bookmark-button :gameId="$game->id" />
             </div>
         </div>
 

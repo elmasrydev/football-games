@@ -15,6 +15,7 @@
                 <a href="{{ route('games.stadium.play') }}" class="btn btn-outline">
                     Try Another Stadium
                 </a>
+                <x-bookmark-button :gameId="$game->id" />
             </div>
         </div>
 

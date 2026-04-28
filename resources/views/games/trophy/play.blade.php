@@ -18,6 +18,7 @@
                 <a href="{{ route('games.trophy.play') }}" class="btn btn-outline" title="Get another trophy moment">
                     <span>Try Another Trophy</span>
                 </a>
+                <x-bookmark-button :gameId="$game->id" />
             </div>
         </div>
 
