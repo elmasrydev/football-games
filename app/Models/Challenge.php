@@ -41,4 +41,31 @@ class Challenge extends Model
     {
         return $this->hasMany(ChallengeHint::class);
     }
+
+    // ── Stimulus Data Proxies ──
+    public function getImagePathAttribute() { return $this->stimulus_data['image_path'] ?? null; }
+    public function getRevealImagePathAttribute() { return $this->stimulus_data['reveal_image_path'] ?? null; }
+    public function getYoutubeUrlAttribute() { return $this->stimulus_data['youtube_url'] ?? null; }
+    public function getQuestionAttribute() { return $this->stimulus_data['question'] ?? ($this->stimulus_data['clue'] ?? null); }
+    public function getScrambledWordAttribute() { return $this->stimulus_data['scrambled_word'] ?? null; }
+    public function getPartAAttribute() { return $this->stimulus_data['part_a'] ?? null; }
+    public function getPartBAttribute() { return $this->stimulus_data['part_b'] ?? null; }
+    public function getClubAAttribute() { return $this->stimulus_data['club_a'] ?? null; }
+    public function getClubBAttribute() { return $this->stimulus_data['club_b'] ?? null; }
+
+    // ── Level Progress Attributes ──
+    public function getCurrentLevelAttribute(): int
+    {
+        return static::where('game_id', $this->game_id)
+            ->where('genre_id', $this->genre_id)
+            ->where('id', '<=', $this->id)
+            ->count();
+    }
+
+    public function getTotalLevelsAttribute(): int
+    {
+        return static::where('game_id', $this->game_id)
+            ->where('genre_id', $this->genre_id)
+            ->count();
+    }
 }

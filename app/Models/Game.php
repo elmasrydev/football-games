@@ -43,6 +43,11 @@ class Game extends Model implements HasMedia
         return $this->hasMany(Challenge::class);
     }
 
+    public function scopeActiveWithChallenges($query)
+    {
+        return $query->where('is_active', true)->has('challenges');
+    }
+
     public function getImageUrlAttribute(): ?string
     {
         $media = $this->getFirstMediaUrl('cover');

@@ -7,7 +7,7 @@ type Query {
     challenge(id: ID! @eq): Challenge @find
     genres: [Genre!]! @all
     
-    games: [Game!]! @all
+    games: [Game!]! @all @scope(name: "activeWithChallenges")
 
     # Search queries
     searchPlayers(query: String!): [Player!]! @field(resolver: "App\\GraphQL\\Queries\\GameQueries@searchPlayers")
@@ -39,7 +39,7 @@ type Genre {
     sort_order: Int
     is_active: Boolean!
     challenges: [Challenge!]! @hasMany
-    games: [Game!]! @hasMany
+    games: [Game!]! @hasMany @scope(name: "activeWithChallenges")
 }
 
 
@@ -68,6 +68,7 @@ type Challenge {
     answer: String
     answers: [String]
     answer_type: String
+    answer_type: String
     current_level: Int @method(name: "getCurrentLevelAttribute")
     total_levels: Int @method(name: "getTotalLevelsAttribute")
     is_active: Boolean!
@@ -75,26 +76,16 @@ type Challenge {
     game: Game! @belongsTo
     genre: Genre! @belongsTo
 
-    # ── Computed fields for backward compat & convenience ──
-    consonant_display: String @method(name: "getConsonantDisplayAttribute")
+    # ── Proxy Fields ──
     image_path: String @method(name: "getImagePathAttribute")
     reveal_image_path: String @method(name: "getRevealImagePathAttribute")
     youtube_url: String @method(name: "getYoutubeUrlAttribute")
-    youtube_id: String @method(name: "getYoutubeIdAttribute")
     question: String @method(name: "getQuestionAttribute")
     scrambled_word: String @method(name: "getScrambledWordAttribute")
     part_a: String @method(name: "getPartAAttribute")
     part_b: String @method(name: "getPartBAttribute")
     club_a: String @method(name: "getClubAAttribute")
     club_b: String @method(name: "getClubBAttribute")
-    start_time: String @method(name: "getStartTimeAttribute")
-    end_time: String @method(name: "getEndTimeAttribute")
-    country: String @method(name: "getCountryAttribute")
-    capacity: Int @method(name: "getCapacityAttribute")
-    player_name: String @method(name: "getPlayerNameAttribute")
-    stadium_name: String @method(name: "getStadiumNameAttribute")
-    team_name: String @method(name: "getTeamNameAttribute")
-    description: String @method(name: "getDescriptionAttribute")
 }
 
 type ChallengeStimulus {
