@@ -22,9 +22,9 @@
 <style>
     .scrambled-box {
         background: var(--surface); border: 1px solid var(--border-soft);
-        box-shadow: var(--shadow-soft); border-radius: 28px; padding: clamp(1.5rem, 4vw, 3rem);
-        display: flex; flex-direction: column; justify-content: center; align-items: center; margin-bottom: 1rem;
-        min-height: 300px;
+        box-shadow: var(--shadow-soft); border-radius: 28px; padding: clamp(1rem, 3vw, 2rem);
+        display: flex; flex-direction: column; justify-content: center; align-items: center; margin-bottom: 0.5rem;
+        min-height: 220px;
     }
     
     /* Vowel Void in Scrambled container fallback */
@@ -42,5 +42,5 @@
     }
     .letter-tile:nth-child(even) { transform: rotate(3deg); }
     
-    .stimulus-instruction { margin-top: 2rem; color: var(--text-soft); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; text-align: center; }
+    .stimulus-instruction { margin-top: 1.5rem; color: var(--text-soft); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; font-size: 0.75rem; text-align: center; }
 </style>

@@ -75,11 +75,12 @@
     <!-- Game Arena -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
-        <!-- Stimulus Side -->
-        <div class="lg:col-span-7 xl:col-span-8 space-y-6">
+        <!-- Main Column (Puzzle & Answer) -->
+        <div class="lg:col-span-8 xl:col-span-9 space-y-8">
+            <!-- Puzzle Area -->
             <div class="glass-card rounded-[2.5rem] overflow-hidden relative border-outline-variant/10 shadow-2xl">
                 {{-- Dynamic Stimulus Block --}}
-                <div class="aspect-video lg:aspect-auto lg:min-h-[600px] flex items-center justify-center p-4">
+                <div class="{{ $challenge->stimulus_type === 'video' ? 'aspect-video' : '' }} flex items-center justify-center p-2">
                     @if($challenge->stimulus_type === 'image')
                         <x-games.stimulus.image :challenge="$challenge" :game="$game" />
                     @elseif($challenge->stimulus_type === 'video')
@@ -105,51 +106,22 @@
                             data-id="{{ $game->id }}">
                         <span class="material-symbols-outlined transition-colors">bookmark</span>
                     </button>
-                    <a href="{{ route('games.play', ['slug' => $game->slug]) }}" 
-                       class="w-12 h-12 rounded-full glass-card flex items-center justify-center text-on-surface-variant hover:text-primary shadow-lg hover:scale-110 transition-all active:scale-90"
-                       title="{{ __('Try Another') }}">
-                        <span class="material-symbols-outlined">refresh</span>
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Interaction Side -->
-        <div class="lg:col-span-5 xl:col-span-4 space-y-6">
-            <!-- Hints Area (Top) -->
-            <div class="space-y-4">
-                <button id="hint-btn" class="w-full glass-card group flex items-center justify-between p-5 rounded-3xl border-secondary/20 hover:border-secondary hover:bg-secondary/5 transition-all duration-300">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary group-hover:scale-110 transition-transform">
-                            <span class="text-2xl">💡</span>
-                        </div>
-                        <div class="text-start">
-                            <span class="text-[10px] font-display font-black text-secondary uppercase tracking-widest block mb-1">{{ __('Support') }}</span>
-                            <h3 class="text-sm font-display font-black uppercase tracking-tight">{{ __('Need a Hint?') }}</h3>
-                        </div>
-                    </div>
-                    <span class="material-symbols-outlined text-secondary opacity-40 group-hover:opacity-100 transition-opacity">add_circle</span>
-                </button>
-
-                <!-- Hints List -->
-                <div id="hints-display" class="space-y-3">
-                    <!-- Hints will be appended here -->
                 </div>
             </div>
 
-            <!-- Answer Block -->
-            <div class="glass-card rounded-[2.5rem] p-8 border-primary/20 shadow-xl relative overflow-hidden">
+            <!-- Answer Block (Directly below puzzle) -->
+            <div class="glass-card rounded-[2.5rem] p-6 sm:p-8 border-primary/20 shadow-xl relative overflow-hidden bg-gradient-to-b from-surface-variant/5 to-transparent">
                 <!-- Cyber Background Detail -->
-                <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16"></div>
+                <div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32"></div>
                 
-                <div class="relative z-10 space-y-8">
-                    <div class="space-y-1">
-                        <span class="text-[10px] font-display font-black text-primary uppercase tracking-[0.3em] block">{{ __('Interaction') }}</span>
+                <div class="relative z-10 space-y-6 max-w-3xl mx-auto">
+                    <div class="text-center space-y-1">
+                        <span class="text-[9px] font-display font-black text-primary uppercase tracking-[0.4em] block">{{ __('Interaction') }}</span>
                         <h2 class="text-2xl font-display font-black uppercase tracking-tight">{{ __('Your Answer') }}</h2>
                     </div>
 
                     {{-- Dynamic Interaction Block --}}
-                    <div id="interaction-root">
+                    <div id="interaction-root" class="w-full">
                         @if($game->slug === 'group-players')
                             <x-games.interaction.group :challenge="$challenge" :game="$game" />
                         @else
@@ -157,13 +129,56 @@
                         @endif
                     </div>
 
-                    <div class="pt-6 border-t border-outline-variant/20 flex flex-col gap-4">
-                        <button id="give-up-btn" class="text-on-surface-variant hover:text-error font-display font-bold text-xs uppercase tracking-widest transition-colors flex items-center justify-center gap-2">
-                            <span class="text-sm">👁️</span>
+                    <div class="pt-6 border-t border-outline-variant/10 flex flex-wrap items-center justify-center gap-6">
+                        <button id="give-up-btn" class="text-on-surface-variant hover:text-error font-display font-bold text-xs uppercase tracking-[0.2em] transition-colors flex items-center gap-2">
+                            <span class="text-lg">👁️</span>
                             {{ __('Reveal Answer') }}
                         </button>
+
+                        <a href="{{ route('games.play', ['slug' => $game->slug]) }}" 
+                           class="flex items-center gap-3 px-8 py-4 bg-surface-container-high/50 hover:bg-surface-container-high rounded-full border border-white/5 font-display font-black text-xs uppercase tracking-[0.2em] transition-all group active:scale-95">
+                            <span class="material-symbols-outlined text-lg group-hover:rotate-180 transition-transform">refresh</span>
+                            {{ __('Try Another') }}
+                        </a>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Column (Hints) -->
+        <div class="lg:col-span-4 xl:col-span-3 space-y-6">
+            <!-- Hints Area -->
+            <div class="glass-card rounded-[2rem] overflow-hidden flex flex-col border-outline-variant/10">
+                <div class="p-4 bg-secondary/5 border-b border-secondary/10 flex items-center gap-3">
+                    <span class="text-xl">💡</span>
+                    <h3 class="text-xs font-display font-black text-on-surface uppercase tracking-widest">{{ __('Hints & Rescue') }}</h3>
+                </div>
+
+                <div class="p-6 space-y-6">
+                    <div class="text-center space-y-4">
+                        <p class="text-xs text-on-surface-variant font-medium leading-relaxed opacity-70">
+                            {{ __('Stuck on this player? Reveal a hint one by one.') }}
+                        </p>
+                        <button id="hint-btn" class="w-full py-4 bg-secondary text-on-secondary rounded-2xl font-display font-black uppercase tracking-widest text-xs hover:brightness-110 transition-all shadow-lg shadow-secondary/20 active:scale-95">
+                            {{ __('Unlock Hint') }}
+                        </button>
+                    </div>
+
+                    <!-- Hints List -->
+                    <div id="hints-display" class="space-y-4 pt-4 border-t border-outline-variant/10">
+                        <!-- Hints will be appended here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ad/Promo Spot (Optional, like in design) -->
+            <div class="glass-card rounded-[2rem] p-6 border-primary/10 bg-gradient-to-br from-primary/5 to-transparent">
+                <span class="text-[9px] font-display font-black bg-primary text-on-primary px-2 py-0.5 rounded-full uppercase tracking-widest mb-3 inline-block">Pro Benefit</span>
+                <h4 class="text-sm font-display font-black text-on-surface leading-tight uppercase mb-2">{{ __('Infinite Hints with Gamesiano Pro') }}</h4>
+                <p class="text-[10px] text-on-surface-variant mb-4 opacity-60">{{ __('Never get stuck again. Get unlimited hints and no ads.') }}</p>
+                <button class="w-full py-2.5 bg-white/5 hover:bg-white/10 text-white font-display font-bold rounded-xl uppercase tracking-widest text-[9px] transition-all border border-white/10">
+                    {{ __('Upgrade Now') }}
+                </button>
             </div>
         </div>
     </div>
@@ -258,14 +273,14 @@
                         if (data.hint) {
                             shownHints.push(data.id);
                             const hintDiv = document.createElement('div');
-                            hintDiv.className = 'glass-card p-5 rounded-3xl border-secondary/20 flex items-start gap-4 animate-in slide-in-from-top-4 duration-500 shadow-xl';
+                            hintDiv.className = 'glass-card p-4 rounded-2xl border-secondary/20 flex items-start gap-4 animate-in slide-in-from-top-4 duration-500 shadow-xl';
                             hintDiv.innerHTML = `
-                                <div class="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary shrink-0">
-                                    <span class="text-lg">🎯</span>
+                                <div class="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary shrink-0">
+                                    <span class="text-sm">🎯</span>
                                 </div>
                                 <div>
-                                    <span class="text-[9px] font-display font-black text-secondary uppercase tracking-widest block mb-1">{{ __('Hint') }} ${shownHints.length}</span>
-                                    <p class="text-sm font-medium text-on-surface leading-relaxed">${data.hint}</p>
+                                    <span class="text-[8px] font-display font-black text-secondary uppercase tracking-widest block mb-1">{{ __('Hint') }} ${shownHints.length}</span>
+                                    <p class="text-[11px] font-medium text-on-surface leading-relaxed">${data.hint}</p>
                                 </div>
                             `;
                             document.getElementById('hints-display').prepend(hintDiv);

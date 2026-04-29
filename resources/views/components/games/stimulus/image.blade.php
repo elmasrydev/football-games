@@ -45,7 +45,7 @@
         justify-content: center; 
         align-items: center; 
         margin-bottom: 1rem;
-        min-height: clamp(280px, 48vw, 520px);
+        min-height: clamp(220px, 35vw, 420px);
         position: relative;
     }
     
@@ -56,7 +56,7 @@
         justify-content: center;
         align-items: center;
         position: relative;
-        padding: 4.5rem 1rem 1rem;
+        padding: 3.5rem 1rem 1rem;
     }
 
     .visual-frame {

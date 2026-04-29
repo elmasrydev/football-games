@@ -1,6 +1,6 @@
 @props(['challenge', 'game'])
 
-<div class="space-y-8">
+<div class="space-y-4">
     <!-- Question Header -->
     <div class="flex items-center justify-between gap-4">
         <div class="flex items-center gap-3">
@@ -39,7 +39,7 @@
     </div>
 
     <!-- Interaction Zone -->
-    <div class="space-y-4">
+    <div class="space-y-3">
         <div class="flex items-center justify-between">
             <span class="text-[9px] font-display font-black uppercase tracking-[0.2em] text-on-surface-variant opacity-60">{{ __('Answer Zone') }}</span>
             <span class="text-[9px] font-display font-black uppercase tracking-widest text-primary bg-primary/5 px-2 py-0.5 rounded border border-primary/10">

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Game;
+use App\Models\Genre;
+use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
@@ -24,11 +26,11 @@ class HomeController extends Controller
         }
 
         $games = $query->get();
-        $genres = \App\Models\Genre::whereHas('challenges.game', function ($q) {
+        $genres = Genre::whereHas('challenges.game', function ($q) {
             $q->where('is_active', true);
         })->get();
 
-        $selectedGenre = $selectedGenreSlug ? \App\Models\Genre::where('slug', $selectedGenreSlug)->first() : null;
+        $selectedGenre = $selectedGenreSlug ? Genre::where('slug', $selectedGenreSlug)->first() : null;
 
         return view('games.index', compact('games', 'genres', 'selectedGenre'));
     }
