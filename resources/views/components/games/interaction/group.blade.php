@@ -44,7 +44,7 @@
         />
     </div>
 
-    <div id="feedback" class="feedback"></div>
+    <div id="feedback" class="feedback hidden"></div>
     <div id="found-players" class="found-players-list"></div>
 </div>
 
@@ -169,6 +169,10 @@
         box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
     }
 
+    /* Support both .hidden (Tailwind) and JS toggle */
+    .feedback.hidden { display: none; }
+    .feedback.show { display: block; }
+
     .feedback.correct { background: rgba(34, 197, 94, 0.14); color: #166534; border-color: rgba(34, 197, 94, 0.18); }
     .feedback.wrong { background: rgba(239, 68, 68, 0.12); color: #b91c1c; border-color: rgba(239, 68, 68, 0.18); }
     .feedback.revealed { background: rgba(59, 130, 246, 0.12); color: #1d4ed8; border-color: rgba(59, 130, 246, 0.18); }
@@ -244,7 +248,11 @@
 
         if (window.revealedOrders.length >= totalToFind) {
             document.getElementById('submit-btn').disabled = true;
-            document.getElementById('feedback').textContent = "All found! Outstanding!";
+            if (typeof window.showFeedback === 'function') {
+                window.showFeedback("{{ __('All found! Outstanding!') }}", true, true);
+            } else {
+                document.getElementById('feedback').textContent = "{{ __('All found! Outstanding!') }}";
+            }
             if (window.highlightSuccess) window.highlightSuccess();
         }
     };

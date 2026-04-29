@@ -188,6 +188,9 @@
 <script>
     const challengeId = {{ $challenge->id }};
     const csrfToken = '{{ csrf_token() }}';
+    const currentLevel = {{ $currentLevel }};
+    const totalChallenges = {{ $totalChallenges }};
+    const nextLevelUrl = '{{ $currentLevel < $totalChallenges ? route('games.play', ['slug' => $game->slug, 'genre' => $selectedGenre?->slug, 'level' => $currentLevel + 1]) : '#' }}';
     let shownHints = [];
 
     // Level jump logic
@@ -196,6 +199,37 @@
         url.searchParams.set('level', level);
         window.location.href = url.toString();
     }
+
+    function showFeedback(message, isCorrect, showNext = false) {
+        const feedback = document.getElementById('feedback');
+        if (!feedback) return;
+
+        let content = `<span>${message}</span>`;
+        
+        if (showNext && currentLevel < totalChallenges) {
+            content = `
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 w-full">
+                    <span>${message}</span>
+                    <a href="${nextLevelUrl}" class="flex items-center gap-2 px-6 py-2 bg-primary text-on-primary rounded-xl font-display font-black uppercase tracking-widest text-[10px] hover:brightness-110 transition-all shadow-lg shadow-primary/20 active:scale-95">
+                        {{ __('Next Level') }}
+                        <span class="material-symbols-outlined text-sm rtl:rotate-180">arrow_forward</span>
+                    </a>
+                </div>
+            `;
+        }
+
+        feedback.innerHTML = content;
+        
+        // Remove existing state classes
+        feedback.classList.remove('hidden', 'correct', 'wrong', 'revealed');
+        
+        // Add style and show
+        feedback.className = 'p-4 rounded-xl font-display font-bold text-sm uppercase tracking-wide transition-all feedback ' + 
+                           (isCorrect ? 'bg-tertiary/10 text-tertiary border border-tertiary/20' : 'bg-error/10 text-error border border-error/20');
+        
+        feedback.style.display = 'block';
+    }
+    window.showFeedback = showFeedback;
 
     // 1. Initialize Autocomplete (Global)
     document.addEventListener('DOMContentLoaded', () => {
@@ -220,7 +254,6 @@
     // 2. Global Game Logic (Standard)
     const submitBtn = document.getElementById('submit-btn');
     const answerInput = document.getElementById('answer-input');
-    const feedback = document.getElementById('feedback');
 
     if (submitBtn) {
         submitBtn.addEventListener('click', () => {
@@ -236,12 +269,7 @@
             })
             .then(r => r.json())
             .then(data => {
-                if (!feedback) return;
-                
-                feedback.textContent = data.message;
-                feedback.className = 'p-4 rounded-xl font-display font-bold text-sm uppercase tracking-wide transition-all ' + 
-                                   (data.correct ? 'bg-tertiary/10 text-tertiary border border-tertiary/20' : 'bg-error/10 text-error border border-error/20');
-                feedback.classList.remove('hidden');
+                showFeedback(data.message, data.correct, data.correct);
 
                 if (data.stats && typeof window.updateHUD === 'function') {
                     window.updateHUD(data.stats);
@@ -303,17 +331,15 @@
             fetch(`{{ route('challenges.reveal', ['challenge' => $challenge->id]) }}`)
             .then(r => r.json())
             .then(data => {
-                if (!feedback) return;
-                
+                let msg = '';
                 if (data.answers) {
-                    feedback.textContent = `{{ __('Answers:') }} ${data.answers.join(', ')}`;
+                    msg = `{{ __('Answers:') }} ${data.answers.join(', ')}`;
                 } else {
-                    feedback.textContent = `{{ __('The answer was:') }} ${data.answer}`;
+                    msg = `{{ __('The answer was:') }} ${data.answer}`;
                     if (answerInput) answerInput.value = data.answer;
                 }
                 
-                feedback.className = 'p-4 rounded-xl font-display font-bold text-sm uppercase tracking-wide bg-primary/10 text-primary border border-primary/20';
-                feedback.classList.remove('hidden');
+                showFeedback(msg, true, true);
                 if (submitBtn) submitBtn.disabled = true;
                 if (window.highlightSuccess) window.highlightSuccess();
             });
@@ -343,7 +369,11 @@
             if (typeof clearAutocomplete === 'function') {
                 clearAutocomplete('answer-input', 'autocomplete-list');
             }
-            if (feedback) feedback.classList.add('hidden');
+            const feedback = document.getElementById('feedback');
+            if (feedback) {
+                feedback.classList.add('hidden');
+                feedback.style.display = 'none';
+            }
         });
     }
 </script>
