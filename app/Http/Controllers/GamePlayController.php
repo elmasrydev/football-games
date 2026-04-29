@@ -13,6 +13,28 @@ class GamePlayController extends Controller
 {
     use TracksGameStats;
 
+    /**
+     * Normalize Arabic characters for "case-insensitive" matching.
+     * Maps variations of Alif, Ya/Alef Maksura, and Ta Marbuta to common forms.
+     */
+    private function normalizeArabic(?string $str): string
+    {
+        if (!$str) return '';
+        
+        $str = trim($str);
+        
+        // Alif variations -> Alif
+        $str = str_replace(['أ', 'إ', 'آ'], 'ا', $str);
+        
+        // Ya / Alef Maksura -> Ya (Commonly used interchangeably in search)
+        $str = str_replace('ى', 'ي', $str);
+        
+        // Ta Marbuta -> Ha (Optional, but often helpful for names)
+        // $str = str_replace('ة', 'ه', $str);
+
+        return $str;
+    }
+
     public function play(string $locale, string $slug, ?int $challengeId = null)
     {
         $game = Game::where('slug', $slug)->where('is_active', true)->firstOrFail();
@@ -77,12 +99,20 @@ class GamePlayController extends Controller
         
         // Group Players logic (multiple answers)
         if ($challenge->game->slug === 'group-players') {
-            $answers = array_map('trim', array_map('strtolower', $challenge->answers_array));
             $revealedOrders = $request->revealed_orders ?? [];
-            
             $matchIndex = -1;
-            foreach ($answers as $idx => $ans) {
-                if ($ans === $userAnswer && !in_array($idx, $revealedOrders)) {
+            
+            foreach ($challenge->answers_array as $idx => $ans) {
+                if (in_array($idx, $revealedOrders)) continue;
+
+                $isMatch = false;
+                if ($locale === 'ar') {
+                    $isMatch = $this->normalizeArabic($userAnswer) === $this->normalizeArabic($ans);
+                } else {
+                    $isMatch = strtolower($userAnswer) === strtolower(trim($ans));
+                }
+
+                if ($isMatch) {
                     $matchIndex = $idx;
                     break;
                 }
@@ -105,8 +135,13 @@ class GamePlayController extends Controller
         }
 
         // Standard logic
-        $correctAnswer = strtolower($challenge->answer);
-        $correct = $userAnswer === $correctAnswer;
+        $correctAnswer = $challenge->answer;
+        
+        if ($locale === 'ar') {
+            $correct = $this->normalizeArabic($userAnswer) === $this->normalizeArabic($correctAnswer);
+        } else {
+            $correct = strtolower($userAnswer) === strtolower($correctAnswer);
+        }
 
         // Update stats on check
         $stats = $this->updateStats($correct, $challenge->id, $challenge->game->slug);
@@ -151,9 +186,16 @@ class GamePlayController extends Controller
         $nameField = $locale === 'ar' ? 'name_ar' : 'name_en';
 
         $results = GameItem::ofType($type)
-            ->where(function($q) use ($query) {
-                $q->where('name_en', 'like', "%$query%")
-                  ->orWhere('name_ar', 'like', "%$query%");
+            ->where(function($q) use ($query, $locale) {
+                $q->where('name_en', 'like', "%$query%");
+                
+                if ($locale === 'ar') {
+                    $normalizedQuery = $this->normalizeArabic($query);
+                    // MySQL REPLACE nesting to normalize the column on the fly
+                    $q->orWhereRaw("REPLACE(REPLACE(REPLACE(REPLACE(name_ar, 'أ', 'ا'), 'إ', 'ا'), 'آ', 'ا'), 'ى', 'ي') LIKE ?", ["%$normalizedQuery%"]);
+                } else {
+                    $q->orWhere('name_ar', 'like', "%$query%");
+                }
             })
             ->active()
             ->limit(10)
