@@ -207,7 +207,18 @@ class ArabicTransferChainSeeder extends Seeder
             $nodes = (array) $item[1];
             $hints = isset($item[2]) ? (array)$item[2] : [];
 
+            // Register Answer in GameItem for Autocomplete
+            \App\Models\GameItem::updateOrCreate(
+                ['type' => $answerType, 'name_ar' => $answer],
+                ['is_active' => true]
+            );
+
             $formattedNodes = array_map(function($nodeName) use ($nodeType) {
+                // Register Node in GameItem for Autocomplete (useful for other games)
+                \App\Models\GameItem::updateOrCreate(
+                    ['type' => $nodeType, 'name_ar' => $nodeName],
+                    ['is_active' => true]
+                );
                 return ['name' => $nodeName, 'type' => $nodeType];
             }, $nodes);
 
