@@ -1,141 +1,148 @@
-function initAutocomplete(inputId, listId, searchUrl) {
-    const answerInput = document.getElementById(inputId);
-    const autocompleteList = document.getElementById(listId);
-    let currentFocus = -1;
-
-    if (!answerInput || !autocompleteList) return;
-
-    answerInput.addEventListener('input', function(e) {
-        const val = this.value;
-        closeAllLists();
-        if (!val || val.length < 2) return false;
-        
-        currentFocus = -1;
-        fetchSuggestions(val);
-    });
-
-    answerInput.addEventListener('keydown', function(e) {
-        let x = document.getElementById(listId);
-        if (x) x = x.getElementsByTagName('div');
-        if (e.keyCode == 40) { // Down
-            currentFocus++;
-            addActive(x);
-        } else if (e.keyCode == 38) { // Up
-            currentFocus--;
-            addActive(x);
-        } else if (e.keyCode == 13) { // Enter
-            if (currentFocus > -1) {
-                e.preventDefault();
-                if (x) x[currentFocus].click();
-            }
-        }
-    });
-
-    async function fetchSuggestions(val) {
-        try {
-            const response = await fetch(`${searchUrl}?query=${encodeURIComponent(val)}`);
-            const suggestions = await response.json();
-            
-            if (suggestions.length === 0) return;
-
-            closeAllLists();
-            
-            suggestions.forEach(name => {
-                const b = document.createElement('div');
-                b.className = 'autocomplete-item';
-                
-                // Highlight the matching part
-                const matchIndex = name.toLowerCase().indexOf(val.toLowerCase());
-                if (matchIndex !== -1) {
-                    const before = name.substr(0, matchIndex);
-                    const match = name.substr(matchIndex, val.length);
-                    const after = name.substr(matchIndex + val.length);
-                    b.innerHTML = `${before}<strong>${match}</strong>${after}`;
-                } else {
-                    b.innerHTML = name;
-                }
-                
-                b.innerHTML += `<input type='hidden' value="${name.replace('"', '&quot;')}">`;
-                
-                b.addEventListener('click', function(e) {
-                    answerInput.value = this.getElementsByTagName('input')[0].value;
-                    closeAllLists();
-                    // Removed automatic Enter key provocation
-                    // focus the input back
-                    answerInput.focus();
-                });
-                
-                autocompleteList.appendChild(b);
-            });
-        } catch (error) {
-            console.error('Error fetching suggestions:', error);
-        }
-    }
-
-    function addActive(x) {
-        if (!x) return false;
-        removeActive(x);
-        if (currentFocus >= x.length) currentFocus = 0;
-        if (currentFocus < 0) currentFocus = (x.length - 1);
-        x[currentFocus].classList.add('autocomplete-active');
-    }
-
-    function removeActive(x) {
-        for (let i = 0; i < x.length; i++) {
-            x[i].classList.remove('autocomplete-active');
-        }
-    }
-
-    function closeAllLists(elmnt) {
-        const x = document.getElementsByClassName('autocomplete-items');
-        for (let i = 0; i < x.length; i++) {
-            if (elmnt != x[i] && elmnt != answerInput) {
-                x[i].innerHTML = '';
-            }
-        }
-    }
-
-    document.addEventListener('click', function (e) {
-        closeAllLists(e.target);
-    });
-}
-
 function clearAutocomplete(inputId, listId) {
     const input = document.getElementById(inputId);
     const list = document.getElementById(listId);
-    
+
     if (input) {
         input.value = '';
-        input.disabled = false;
-        input.focus();
-        
-        // Re-enable form buttons if they were disabled
-        const submitBtn = document.getElementById('submit-btn');
-        if (submitBtn) submitBtn.disabled = false;
-        
-        const giveUpBtn = document.getElementById('give-up-btn');
-        if (giveUpBtn) giveUpBtn.disabled = false;
-        
-        const clearBtn = document.getElementById('clear-btn');
-        if (clearBtn) clearBtn.disabled = false;
-
-        // Reset feedback
-        const feedback = document.getElementById('feedback');
-        if (feedback) {
-            feedback.innerText = '';
-            feedback.className = 'feedback';
-            feedback.style.display = ''; // Remove inline display: none/block to allow CSS classes to work
-        }
-
-        // Reset card borders if any
-        const card = document.querySelector('.question-card');
-        if (card) {
-            card.style.borderColor = '';
-            card.style.boxShadow = '';
-        }
     }
-    
+
     if (list) {
         list.innerHTML = '';
+        list.style.display = 'none';
     }
+}
+
+function initAutocomplete(inputId, listId, searchUrl) {
+    const input = document.getElementById(inputId);
+    const list = document.getElementById(listId);
+
+    if (!input || !list || !searchUrl) {
+        return;
+    }
+
+    let activeIndex = -1;
+    let items = [];
+    let controller = null;
+
+    function closeList() {
+        list.innerHTML = '';
+        list.style.display = 'none';
+        activeIndex = -1;
+        items = [];
+    }
+
+    function renderOptions(results) {
+        items = results;
+        list.innerHTML = '';
+
+        if (!results.length) {
+            closeList();
+            return;
+        }
+
+        results.forEach((result, index) => {
+            const item = document.createElement('div');
+            item.className = 'autocomplete-item';
+            item.textContent = result;
+            item.addEventListener('mousedown', (event) => {
+                event.preventDefault();
+                input.value = result;
+                closeList();
+            });
+            list.appendChild(item);
+        });
+
+        list.style.display = 'block';
+    }
+
+    function setActive(nextIndex) {
+        const rendered = list.querySelectorAll('.autocomplete-item');
+        rendered.forEach((item) => item.classList.remove('autocomplete-active'));
+
+        if (!rendered.length) {
+            activeIndex = -1;
+            return;
+        }
+
+        if (nextIndex < 0) {
+            nextIndex = rendered.length - 1;
+        }
+
+        if (nextIndex >= rendered.length) {
+            nextIndex = 0;
+        }
+
+        activeIndex = nextIndex;
+        rendered[activeIndex].classList.add('autocomplete-active');
+    }
+
+    input.addEventListener('input', async function() {
+        const query = this.value.trim();
+
+        if (controller) {
+            controller.abort();
+        }
+
+        if (query.length < 2) {
+            closeList();
+            return;
+        }
+
+        controller = new AbortController();
+
+        try {
+            const response = await fetch(`${searchUrl}?query=${encodeURIComponent(query)}`, {
+                signal: controller.signal,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            });
+
+            if (!response.ok) {
+                closeList();
+                return;
+            }
+
+            const results = await response.json();
+            renderOptions(Array.isArray(results) ? results : []);
+        } catch (error) {
+            if (error.name !== 'AbortError') {
+                closeList();
+            }
+        }
+    });
+
+    input.addEventListener('keydown', function(event) {
+        const rendered = list.querySelectorAll('.autocomplete-item');
+
+        if (!rendered.length) {
+            return;
+        }
+
+        if (event.key === 'ArrowDown') {
+            event.preventDefault();
+            setActive(activeIndex + 1);
+        }
+
+        if (event.key === 'ArrowUp') {
+            event.preventDefault();
+            setActive(activeIndex - 1);
+        }
+
+        if (event.key === 'Enter' && activeIndex > -1) {
+            event.preventDefault();
+            input.value = items[activeIndex];
+            closeList();
+        }
+
+        if (event.key === 'Escape') {
+            closeList();
+        }
+    });
+
+    document.addEventListener('click', function(event) {
+        if (!list.contains(event.target) && event.target !== input) {
+            closeList();
+        }
+    });
 }

@@ -9,15 +9,15 @@
 
 <div class="game-stats-hud">
     <div class="stat-pill streak">
-        <span class="stat-label">Day</span>
+        <span class="stat-label">{{ __('Day') }}</span>
         <span class="stat-value" id="hud-streak">{{ $displayStats['streak'] }}</span>
     </div>
     <div class="stat-pill games">
-        <span class="stat-label">Played</span>
+        <span class="stat-label">{{ __('Played') }}</span>
         <span class="stat-value" id="hud-played">{{ $displayStats['games_played'] }}</span>
     </div>
     <div class="stat-pill score">
-        <span class="stat-label">Score</span>
+        <span class="stat-label">{{ __('Score') }}</span>
         <span class="stat-value" id="hud-score">{{ $displayStats['total_correct'] }}/{{ $displayStats['total_questions'] }}</span>
     </div>
 </div>
@@ -26,7 +26,7 @@
     .game-stats-hud {
         display: flex;
         gap: 0.75rem;
-        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
         justify-content: center;
     }
 
@@ -34,36 +34,56 @@
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        background: white;
-        padding: 0.4rem 0.8rem;
+        background: var(--surface);
+        padding: 0.65rem 0.95rem;
         border-radius: 99px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        border: 1px solid #e2e8f0;
+        box-shadow: var(--shadow-soft);
+        border: 1px solid var(--border-soft);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
     }
 
     .stat-label {
         font-size: 0.7rem;
         text-transform: uppercase;
         font-weight: 700;
-        color: #64748b;
+        color: var(--text-soft);
         letter-spacing: 0.05em;
     }
 
     .stat-value {
-        font-family: 'Outfit', sans-serif;
-        font-size: 0.9rem;
+        font-family: var(--font-display);
+        font-size: 0.95rem;
         font-weight: 800;
-        color: #0f172a;
+        color: var(--text);
     }
 
-    .stat-pill.streak { border-color: #fca5a5; background: #fff1f2; }
-    .stat-pill.streak .stat-label { color: #e11d48; }
-    
-    .stat-pill.games { border-color: #93c5fd; background: #eff6ff; }
-    .stat-pill.games .stat-label { color: #2563eb; }
+    .stat-pill.streak {
+        border-color: rgba(244, 63, 94, 0.2);
+        background: rgba(244, 63, 94, 0.08);
+    }
 
-    .stat-pill.score { border-color: #86efac; background: #f0fdf4; }
-    .stat-pill.score .stat-label { color: #16a34a; }
+    .stat-pill.streak .stat-label {
+        color: #e11d48;
+    }
+    
+    .stat-pill.games {
+        border-color: rgba(59, 130, 246, 0.2);
+        background: rgba(59, 130, 246, 0.08);
+    }
+
+    .stat-pill.games .stat-label {
+        color: #2563eb;
+    }
+
+    .stat-pill.score {
+        border-color: rgba(34, 197, 94, 0.2);
+        background: rgba(34, 197, 94, 0.08);
+    }
+
+    .stat-pill.score .stat-label {
+        color: #16a34a;
+    }
 </style>
 
 <script>

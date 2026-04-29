@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +21,18 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $request = request();
+
+        $locale = $request->segment(1)
+            ?? ($request->hasSession() ? $request->session()->get('locale') : null)
+            ?? $request->cookie('locale')
+            ?? config('app.locale');
+
+        if (in_array($locale, ['en', 'ar'], true)) {
+            App::setLocale($locale);
+            URL::defaults(['locale' => $locale]);
+        }
+
         \Illuminate\Support\Facades\View::composer('*', function ($view) {
             $rawStats = request()->cookie('game_stats');
             
@@ -35,8 +49,12 @@ class AppServiceProvider extends ServiceProvider
                 'total_questions' => 0,
                 'games_played' => 0,
             ], $stats);
+
+            $locale = App::currentLocale();
             
-            $view->with('global_stats', $stats);
+            $view->with('global_stats', $stats)
+                ->with('current_locale', $locale)
+                ->with('current_direction', $locale === 'ar' ? 'rtl' : 'ltr');
         });
     }
 }

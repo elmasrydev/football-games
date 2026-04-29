@@ -1,77 +1,150 @@
 @props(['challenge', 'game'])
 
-<div class="text-box {{ $game->slug === 'vowel-void' ? 'vowel-void-mode' : '' }}">
+<div class="text-shell">
     {{-- Check for image even in text challenges --}}
     @php 
         $imagePath = $challenge->image_path ?? $challenge->stimulus_data['image_path'] ?? null;
     @endphp
-    
-    @if($imagePath)
-        <div class="embedded-image-wrapper">
-            <img src="{{ asset('storage/' . $imagePath) }}" alt="Challenge Context" class="embedded-image">
-        </div>
-    @endif
 
-    @if($game->slug === 'vowel-void')
-        <div class="consonant-display">
-            {{ $challenge->consonant_display ?? $challenge->stimulus_data['consonant_display'] ?? '' }}
-        </div>
-        @if(isset($challenge->stimulus_data['category']))
-            <div class="category-badge">Category: {{ $challenge->stimulus_data['category'] }}</div>
-        @endif
-    @elseif($game->slug === 'missing-link')
-        <div class="missing-link-display">
-            <span class="link-part">{{ $challenge->part_a ?? $challenge->stimulus_data['part_a'] ?? '' }}</span>
-            <span class="link-connector">?</span>
-            <span class="link-part">{{ $challenge->part_b ?? $challenge->stimulus_data['part_b'] ?? '' }}</span>
-        </div>
-    @elseif($game->slug === 'transfer-chain')
-        <div class="transfer-display">
-            <div class="club-name">{{ $challenge->club_a ?? $challenge->stimulus_data['club_a'] ?? '' }}</div>
-            <div class="transfer-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>
+    <div class="text-stage-meta">
+        <span class="stimulus-tag">{{ __('Challenge Mode') }}</span>
+        <strong>{{ $game->localized_title }}</strong>
+    </div>
+
+    <div class="text-box {{ $game->slug === 'vowel-void' ? 'vowel-void-mode' : '' }}">
+        <div class="text-panel-glow"></div>
+    
+        @if($imagePath)
+            <div class="embedded-image-wrapper">
+                <img src="{{ asset('storage/' . $imagePath) }}" alt="{{ __('Challenge') }}" class="embedded-image">
             </div>
-            <div class="club-name">{{ $club_b ?? $challenge->club_b ?? $challenge->stimulus_data['club_b'] ?? '' }}</div>
-        </div>
-    @elseif($game->slug === 'group-players')
-        <div class="group-display">
-            <h2 class="group-title">{{ $challenge->stimulus_data['title'] ?? 'Mystery Group' }}</h2>
-        </div>
-    @else
-        <div class="generic-text">
-            <p class="puzzle-clue">{{ $challenge->question ?? $challenge->stimulus_data['question'] ?? $challenge->stimulus_data['clue'] ?? 'Solve the mystery!' }}</p>
-        </div>
-    @endif
+        @endif
+
+        @if($game->slug === 'vowel-void')
+            <div class="consonant-display">
+                {{ $challenge->consonant_display ?? $challenge->stimulus_data['consonant_display'] ?? '' }}
+            </div>
+            @if(isset($challenge->stimulus_data['category']))
+                <div class="category-badge">{{ __('Category:') }} {{ $challenge->stimulus_data['category'] }}</div>
+            @endif
+        @elseif($game->slug === 'missing-link')
+            <div class="missing-link-display">
+                <span class="link-part">{{ $challenge->part_a ?? $challenge->stimulus_data['part_a'] ?? '' }}</span>
+                <span class="link-connector">?</span>
+                <span class="link-part">{{ $challenge->part_b ?? $challenge->stimulus_data['part_b'] ?? '' }}</span>
+            </div>
+        @elseif($game->slug === 'transfer-chain')
+            <div class="transfer-display">
+                <div class="club-name">{{ $challenge->club_a ?? $challenge->stimulus_data['club_a'] ?? '' }}</div>
+                <div class="transfer-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>
+                </div>
+                <div class="club-name">{{ $club_b ?? $challenge->club_b ?? $challenge->stimulus_data['club_b'] ?? '' }}</div>
+            </div>
+        @elseif($game->slug === 'group-players')
+            <div class="group-display">
+                <h2 class="group-title">{{ $challenge->stimulus_data['title'] ?? __('Mystery Group') }}</h2>
+            </div>
+        @else
+            <div class="generic-text">
+                <p class="puzzle-clue">{{ $challenge->question ?? $challenge->stimulus_data['question'] ?? $challenge->stimulus_data['clue'] ?? __('Solve the mystery!') }}</p>
+            </div>
+        @endif
+    </div>
 </div>
 
 <style>
+    .text-shell {
+        display: grid;
+        gap: 0.9rem;
+    }
+
+    .text-stage-meta {
+        display: grid;
+        gap: 0.35rem;
+        padding-inline: 0.2rem;
+    }
+
+    .stimulus-tag {
+        display: inline-flex;
+        width: fit-content;
+        padding: 0.42rem 0.75rem;
+        border-radius: 999px;
+        background: rgba(var(--surface-rgb), 0.75);
+        border: 1px solid var(--border-soft);
+        color: var(--text-soft);
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        backdrop-filter: blur(10px);
+    }
+
+    .text-stage-meta strong {
+        color: var(--text);
+        font-family: var(--font-display);
+        font-size: clamp(1.05rem, 2vw, 1.35rem);
+        line-height: 1.1;
+        letter-spacing: -0.03em;
+    }
+
     .text-box {
-        background: white; border: 1px solid var(--glass-border);
-        box-shadow: var(--shadow); border-radius: 20px; padding: 3rem;
-        display: flex; flex-direction: column; justify-content: center; align-items: center; margin-bottom: 1rem;
+        background:
+            radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), transparent 28%),
+            radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.1), transparent 24%),
+            var(--surface);
+        border: 1px solid var(--border-soft);
+        box-shadow: var(--shadow-soft);
+        border-radius: 28px;
+        padding: clamp(1.5rem, 4vw, 3rem);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
         min-height: 300px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .text-panel-glow {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 40%);
+        pointer-events: none;
     }
     
-    .embedded-image-wrapper { margin-bottom: 2rem; max-width: 100%; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-    .embedded-image { max-width: 100%; max-height: 300px; object-fit: contain; }
+    .embedded-image-wrapper { margin-bottom: 2rem; max-width: 100%; border-radius: 20px; overflow: hidden; box-shadow: 0 18px 30px rgba(15,23,42,0.14); border: 1px solid var(--border-soft); position: relative; z-index: 1; }
+    .embedded-image { max-width: 100%; max-height: 300px; object-fit: contain; background: rgba(var(--surface-rgb), 0.5); }
 
     /* Vowel Void */
-    .consonant-display { font-size: 3.5rem; font-weight: 900; letter-spacing: 8px; color: var(--pitch-dark); font-family: 'Courier New', Courier, monospace; }
-    .category-badge { margin-top: 1rem; padding: 0.5rem 1rem; background: #f3f4f6; border-radius: 20px; font-weight: 600; font-size: 0.9rem; }
+    .consonant-display { font-size: clamp(2rem, 7vw, 3.5rem); font-weight: 900; letter-spacing: 8px; color: var(--text); font-family: 'Courier New', Courier, monospace; text-align: center; position: relative; z-index: 1; }
+    .category-badge { margin-top: 1rem; padding: 0.5rem 1rem; background: rgba(var(--surface-muted-rgb), 0.9); border-radius: 20px; font-weight: 700; font-size: 0.9rem; color: var(--text-muted); border: 1px solid var(--border-soft); position: relative; z-index: 1; }
     
     /* Missing Link */
-    .missing-link-display { display: flex; align-items: center; gap: 2rem; }
-    .link-part { font-size: 2.2rem; font-weight: 800; color: var(--pitch-dark); }
-    .link-connector { font-size: 4rem; font-weight: 900; color: var(--stadium-green); }
+    .missing-link-display { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; justify-content: center; position: relative; z-index: 1; }
+    .link-part { font-size: clamp(1.5rem, 4vw, 2.2rem); font-weight: 800; color: var(--text); }
+    .link-connector { font-size: clamp(2.5rem, 7vw, 4rem); font-weight: 900; color: var(--accent); }
 
     /* Transfer Chain */
-    .transfer-display { display: flex; align-items: center; gap: 2rem; }
-    .club-name { font-size: 2rem; font-weight: 800; color: var(--pitch-dark); text-align: center; }
-    .transfer-icon { width: 48px; height: 48px; color: var(--stadium-green); }
+    .transfer-display { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; justify-content: center; position: relative; z-index: 1; }
+    .club-name { font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 800; color: var(--text); text-align: center; }
+    .transfer-icon { width: 48px; height: 48px; color: var(--accent); }
 
     /* Group Players */
-    .group-title { font-size: 2.5rem; font-weight: 900; color: var(--pitch-dark); text-align: center; }
+    .group-title { font-size: clamp(2rem, 6vw, 3rem); font-weight: 900; color: var(--text); text-align: center; position: relative; z-index: 1; }
 
     /* Generic Clue */
-    .puzzle-clue { font-size: 1.5rem; font-weight: 700; color: var(--pitch-dark); text-align: center; line-height: 1.4; }
+    .puzzle-clue { font-size: clamp(1.15rem, 3vw, 1.6rem); font-weight: 700; color: var(--text); text-align: center; line-height: 1.5; position: relative; z-index: 1; }
+
+    @media (max-width: 640px) {
+        .text-box {
+            padding: 1.25rem;
+            min-height: 260px;
+        }
+
+        .missing-link-display,
+        .transfer-display {
+            gap: 1rem;
+        }
+    }
 </style>

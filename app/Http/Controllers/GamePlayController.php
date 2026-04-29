@@ -13,7 +13,7 @@ class GamePlayController extends Controller
 {
     use TracksGameStats;
 
-    public function play(string $slug, ?int $challengeId = null)
+    public function play(string $locale, string $slug, ?int $challengeId = null)
     {
         $game = Game::where('slug', $slug)->where('is_active', true)->firstOrFail();
         $genreSlug = request('genre');
@@ -61,7 +61,7 @@ class GamePlayController extends Controller
         ]);
     }
 
-    public function checkAnswer(Request $request, int $challengeId)
+    public function checkAnswer(Request $request, string $locale, int $challengeId)
     {
         $challenge = Challenge::findOrFail($challengeId);
         $userAnswer = strtolower(trim($request->answer));
@@ -103,7 +103,7 @@ class GamePlayController extends Controller
         ]);
     }
 
-    public function getHint(Request $request, int $challengeId)
+    public function getHint(Request $request, string $locale, int $challengeId)
     {
         $challenge = Challenge::with('hints')->findOrFail($challengeId);
         $shownHints = $request->shown_hints ?? [];
@@ -117,7 +117,7 @@ class GamePlayController extends Controller
         return response()->json(['message' => 'No more hints available!']);
     }
 
-    public function revealAnswer(int $challengeId)
+    public function revealAnswer(string $locale, int $challengeId)
     {
         $challenge = Challenge::findOrFail($challengeId);
         
@@ -128,7 +128,7 @@ class GamePlayController extends Controller
         return response()->json(['answer' => $challenge->answer]);
     }
 
-    public function search(Request $request, string $type)
+    public function search(Request $request, string $locale, string $type)
     {
         $query = $request->query('query');
         if (!$query) return response()->json([]);

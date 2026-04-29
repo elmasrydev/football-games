@@ -30,4 +30,11 @@ class Genre extends Model
     {
         return $this->hasMany(Game::class);
     }
+
+    public function getLocalizedNameAttribute(): string
+    {
+        return app()->getLocale() === 'ar'
+            ? ($this->name_ar ?: $this->name_en)
+            : $this->name_en;
+    }
 }
