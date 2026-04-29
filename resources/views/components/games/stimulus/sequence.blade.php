@@ -2,27 +2,20 @@
 
 <div class="sequence-shell">
     @php 
-        $clubsData = $challenge->stimulus_data['clubs'] ?? [];
-        $playerImage = $challenge->stimulus_data['player_image'] ?? null;
+        $nodesData = $challenge->stimulus_data['nodes'] ?? $challenge->stimulus_data['clubs'] ?? [];
+        $headerImage = $challenge->stimulus_data['header_image'] ?? $challenge->stimulus_data['player_image'] ?? null;
         
-        // Resolve club details if they are just IDs
-        $resolvedClubs = collect($clubsData)->map(function($club) {
-            if (!isset($club['name']) && isset($club['club_id'])) {
-                // Try new unified table first (using external_id mapping)
-                $dbItem = \App\Models\GameItem::ofType('club')->where('external_id', $club['club_id'])->first();
+        // Resolve node details
+        $resolvedNodes = collect($nodesData)->map(function($node) {
+            if (!isset($node['name']) && isset($node['external_id'])) {
+                $type = $node['type'] ?? 'club';
+                $dbItem = \App\Models\GameItem::ofType($type)->where('external_id', $node['external_id'])->first();
                 if ($dbItem) {
-                    $club['name'] = $dbItem->name_en;
-                    $club['logo'] = $dbItem->getFirstMediaUrl('image');
-                } else {
-                    // Fallback to legacy table if seeder hasn't run or item missing
-                    $dbClub = \App\Models\Club::find($club['club_id']);
-                    if ($dbClub) {
-                        $club['name'] = $dbClub->name;
-                        $club['logo'] = $dbClub->logo ? asset('storage/' . $dbClub->logo) : null;
-                    }
+                    $node['name'] = app()->getLocale() === 'ar' ? $dbItem->name_ar : $dbItem->name_en;
+                    $node['logo'] = $dbItem->getFirstMediaUrl('image');
                 }
             }
-            return $club;
+            return $node;
         });
     @endphp
 
@@ -34,32 +27,32 @@
     <div class="sequence-box">
         <div class="sequence-panel-glow"></div>
     
-        @if($playerImage)
-            <div class="player-avatar">
-                <img src="{{ asset('storage/' . $playerImage) }}" alt="{{ __('Mystery Player') }}">
+        @if($headerImage)
+            <div class="header-avatar">
+                <img src="{{ str_contains($headerImage, 'http') ? $headerImage : asset('storage/' . $headerImage) }}" alt="{{ __('Mystery') }}">
             </div>
         @endif
     
-        <div class="club-timeline">
-            @foreach($resolvedClubs as $club)
+        <div class="nodes-timeline">
+            @foreach($resolvedNodes as $node)
                 <div class="timeline-item">
-                    <span class="timeline-year">{{ $club['year'] ?? '' }}</span>
+                    @if(isset($node['label']) || isset($node['year']))
+                        <span class="timeline-year">{{ $node['label'] ?? $node['year'] }}</span>
+                    @endif
                     <span class="timeline-dot"></span>
-                    <div class="club-info-card">
-                        @if(!empty($club['logo']))
-                            <img src="{{ $club['logo'] }}" alt="{{ $club['name'] ?? __('Club') }}" class="club-logo">
-                        @elseif(!empty($club['club_id']))
-                             <div class="club-logo-placeholder">{{ substr($club['name'] ?? '?', 0, 1) }}</div>
+                    <div class="node-info-card">
+                        @if(!empty($node['logo']))
+                            <img src="{{ $node['logo'] }}" alt="{{ $node['name'] ?? __('Item') }}" class="node-logo">
                         @else
-                            <div class="club-logo-placeholder">?</div>
+                            <div class="node-logo-placeholder">{{ substr($node['name'] ?? '?', 0, 1) }}</div>
                         @endif
-                        <span class="club-name">{{ $club['name'] ?? __('Unknown Club') }}</span>
+                        <span class="node-name">{{ $node['name'] ?? __('Unknown') }}</span>
                     </div>
                 </div>
             @endforeach
         </div>
     
-        <div class="stimulus-instruction">{{ __('Follow the career path!') }}</div>
+        <div class="stimulus-instruction">{{ $challenge->stimulus_data['instruction'] ?? __('Follow the chain!') }}</div>
     </div>
 </div>
 
@@ -67,6 +60,7 @@
     .sequence-shell {
         display: grid;
         gap: 0.9rem;
+        width: 100%;
     }
 
     .sequence-stage-meta {
@@ -114,6 +108,7 @@
         min-height: 350px;
         position: relative;
         overflow: hidden;
+        width: 100%;
     }
 
     .sequence-panel-glow {
@@ -123,23 +118,23 @@
         pointer-events: none;
     }
 
-    .player-avatar img { width: 100px; height: 100px; border-radius: 50%; border: 4px solid var(--accent); margin-bottom: 2.5rem; box-shadow: 0 18px 30px rgba(15,23,42,0.18); position: relative; z-index: 1; }
+    .header-avatar img { width: 100px; height: 100px; border-radius: 50%; border: 4px solid var(--accent); margin-bottom: 2.5rem; box-shadow: 0 18px 30px rgba(15,23,42,0.18); position: relative; z-index: 1; }
     
-    .club-timeline { display: flex; gap: 3rem; flex-wrap: wrap; justify-content: center; align-items: start; position: relative; z-index: 1; }
+    .nodes-timeline { display: flex; gap: 3rem; flex-wrap: wrap; justify-content: center; align-items: start; position: relative; z-index: 1; width: 100%; }
     .timeline-item { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; position: relative; }
     .timeline-year { font-weight: 800; font-size: 1.1rem; color: var(--text); }
     .timeline-dot { width: 16px; height: 16px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 10px rgba(59, 130, 246, 0.25); }
     
-    .club-info-card {
+    .node-info-card {
         background: rgba(var(--surface-muted-rgb), 0.9); border: 1px solid var(--border-soft); border-radius: 18px;
         padding: 0.75rem; display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
-        min-width: 100px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: transform 0.2s;
+        min-width: 110px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: transform 0.2s;
     }
-    .club-info-card:hover { transform: translateY(-5px); }
+    .node-info-card:hover { transform: translateY(-5px); }
     
-    .club-logo { width: 48px; height: 48px; object-fit: contain; }
-    .club-logo-placeholder { width: 48px; height: 48px; background: rgba(59, 130, 246, 0.12); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: 800; color: var(--accent-strong); font-size: 1.5rem; }
-    .club-name { font-size: 0.85rem; font-weight: 700; color: var(--text); text-align: center; }
+    .node-logo { width: 48px; height: 48px; object-fit: contain; }
+    .node-logo-placeholder { width: 48px; height: 48px; background: rgba(59, 130, 246, 0.12); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: 800; color: var(--accent-strong); font-size: 1.5rem; }
+    .node-name { font-size: 0.85rem; font-weight: 700; color: var(--text); text-align: center; }
 
     .timeline-item:not(:last-child)::after {
         content: ''; position: absolute; top: 35px; left: calc(50% + 8px); width: calc(100% + 1.5rem); height: 2px;
@@ -154,7 +149,7 @@
             min-height: 280px;
         }
 
-        .club-timeline {
+        .nodes-timeline {
             gap: 1.6rem;
         }
 

@@ -147,6 +147,11 @@
             if (bookmarkedIds.includes(id)) {
                 item.style.display = 'block';
                 found++;
+                
+                // Ensure UI reflects bookmarked state
+                if (typeof updateBookmarkUI === 'function') {
+                    updateBookmarkUI(id);
+                }
             }
         });
 
