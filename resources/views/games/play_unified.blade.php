@@ -243,6 +243,10 @@
                                    (data.correct ? 'bg-tertiary/10 text-tertiary border border-tertiary/20' : 'bg-error/10 text-error border border-error/20');
                 feedback.classList.remove('hidden');
 
+                if (data.stats && typeof window.updateHUD === 'function') {
+                    window.updateHUD(data.stats);
+                }
+
                 if (data.correct) {
                     if (window.updateProgress && data.matched_sort_order !== undefined) {
                         window.updateProgress(answer, data.matched_sort_order);

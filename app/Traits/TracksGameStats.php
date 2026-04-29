@@ -33,24 +33,21 @@ trait TracksGameStats
         $today = Carbon::today()->toDateString();
         $yesterday = Carbon::yesterday()->toDateString();
 
-        // Handle Streak
+        // Handle Streak (Daily)
         if ($stats['last_played_at'] === $yesterday) {
             $stats['streak']++;
         } elseif ($stats['last_played_at'] !== $today) {
             $stats['streak'] = 1;
         }
 
-        // Handle Games Played (unique challenge per day)
+        // Handle Games Played (Total unique challenges)
         $challengeKey = $gameType . '_' . $challengeId;
-        if ($stats['last_played_at'] !== $today) {
-            $stats['played_challenges'] = [$challengeKey];
-            $stats['games_played'] = 1;
-        } elseif (!in_array($challengeKey, $stats['played_challenges'])) {
+        if (!in_array($challengeKey, $stats['played_challenges'])) {
             $stats['played_challenges'][] = $challengeKey;
             $stats['games_played']++;
         }
 
-        // Handle Score
+        // Handle Score (Total attempts)
         $stats['total_questions']++;
         if ($isCorrect) {
             $stats['total_correct']++;

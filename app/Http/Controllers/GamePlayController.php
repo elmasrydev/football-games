@@ -56,6 +56,9 @@ class GamePlayController extends Controller
               ->where('language', $locale);
         })->get();
 
+        // Fetch User Stats
+        $stats = $this->getStats();
+
         return view('games.play_unified', [
             'game' => $game,
             'challenge' => $challenge,
@@ -63,6 +66,7 @@ class GamePlayController extends Controller
             'selectedGenre' => $selectedGenre,
             'totalChallenges' => $totalChallenges,
             'currentLevel' => $currentLevel,
+            'stats' => $stats,
         ]);
     }
 
@@ -85,10 +89,12 @@ class GamePlayController extends Controller
             }
 
             if ($matchIndex !== -1) {
+                $stats = $this->updateStats(true, $challenge->id, $challenge->game->slug);
                 return response()->json([
                     'correct' => true,
                     'message' => __("Found one! :answer is in the group.", ['answer' => $userAnswer]),
-                    'matched_sort_order' => $matchIndex
+                    'matched_sort_order' => $matchIndex,
+                    'stats' => $stats
                 ]);
             }
 
@@ -102,9 +108,13 @@ class GamePlayController extends Controller
         $correctAnswer = strtolower($challenge->answer);
         $correct = $userAnswer === $correctAnswer;
 
+        // Update stats on check
+        $stats = $this->updateStats($correct, $challenge->id, $challenge->game->slug);
+
         return response()->json([
             'correct' => $correct,
             'message' => $correct ? __("Correct! Well done!") : __("Not quite. Try again!"),
+            'stats' => $stats
         ]);
     }
 
