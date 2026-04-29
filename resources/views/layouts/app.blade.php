@@ -150,25 +150,25 @@
         </div>
     </footer>
 
-    <!-- Hint Modal -->
-    <div id="hint-modal"
-        class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-sm">
+    <!-- Ad-Gate Modal (Hints & Reveal) -->
+    <div id="ad-modal"
+        class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-md">
         <div
-            class="glass-card max-w-sm w-full rounded-3xl p-8 text-center shadow-2xl animate-in zoom-in-95 duration-200">
+            class="bg-surface dark:bg-zinc-900 border border-outline-variant/30 max-w-sm w-full rounded-[2.5rem] p-8 text-center shadow-2xl animate-in zoom-in-95 duration-200">
             <div class="mb-6 flex justify-center">
-                <div class="w-20 h-20 rounded-full bg-secondary/10 flex items-center justify-center text-secondary">
-                    <span class="material-symbols-outlined text-4xl"
+                <div class="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center text-primary" id="modal-icon-container">
+                    <span class="material-symbols-outlined text-4xl" id="modal-icon"
                         style="font-variation-settings: 'FILL' 1">lightbulb</span>
                 </div>
             </div>
-            <h3 class="text-2xl font-display font-black uppercase tracking-tight mb-3">{{ __('Need a Hint?') }}</h3>
-            <p class="text-on-surface-variant text-sm mb-8 leading-relaxed">
+            <h3 class="text-2xl font-display font-black uppercase tracking-tight mb-3 text-on-surface" id="modal-title">{{ __('Need a Hint?') }}</h3>
+            <p class="text-on-surface-variant text-sm mb-8 leading-relaxed font-medium" id="modal-description">
                 {{ __('Watch a short video ad to unlock the next clue for this challenge.') }}
             </p>
             <div class="flex flex-col gap-3">
                 <button id="modal-watch-ad"
                     class="bg-primary text-on-primary font-display font-black uppercase tracking-widest py-4 rounded-2xl shadow-xl shadow-primary/20 hover:brightness-110 active:scale-95 transition-all">
-                    {{ __('Watch Ad for Hint') }}
+                    {{ __('Watch Ad') }}
                 </button>
                 <button id="modal-close"
                     class="text-on-surface-variant font-display font-bold uppercase tracking-widest py-3 hover:text-on-surface transition-all">
@@ -243,12 +243,31 @@
             updateThemeIcon();
         })();
 
-        // Hint Modal Logic
-        function openHintModal(onConfirm) {
-            const modal = document.getElementById('hint-modal');
+        // Ad Modal Logic (Hints & Reveal)
+        function openAdModal(type, onConfirm) {
+            const modal = document.getElementById('ad-modal');
             const watchBtn = document.getElementById('modal-watch-ad');
             const closeBtn = document.getElementById('modal-close');
+            const title = document.getElementById('modal-title');
+            const desc = document.getElementById('modal-description');
+            const icon = document.getElementById('modal-icon');
+            const iconContainer = document.getElementById('modal-icon-container');
+
             if (!modal) return;
+
+            if (type === 'reveal') {
+                title.textContent = "{{ __('Reveal Answer?') }}";
+                desc.textContent = "{{ __('Watch an ad to reveal the full answer and complete this level.') }}";
+                icon.textContent = "visibility";
+                iconContainer.classList.remove('text-secondary', 'bg-secondary/10');
+                iconContainer.classList.add('text-primary', 'bg-primary/10');
+            } else {
+                title.textContent = "{{ __('Need a Hint?') }}";
+                desc.textContent = "{{ __('Watch a short video ad to unlock the next clue for this challenge.') }}";
+                icon.textContent = "lightbulb";
+                iconContainer.classList.remove('text-primary', 'bg-primary/10');
+                iconContainer.classList.add('text-secondary', 'bg-secondary/10');
+            }
 
             modal.classList.remove('hidden');
             modal.classList.add('flex');
@@ -268,6 +287,8 @@
             closeBtn.addEventListener('click', closeModal);
             modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
         }
+        window.openAdModal = openAdModal;
+        window.openHintModal = (cb) => openAdModal('hint', cb); // Backward compatibility
     </script>
 
     @stack('scripts')

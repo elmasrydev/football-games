@@ -331,21 +331,25 @@
     const giveUpBtn = document.getElementById('give-up-btn');
     if (giveUpBtn) {
         giveUpBtn.addEventListener('click', () => {
-            fetch(`{{ route('challenges.reveal', ['challenge' => $challenge->id]) }}`)
-            .then(r => r.json())
-            .then(data => {
-                let msg = '';
-                if (data.answers) {
-                    msg = `{{ __('Answers:') }} ${data.answers.join(', ')}`;
-                } else {
-                    msg = `{{ __('The answer was:') }} ${data.answer}`;
-                    if (answerInput) answerInput.value = data.answer;
-                }
-                
-                showFeedback(msg, true, true);
-                if (submitBtn) submitBtn.disabled = true;
-                if (window.highlightSuccess) window.highlightSuccess();
-            });
+            if (typeof openAdModal === 'function') {
+                openAdModal('reveal', () => {
+                    fetch(`{{ route('challenges.reveal', ['challenge' => $challenge->id]) }}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        let msg = '';
+                        if (data.answers) {
+                            msg = `{{ __('Answers:') }} ${data.answers.join(', ')}`;
+                        } else {
+                            msg = `{{ __('The answer was:') }} ${data.answer}`;
+                            if (answerInput) answerInput.value = data.answer;
+                        }
+                        
+                        showFeedback(msg, true, true);
+                        if (submitBtn) submitBtn.disabled = true;
+                        if (window.highlightSuccess) window.highlightSuccess();
+                    });
+                });
+            }
         });
     }
 
