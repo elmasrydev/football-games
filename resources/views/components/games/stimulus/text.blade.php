@@ -28,10 +28,26 @@
                 <div class="category-badge">{{ __('Category:') }} {{ $challenge->stimulus_data['category'] }}</div>
             @endif
         @elseif($game->slug === 'missing-link')
-            <div class="missing-link-display">
-                <span class="link-part">{{ $challenge->part_a ?? $challenge->stimulus_data['part_a'] ?? '' }}</span>
-                <span class="link-connector">?</span>
-                <span class="link-part">{{ $challenge->part_b ?? $challenge->stimulus_data['part_b'] ?? '' }}</span>
+            <div class="missing-link-container">
+                <div class="clues-grid">
+                    @php
+                        $clues = $challenge->stimulus_data['clues'] ?? [
+                            $challenge->part_a ?? $challenge->stimulus_data['part_a'] ?? null,
+                            $challenge->part_b ?? $challenge->stimulus_data['part_b'] ?? null,
+                            $challenge->part_c ?? $challenge->stimulus_data['part_c'] ?? null,
+                            $challenge->part_d ?? $challenge->stimulus_data['part_d'] ?? null,
+                        ];
+                        $clues = array_filter($clues);
+                    @endphp
+                    @foreach($clues as $clue)
+                        <div class="clue-bubble">
+                            <span class="clue-text">{{ $clue }}</span>
+                        </div>
+                    @endforeach
+                </div>
+                <div class="link-icon-wrapper">
+                    <span class="material-symbols-outlined link-icon">link</span>
+                </div>
             </div>
         @elseif($game->slug === 'transfer-chain')
             <div class="transfer-display">
@@ -120,10 +136,14 @@
     .consonant-display { font-size: clamp(2rem, 7vw, 3.5rem); font-weight: 900; letter-spacing: 8px; color: var(--text); font-family: 'Courier New', Courier, monospace; text-align: center; position: relative; z-index: 1; }
     .category-badge { margin-top: 1rem; padding: 0.5rem 1rem; background: rgba(var(--surface-muted-rgb), 0.9); border-radius: 20px; font-weight: 700; font-size: 0.9rem; color: var(--text-muted); border: 1px solid var(--border-soft); position: relative; z-index: 1; }
     
-    /* Missing Link */
-    .missing-link-display { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; justify-content: center; position: relative; z-index: 1; }
-    .link-part { font-size: clamp(1.5rem, 4vw, 2.2rem); font-weight: 800; color: var(--text); }
-    .link-connector { font-size: clamp(2.5rem, 7vw, 4rem); font-weight: 900; color: var(--accent); }
+    /* Missing Link Improvements */
+    .missing-link-container { display: flex; flex-direction: column; align-items: center; gap: 2rem; width: 100%; position: relative; z-index: 1; }
+    .clues-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; max-width: 600px; }
+    .clue-bubble { padding: 1rem 2rem; background: rgba(var(--primary-rgb), 0.1); border: 1px solid rgba(var(--primary-rgb), 0.2); border-radius: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.05); transition: all 0.3s ease; }
+    .clue-bubble:hover { transform: translateY(-4px); background: rgba(var(--primary-rgb), 0.15); border-color: rgba(var(--primary-rgb), 0.3); }
+    .clue-text { font-size: clamp(1.1rem, 2.5vw, 1.5rem); font-weight: 800; color: var(--text); text-align: center; }
+    .link-icon-wrapper { width: 60px; height: 60px; border-radius: 50%; background: var(--primary); display: flex; items-center; justify-content: center; color: var(--on-primary); box-shadow: 0 10px 20px rgba(var(--primary-rgb), 0.3); }
+    .link-icon { font-size: 32px !important; }
 
     /* Transfer Chain */
     .transfer-display { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; justify-content: center; position: relative; z-index: 1; }
@@ -141,10 +161,6 @@
             padding: 1.25rem;
             min-height: 260px;
         }
-
-        .missing-link-display,
-        .transfer-display {
-            gap: 1rem;
-        }
+        .clue-bubble { padding: 0.75rem 1.25rem; }
     }
 </style>

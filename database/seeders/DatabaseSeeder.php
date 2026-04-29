@@ -17,6 +17,8 @@ class DatabaseSeeder extends Seeder
             ArabicAnagramSeeder::class,
             VowelVoidSeeder::class,
             ArabicVowelVoidSeeder::class,
+            MissingLinkSeeder::class,
+            ArabicMissingLinkSeeder::class,
         ]);
     }
 }
