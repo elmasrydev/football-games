@@ -157,7 +157,7 @@
                 <div class="p-6 space-y-6">
                     <div class="text-center space-y-4">
                         <p class="text-xs text-on-surface-variant font-medium leading-relaxed opacity-70">
-                            {{ __('Stuck on this player? Reveal a hint one by one.') }}
+                            {{ __('Stuck on this level? Reveal a hint one by one.') }}
                         </p>
                         <button id="hint-btn" class="w-full py-4 bg-secondary text-on-secondary rounded-2xl font-display font-black uppercase tracking-widest text-xs hover:brightness-110 transition-all shadow-lg shadow-secondary/20 active:scale-95">
                             {{ __('Unlock Hint') }}

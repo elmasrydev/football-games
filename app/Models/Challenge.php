@@ -11,6 +11,7 @@ class Challenge extends Model
     protected $fillable = [
         'game_id',
         'genre_id',
+        'language',
         'difficulty',
         'stimulus_type',
         'stimulus_data',
@@ -58,6 +59,7 @@ class Challenge extends Model
     {
         return static::where('game_id', $this->game_id)
             ->where('genre_id', $this->genre_id)
+            ->where('language', $this->language)
             ->where('id', '<=', $this->id)
             ->count();
     }
@@ -66,6 +68,7 @@ class Challenge extends Model
     {
         return static::where('game_id', $this->game_id)
             ->where('genre_id', $this->genre_id)
+            ->where('language', $this->language)
             ->count();
     }
 }

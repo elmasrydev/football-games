@@ -94,8 +94,12 @@
     "Correct": "صحيح",
     "Active": "نشط",
     "Modes": "أوضاع",
-    "Stuck on this player? Reveal a hint one by one.": "عالق في هذا اللاعب؟ اكشف عن تلميح تلو الآخر.",
+    "Stuck on this level? Reveal a hint one by one.": "عالق في هذا المستوى؟ اكشف عن تلميح تلو الآخر.",
     "Pro Benefit": "ميزة برو",
     "Infinite Hints with Gamesiano Pro": "تلميحات غير محدودة مع جيمسيانو برو",
-    "Never get stuck again. Get unlimited hints and no ads.": "لا تتعثر مرة أخرى. احصل على تلميحات غير محدودة وبدون إعلانات."
+    "Never get stuck again. Get unlimited hints and no ads.": "لا تتعثر مرة أخرى. احصل على تلميحات غير محدودة وبدون إعلانات.",
+    "Correct! Well done!": "إجابة صحيحة! أحسنت!",
+    "Not quite. Try again!": "ليس تماماً. حاول مرة أخرى!",
+    "Unscramble the letters!": "فك رموز الحروف!",
+    "Fill in the missing vowels!": "املأ الحروف المتحركة الناقصة!"
 }

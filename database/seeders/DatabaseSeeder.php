@@ -14,6 +14,9 @@ class DatabaseSeeder extends Seeder
             GameSeeder::class,
             GameItemSeeder::class,
             AnagramSeeder::class,
+            ArabicAnagramSeeder::class,
+            VowelVoidSeeder::class,
+            ArabicVowelVoidSeeder::class,
         ]);
     }
 }

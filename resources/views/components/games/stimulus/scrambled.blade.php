@@ -6,16 +6,20 @@
             {{ $challenge->consonant_display ?? $challenge->stimulus_data['consonant_display'] ?? '' }}
         </div>
         @if(isset($challenge->stimulus_data['category']))
-            <div class="category-badge">Category: {{ $challenge->stimulus_data['category'] }}</div>
+            <div class="category-badge">{{ __('Category:') }} {{ $challenge->stimulus_data['category'] }}</div>
         @endif
-        <div class="stimulus-instruction">Fill in the missing vowels!</div>
+        <div class="stimulus-instruction">{{ __('Fill in the missing vowels!') }}</div>
     @else
         <div class="anagram-alphabet">
-            @foreach(str_split($challenge->scrambled_word ?? $challenge->stimulus_data['scrambled_word'] ?? '') as $letter)
-                <div class="letter-tile">{{ strtoupper($letter) }}</div>
+            @php
+                $scrambled = $challenge->scrambled_word ?? $challenge->stimulus_data['scrambled_word'] ?? '';
+                $letters = preg_split('//u', $scrambled, -1, PREG_SPLIT_NO_EMPTY);
+            @endphp
+            @foreach($letters as $letter)
+                <div class="letter-tile">{{ mb_strtoupper($letter) }}</div>
             @endforeach
         </div>
-        <div class="stimulus-instruction">Unscramble the letters!</div>
+        <div class="stimulus-instruction">{{ __('Unscramble the letters!') }}</div>
     @endif
 </div>
 

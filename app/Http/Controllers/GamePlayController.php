@@ -22,7 +22,10 @@ class GamePlayController extends Controller
         // Find genre by slug for cleaner URLs
         $selectedGenre = $genreSlug ? Genre::where('slug', $genreSlug)->first() : null;
 
-        $query = Challenge::where('game_id', $game->id)->where('is_active', true);
+        $query = Challenge::where('game_id', $game->id)
+            ->where('is_active', true)
+            ->where('language', $locale);
+
         if ($selectedGenre) {
             $query->where('genre_id', $selectedGenre->id);
         }
@@ -47,8 +50,10 @@ class GamePlayController extends Controller
         $currentLevel = (clone $query)->where('id', '<=', $challenge->id)->count();
 
         // Get only genres that have challenges for this game
-        $availableGenres = Genre::whereHas('challenges', function($q) use ($game) {
-            $q->where('game_id', $game->id)->where('is_active', true);
+        $availableGenres = Genre::whereHas('challenges', function($q) use ($game, $locale) {
+            $q->where('game_id', $game->id)
+              ->where('is_active', true)
+              ->where('language', $locale);
         })->get();
 
         return view('games.play_unified', [
@@ -82,14 +87,14 @@ class GamePlayController extends Controller
             if ($matchIndex !== -1) {
                 return response()->json([
                     'correct' => true,
-                    'message' => "Found one! {$userAnswer} is in the group.",
+                    'message' => __("Found one! :answer is in the group.", ['answer' => $userAnswer]),
                     'matched_sort_order' => $matchIndex
                 ]);
             }
 
             return response()->json([
                 'correct' => false,
-                'message' => "Nope, {$userAnswer} is not in this group (or already found)."
+                'message' => __("Nope, :answer is not in this group (or already found).", ['answer' => $userAnswer])
             ]);
         }
 
@@ -99,7 +104,7 @@ class GamePlayController extends Controller
 
         return response()->json([
             'correct' => $correct,
-            'message' => $correct ? "Correct! Well done!" : "Not quite. Try again!",
+            'message' => $correct ? __("Correct! Well done!") : __("Not quite. Try again!"),
         ]);
     }
 
@@ -133,13 +138,16 @@ class GamePlayController extends Controller
         $query = $request->query('query');
         if (!$query) return response()->json([]);
 
-        \Log::info("Searching for '$query' in type: $type");
+        $nameField = $locale === 'ar' ? 'name_ar' : 'name_en';
 
         $results = GameItem::ofType($type)
-            ->search($query)
+            ->where(function($q) use ($query) {
+                $q->where('name_en', 'like', "%$query%")
+                  ->orWhere('name_ar', 'like', "%$query%");
+            })
             ->active()
             ->limit(10)
-            ->pluck('name_en');
+            ->pluck($nameField);
 
         return response()->json($results);
     }
