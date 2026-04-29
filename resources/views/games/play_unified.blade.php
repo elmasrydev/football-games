@@ -1,536 +1,332 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container play-container">
-        {{-- Genre Switcher --}}
-        @if($genres->count() > 1)
-            <div class="genre-switcher">
-                <a href="{{ route('games.play', ['slug' => $game->slug]) }}" 
-                   class="genre-tab {{ !$selectedGenre ? 'active' : '' }}">
-                    <span class="genre-icon">✨</span>
-                    <span class="genre-name">{{ __('All') }}</span>
-                </a>
-                @foreach($genres as $genre)
-                    <a href="{{ route('games.play', ['slug' => $game->slug, 'genre' => $genre->slug]) }}" 
-                       class="genre-tab {{ $selectedGenre && $selectedGenre->id === $genre->id ? 'active' : '' }}">
-                        <span class="genre-icon">{{ $genre->icon }}</span>
-                        <span class="genre-name">{{ $genre->localized_name }}</span>
-                    </a>
-                @endforeach
-            </div>
-        @endif
-
-        {{-- Navigation Bar --}}
-        <div class="game-navigation panel">
-            <div class="nav-controls">
-                @if($currentLevel > 1)
-                    <a href="{{ route('games.play', ['slug' => $game->slug, 'genre' => $selectedGenre?->slug, 'level' => $currentLevel - 1]) }}" class="nav-btn prev">
-                        ← {{ __('Previous') }}
-                    </a>
-                @else
-                    <span class="nav-btn disabled">← {{ __('Previous') }}</span>
-                @endif
-
-                <div class="level-indicator">
-                    <span>{{ __('Challenge') }}</span>
-                    <input type="number" id="level-input" value="{{ $currentLevel }}" min="1" max="{{ $totalChallenges }}" 
-                           onchange="goToLevel(this.value)">
-                    <span class="level-total">{{ __('of') }} {{ $totalChallenges }}</span>
-                </div>
-
-                @if($currentLevel < $totalChallenges)
-                    <a href="{{ route('games.play', ['slug' => $game->slug, 'genre' => $selectedGenre?->slug, 'level' => $currentLevel + 1]) }}" class="nav-btn next">
-                        {{ __('Next') }} →
-                    </a>
-                @else
-                    <span class="nav-btn disabled">{{ __('Next') }} →</span>
-                @endif
-            </div>
-        </div>
-
-        <div class="challenge-context panel">
-            <div class="challenge-context-main">
-                <span class="badge">{{ app()->getLocale() === 'ar' ? $game->localized_title : strtoupper($game->localized_title) }}</span>
-                <h1>{{ $game->localized_title }}</h1>
-                <p>{{ $game->localized_description }}</p>
-            </div>
-            <div class="challenge-context-side">
-                <span class="genre-badge">
-                    {{ $challenge->genre->icon }} {{ $challenge->genre->localized_name }}
+<div class="max-w-[1440px] mx-auto px-4 sm:px-8 space-y-6 pb-20">
+    
+    <!-- Header & Navigation -->
+    <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 py-4">
+        <div class="space-y-4">
+            <div class="flex flex-wrap items-center gap-3">
+                <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-display font-black uppercase tracking-[0.2em]">
+                    {{ $game->localized_title }}
                 </span>
-                <span class="level-badge">{{ __('Level') }} {{ $currentLevel }} {{ __('of') }} {{ $totalChallenges }}</span>
+                <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/10 border border-secondary/20 text-secondary text-[10px] font-display font-black uppercase tracking-[0.2em]">
+                    <span class="text-sm">{{ $challenge->genre->icon ?? '🧩' }}</span>
+                    {{ $challenge->genre->getLocalizedNameAttribute() }}
+                </span>
             </div>
+            <h1 class="text-3xl sm:text-4xl font-display font-black uppercase tracking-tight text-on-background line-clamp-1">
+                {{ $challenge->title ?? $game->localized_title }}
+            </h1>
         </div>
 
-        <div class="visual-section">
-            {{-- Dynamic Stimulus Block --}}
-            @if($challenge->stimulus_type === 'image')
-                <x-games.stimulus.image :challenge="$challenge" :game="$game" />
-            @elseif($challenge->stimulus_type === 'video')
-                <x-games.stimulus.video :challenge="$challenge" :game="$game" />
-            @elseif($challenge->stimulus_type === 'text')
-                <x-games.stimulus.text :challenge="$challenge" :game="$game" />
-            @elseif($challenge->stimulus_type === 'scrambled_text')
-                <x-games.stimulus.scrambled :challenge="$challenge" :game="$game" />
-            @elseif($challenge->stimulus_type === 'sequence')
-                <x-games.stimulus.sequence :challenge="$challenge" :game="$game" />
+        <!-- Level Navigation -->
+        <div class="glass-card flex items-center justify-between p-2 rounded-2xl border-outline-variant/20 min-w-[320px]">
+            @if($currentLevel > 1)
+                <a href="{{ route('games.play', ['slug' => $game->slug, 'genre' => $selectedGenre?->slug, 'level' => $currentLevel - 1]) }}" 
+                   class="w-10 h-10 rounded-xl bg-surface-variant/50 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors active:scale-90">
+                    <span class="material-symbols-outlined rtl:rotate-180">arrow_back</span>
+                </a>
             @else
-                <div class="visual-box">
-                    <p>{{ __('Challenge content not available for type:') }} {{ $challenge->stimulus_type }}</p>
+                <div class="w-10 h-10 rounded-xl bg-surface-variant/20 flex items-center justify-center text-on-surface-variant/30 cursor-not-allowed">
+                    <span class="material-symbols-outlined rtl:rotate-180">arrow_back</span>
                 </div>
             @endif
 
-            <div class="controls">
-                <a href="{{ route('games.play', ['slug' => $game->slug]) }}" class="btn btn-outline">
-                    {{ __('Try Another Challenge') }}
-                </a>
-                <x-bookmark-button :gameId="$game->id" />
+            <div class="flex items-center gap-3 px-4">
+                <span class="text-[10px] font-display font-black uppercase tracking-widest text-on-surface-variant opacity-60">{{ __('Level') }}</span>
+                <input type="number" id="level-input" value="{{ $currentLevel }}" min="1" max="{{ $totalChallenges }}" 
+                       onchange="goToLevel(this.value)"
+                       class="w-16 bg-surface-variant/50 border border-outline-variant/30 rounded-lg text-center font-display font-black text-primary py-1 focus:outline-none focus:border-primary transition-all">
+                <span class="text-[10px] font-display font-black uppercase tracking-widest text-on-surface-variant opacity-60">{{ __('of') }} {{ $totalChallenges }}</span>
             </div>
-        </div>
 
-        <div class="interaction-section">
-            {{-- Dynamic Interaction Block --}}
-            @if($game->slug === 'group-players')
-                <x-games.interaction.group :challenge="$challenge" :game="$game" />
+            @if($currentLevel < $totalChallenges)
+                <a href="{{ route('games.play', ['slug' => $game->slug, 'genre' => $selectedGenre?->slug, 'level' => $currentLevel + 1]) }}" 
+                   class="w-10 h-10 rounded-xl bg-surface-variant/50 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors active:scale-90">
+                    <span class="material-symbols-outlined rtl:rotate-180">arrow_forward</span>
+                </a>
             @else
-                <x-games.interaction.standard :challenge="$challenge" :game="$game" />
+                <div class="w-10 h-10 rounded-xl bg-surface-variant/20 flex items-center justify-center text-on-surface-variant/30 cursor-not-allowed">
+                    <span class="material-symbols-outlined rtl:rotate-180">arrow_forward</span>
+                </div>
             @endif
         </div>
     </div>
 
-    @push('styles')
-        <style>
-            .play-container {
-                display: flex;
-                flex-direction: column;
-                gap: 1.25rem;
-            }
+    <!-- Genre Switcher -->
+    @if($genres->count() > 1)
+        <div class="flex items-center gap-3 overflow-x-auto pb-4 scrollbar-none">
+            <a href="{{ route('games.play', ['slug' => $game->slug]) }}" 
+               class="flex-none flex items-center gap-2 px-6 py-3 rounded-full font-display font-bold text-xs uppercase tracking-widest transition-all {{ !$selectedGenre ? 'bg-primary text-on-primary shadow-lg shadow-primary/20' : 'glass-card text-on-surface-variant hover:text-primary' }}">
+                <span class="text-lg">🌐</span>
+                {{ __('All') }}
+            </a>
+            @foreach($genres as $genre)
+                <a href="{{ route('games.play', ['slug' => $game->slug, 'genre' => $genre->slug]) }}" 
+                   class="flex-none flex items-center gap-2 px-6 py-3 rounded-full font-display font-bold text-xs uppercase tracking-widest transition-all {{ $selectedGenre && $selectedGenre->id === $genre->id ? 'bg-primary text-on-primary shadow-lg shadow-primary/20' : 'glass-card text-on-surface-variant hover:text-primary' }}">
+                    <span class="text-lg">{{ $genre->icon ?? '🧩' }}</span>
+                    {{ $genre->getLocalizedNameAttribute() }}
+                </a>
+            @endforeach
+        </div>
+    @endif
 
-            .game-navigation { 
-                padding: 1rem 1.2rem; 
-                display: flex;
-                justify-content: center;
-            }
-            
-            .genre-switcher {
-                display: flex;
-                gap: 0.75rem;
-                justify-content: flex-start;
-                flex-wrap: wrap;
-                padding: 0.5rem;
-                background: rgba(var(--surface-rgb), 0.35);
-                border-radius: 22px;
-                border: 1px solid var(--border-soft);
-                backdrop-filter: blur(16px);
-                overflow-x: auto;
-                scrollbar-width: none;
-            }
+    <!-- Game Arena -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- Stimulus Side -->
+        <div class="lg:col-span-7 xl:col-span-8 space-y-6">
+            <div class="glass-card rounded-[2.5rem] overflow-hidden relative border-outline-variant/10 shadow-2xl">
+                {{-- Dynamic Stimulus Block --}}
+                <div class="aspect-video lg:aspect-auto lg:min-h-[600px] flex items-center justify-center p-4">
+                    @if($challenge->stimulus_type === 'image')
+                        <x-games.stimulus.image :challenge="$challenge" :game="$game" />
+                    @elseif($challenge->stimulus_type === 'video')
+                        <x-games.stimulus.video :challenge="$challenge" :game="$game" />
+                    @elseif($challenge->stimulus_type === 'text')
+                        <x-games.stimulus.text :challenge="$challenge" :game="$game" />
+                    @elseif($challenge->stimulus_type === 'scrambled_text')
+                        <x-games.stimulus.scrambled :challenge="$challenge" :game="$game" />
+                    @elseif($challenge->stimulus_type === 'sequence')
+                        <x-games.stimulus.sequence :challenge="$challenge" :game="$game" />
+                    @else
+                        <div class="text-center p-12">
+                            <span class="material-symbols-outlined text-6xl text-on-surface-variant/20 mb-4">error</span>
+                            <p class="text-on-surface-variant font-display font-bold uppercase tracking-widest">{{ __('Content not available') }}</p>
+                        </div>
+                    @endif
+                </div>
 
-            .genre-switcher::-webkit-scrollbar { display: none; }
+                <!-- Overlay Actions -->
+                <div class="absolute top-6 end-6 z-20 flex flex-col gap-3">
+                    <button class="w-12 h-12 rounded-full glass-card flex items-center justify-center text-on-surface-variant hover:text-primary shadow-lg hover:scale-110 transition-all active:scale-90"
+                            onclick="toggleBookmark({{ $game->id }})" 
+                            data-id="{{ $game->id }}">
+                        <span class="material-symbols-outlined transition-colors">bookmark</span>
+                    </button>
+                    <a href="{{ route('games.play', ['slug' => $game->slug]) }}" 
+                       class="w-12 h-12 rounded-full glass-card flex items-center justify-center text-on-surface-variant hover:text-primary shadow-lg hover:scale-110 transition-all active:scale-90"
+                       title="{{ __('Try Another') }}">
+                        <span class="material-symbols-outlined">refresh</span>
+                    </a>
+                </div>
+            </div>
+        </div>
 
-            .genre-tab {
-                display: flex;
-                align-items: center;
-                gap: 0.6rem;
-                padding: 0.6rem 1.2rem;
-                background: rgba(var(--surface-rgb), 0.58);
-                border: 1px solid var(--border-soft);
-                border-radius: 999px;
-                text-decoration: none;
-                color: var(--text-muted);
-                font-weight: 700;
-                transition: all 0.25s ease;
-            }
+        <!-- Interaction Side -->
+        <div class="lg:col-span-5 xl:col-span-4 space-y-6">
+            <!-- Hints Area (Top) -->
+            <div class="space-y-4">
+                <button id="hint-btn" class="w-full glass-card group flex items-center justify-between p-5 rounded-3xl border-secondary/20 hover:border-secondary hover:bg-secondary/5 transition-all duration-300">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary group-hover:scale-110 transition-transform">
+                            <span class="text-2xl">💡</span>
+                        </div>
+                        <div class="text-start">
+                            <span class="text-[10px] font-display font-black text-secondary uppercase tracking-widest block mb-1">{{ __('Support') }}</span>
+                            <h3 class="text-sm font-display font-black uppercase tracking-tight">{{ __('Need a Hint?') }}</h3>
+                        </div>
+                    </div>
+                    <span class="material-symbols-outlined text-secondary opacity-40 group-hover:opacity-100 transition-opacity">add_circle</span>
+                </button>
 
-            .genre-tab:hover {
-                transform: translateY(-2px);
-                border-color: rgba(59, 130, 246, 0.3);
-                color: var(--text);
-            }
+                <!-- Hints List -->
+                <div id="hints-display" class="space-y-3">
+                    <!-- Hints will be appended here -->
+                </div>
+            </div>
 
-            .genre-tab.active {
-                background: linear-gradient(135deg, var(--accent), var(--accent-strong));
-                border-color: transparent;
-                color: white;
-                box-shadow: 0 12px 28px rgba(37, 99, 235, 0.24);
-            }
+            <!-- Answer Block -->
+            <div class="glass-card rounded-[2.5rem] p-8 border-primary/20 shadow-xl relative overflow-hidden">
+                <!-- Cyber Background Detail -->
+                <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16"></div>
+                
+                <div class="relative z-10 space-y-8">
+                    <div class="space-y-1">
+                        <span class="text-[10px] font-display font-black text-primary uppercase tracking-[0.3em] block">{{ __('Interaction') }}</span>
+                        <h2 class="text-2xl font-display font-black uppercase tracking-tight">{{ __('Your Answer') }}</h2>
+                    </div>
 
-            .genre-icon {
-                font-size: 1.2rem;
-            }
+                    {{-- Dynamic Interaction Block --}}
+                    <div id="interaction-root">
+                        @if($game->slug === 'group-players')
+                            <x-games.interaction.group :challenge="$challenge" :game="$game" />
+                        @else
+                            <x-games.interaction.standard :challenge="$challenge" :game="$game" />
+                        @endif
+                    </div>
 
-            .challenge-context {
-                display: grid;
-                grid-template-columns: minmax(0, 1fr) auto;
-                gap: 1rem;
-                align-items: end;
-                padding: 1.3rem 1.4rem;
-                background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(16, 185, 129, 0.08)), var(--surface);
-            }
+                    <div class="pt-6 border-t border-outline-variant/20 flex flex-col gap-4">
+                        <button id="give-up-btn" class="text-on-surface-variant hover:text-error font-display font-bold text-xs uppercase tracking-widest transition-colors flex items-center justify-center gap-2">
+                            <span class="text-sm">👁️</span>
+                            {{ __('Reveal Answer') }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-            .challenge-context-main h1 {
-                font-family: var(--font-display);
-                font-size: clamp(1.7rem, 4vw, 2.6rem);
-                line-height: 1;
-                letter-spacing: -0.04em;
-                margin: 0.8rem 0 0.55rem;
-            }
+@push('scripts')
+<script>
+    const challengeId = {{ $challenge->id }};
+    const csrfToken = '{{ csrf_token() }}';
+    let shownHints = [];
 
-            .challenge-context-main p {
-                color: var(--text-muted);
-                max-width: 62ch;
-            }
+    // Level jump logic
+    function goToLevel(level) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('level', level);
+        window.location.href = url.toString();
+    }
 
-            .challenge-context-side {
-                display: grid;
-                gap: 0.65rem;
-                justify-items: end;
-            }
-
-            .genre-badge {
-                background: rgba(var(--surface-rgb), 0.65);
-                color: var(--text-muted);
-                padding: 0.4rem 1rem;
-                border-radius: 50px;
-                font-size: 0.85rem;
-                font-weight: 700;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-                border: 1px solid var(--border-soft);
-            }
-
-            .level-badge {
-                display: inline-flex;
-                align-items: center;
-                padding: 0.45rem 0.9rem;
-                border-radius: 999px;
-                background: rgba(59, 130, 246, 0.1);
-                color: var(--accent-strong);
-                font-size: 0.82rem;
-                font-weight: 800;
-                letter-spacing: 0.05em;
-                text-transform: uppercase;
-            }
-
-            .nav-controls {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                width: 100%;
-                max-width: 920px;
-                gap: 1rem;
-            }
-
-            .nav-btn { 
-                padding: 0.75rem 1rem;
-                border-radius: 16px;
-                font-weight: 800;
-                color: var(--text-muted); 
-                text-decoration: none;
-                border: 1px solid var(--border-soft);
-                transition: all 0.25s ease;
-                display: flex; align-items: center; gap: 0.5rem;
-                background: rgba(var(--surface-rgb), 0.56);
-            }
-
-            .nav-btn:hover:not(.disabled) { 
-                background: rgba(59, 130, 246, 0.12);
-                border-color: rgba(59, 130, 246, 0.32);
-                color: white;
-                transform: translateY(-2px);
-                color: var(--text);
-            }
-
-            .nav-btn.disabled {
-                opacity: 0.45;
-                cursor: not-allowed;
-                background: rgba(var(--surface-rgb), 0.3);
-            }
-            
-            .level-indicator { 
-                display: flex;
-                align-items: center;
-                gap: 0.8rem; 
-                font-size: 1.02rem;
-                font-weight: 800;
-                color: var(--text);
-                background: rgba(var(--surface-rgb), 0.6);
-                padding: 0.5rem 1.2rem;
-                border-radius: 999px;
-                border: 1px solid var(--border-soft);
-            }
-
-            #level-input { 
-                width: 70px;
-                padding: 0.35rem;
-                border-radius: 12px;
-                border: 1px solid var(--border-strong);
-                text-align: center;
-                font-weight: 900;
-                color: var(--accent-strong);
-                background: var(--surface-strong);
-                transition: all 0.2s;
-            }
-
-            #level-input:focus {
-                border-color: rgba(59, 130, 246, 0.42);
-                outline: none;
-                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
-            }
-
-            .level-total {
-                opacity: 0.75;
-                font-weight: 700;
-                font-size: 0.95rem;
-                color: var(--text-soft);
-            }
-
-            .visual-section { width: 100%; }
-
-            .interaction-section {
-                display: grid;
-                grid-template-columns: minmax(0, 1.45fr) minmax(300px, 0.8fr);
-                gap: 1.5rem;
-                align-items: start;
-            }
-
-            .controls {
-                margin-top: 1rem;
-                display: flex;
-                justify-content: center;
-                gap: 1rem;
-                flex-wrap: wrap;
-            }
-
-            .controls .btn,
-            .controls .bookmark-btn {
-                min-height: 3.1rem;
-            }
-            
-            @media (max-width: 900px) {
-                .interaction-section {
-                    grid-template-columns: 1fr;
-                }
-            }
-
-            @media (max-width: 760px) {
-                .play-container {
-                    gap: 1rem;
-                }
-
-                .genre-switcher {
-                    flex-wrap: nowrap;
-                    padding: 0.45rem;
-                }
-
-                .genre-tab {
-                    flex: 0 0 auto;
-                    padding: 0.65rem 1rem;
-                }
-
-                .game-navigation {
-                    padding: 0.85rem;
-                }
-
-                .challenge-context {
-                    grid-template-columns: 1fr;
-                    padding: 1rem;
-                }
-
-                .challenge-context-side {
-                    justify-items: start;
-                }
-
-                .challenge-context-main h1 {
-                    font-size: clamp(1.45rem, 7vw, 2rem);
-                    margin: 0.7rem 0 0.45rem;
-                }
-
-                .challenge-context-main p {
-                    font-size: 0.95rem;
-                }
-
-                .nav-controls {
-                    flex-direction: column;
-                    align-items: stretch;
-                    gap: 0.75rem;
-                }
-
-                .level-indicator {
-                    justify-content: center;
-                    flex-wrap: wrap;
-                    width: 100%;
-                    border-radius: 20px;
-                    padding: 0.8rem 0.9rem;
-                }
-
-                .nav-btn {
-                    justify-content: center;
-                    width: 100%;
-                }
-
-                #level-input {
-                    width: 84px;
-                    min-height: 2.6rem;
-                }
-
-                .controls {
-                    flex-direction: column-reverse;
-                    align-items: stretch;
-                    gap: 0.75rem;
-                }
-
-                .controls .bookmark-btn,
-                .controls .btn {
-                    width: 100%;
-                    justify-content: center;
-                    border-radius: 18px;
-                }
-
-                .controls .bookmark-btn {
-                    height: auto;
-                }
-            }
-
-            @media (max-width: 520px) {
-                .genre-name {
-                    font-size: 0.9rem;
-                }
-
-                .genre-icon {
-                    font-size: 1rem;
-                }
-
-                .level-indicator {
-                    gap: 0.6rem;
-                    font-size: 0.96rem;
-                }
-
-                .visual-section {
-                    width: 100%;
-                }
-            }
-        </style>
-    @endpush
-
-    @push('scripts')
-        <script>
-            const challengeId = {{ $challenge->id }};
-            const csrfToken = '{{ csrf_token() }}';
-            let shownHints = [];
-
-            // Level jump logic
-            function goToLevel(level) {
-                const url = new URL(window.location.href);
-                url.searchParams.set('level', level);
-                window.location.href = url.toString();
-            }
-
-            // 1. Initialize Autocomplete
-            const answerInput = document.getElementById('answer-input');
-            if (answerInput) {
-                const answerType = answerInput.dataset.answerType;
-                if (answerType && ['player', 'club', 'stadium', 'actor', 'movie'].includes(answerType)) {
-                    const searchUrlTemplate = @json(route('search.unified', ['type' => '__TYPE__']));
-                    const searchUrl = searchUrlTemplate.replace('__TYPE__', answerType);
+    // 1. Initialize Autocomplete (Global)
+    document.addEventListener('DOMContentLoaded', () => {
+        const answerInput = document.getElementById('answer-input');
+        if (answerInput) {
+            const answerType = answerInput.dataset.answerType;
+            if (answerType && ['player', 'club', 'stadium', 'actor', 'movie'].includes(answerType)) {
+                const searchUrlTemplate = @json(route('search.unified', ['type' => '__TYPE__']));
+                const searchUrl = searchUrlTemplate.replace('__TYPE__', answerType);
+                if (typeof initAutocomplete === 'function') {
                     initAutocomplete('answer-input', 'autocomplete-list', searchUrl);
                 }
             }
+        }
+        
+        // Update Bookmark UI
+        if (typeof updateBookmarkUI === 'function') {
+            updateBookmarkUI({{ $game->id }});
+        }
+    });
 
-            // 2. Standard Interaction Logic
-            document.getElementById('submit-btn').addEventListener('click', () => {
-                const answerInput = document.getElementById('answer-input');
-                const answer = answerInput.value;
-                if (!answer) return;
+    // 2. Global Game Logic (Standard)
+    const submitBtn = document.getElementById('submit-btn');
+    const answerInput = document.getElementById('answer-input');
+    const feedback = document.getElementById('feedback');
 
-                const revealedOrders = window.revealedOrders || [];
+    if (submitBtn) {
+        submitBtn.addEventListener('click', () => {
+            const answer = answerInput.value;
+            if (!answer) return;
 
-                fetch(`{{ route('challenges.check', ['challenge' => $challenge->id]) }}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                    body: JSON.stringify({ answer, revealed_orders: revealedOrders })
-                })
-                .then(r => r.json())
-                .then(data => {
-                    const feedback = document.getElementById('feedback');
-                    feedback.textContent = data.message;
-                    feedback.className = 'feedback ' + (data.correct ? 'correct' : 'wrong');
-                    feedback.style.display = 'block';
+            const revealedOrders = window.revealedOrders || [];
 
-                    if (data.correct) {
-                        if (window.updateProgress && data.matched_sort_order !== undefined) {
-                            window.updateProgress(answer, data.matched_sort_order);
-                            answerInput.value = '';
+            fetch(`{{ route('challenges.check', ['challenge' => $challenge->id]) }}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                body: JSON.stringify({ answer, revealed_orders: revealedOrders })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (!feedback) return;
+                
+                feedback.textContent = data.message;
+                feedback.className = 'p-4 rounded-xl font-display font-bold text-sm uppercase tracking-wide transition-all ' + 
+                                   (data.correct ? 'bg-tertiary/10 text-tertiary border border-tertiary/20' : 'bg-error/10 text-error border border-error/20');
+                feedback.classList.remove('hidden');
+
+                if (data.correct) {
+                    if (window.updateProgress && data.matched_sort_order !== undefined) {
+                        window.updateProgress(answer, data.matched_sort_order);
+                        answerInput.value = '';
+                    } else {
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('opacity-50');
+                        if (window.highlightSuccess) window.highlightSuccess();
+                    }
+                }
+            });
+        });
+    }
+
+    const hintBtn = document.getElementById('hint-btn');
+    if (hintBtn) {
+        hintBtn.addEventListener('click', () => {
+            // Gamesiano Style Modal usage
+            if (typeof openHintModal === 'function') {
+                openHintModal(() => {
+                    fetch(`{{ route('challenges.hint', ['challenge' => $challenge->id]) }}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                        body: JSON.stringify({ shown_hints: shownHints })
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.hint) {
+                            shownHints.push(data.id);
+                            const hintDiv = document.createElement('div');
+                            hintDiv.className = 'glass-card p-5 rounded-3xl border-secondary/20 flex items-start gap-4 animate-in slide-in-from-top-4 duration-500 shadow-xl';
+                            hintDiv.innerHTML = `
+                                <div class="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary shrink-0">
+                                    <span class="text-lg">🎯</span>
+                                </div>
+                                <div>
+                                    <span class="text-[9px] font-display font-black text-secondary uppercase tracking-widest block mb-1">{{ __('Hint') }} ${shownHints.length}</span>
+                                    <p class="text-sm font-medium text-on-surface leading-relaxed">${data.hint}</p>
+                                </div>
+                            `;
+                            document.getElementById('hints-display').prepend(hintDiv);
                         } else {
-                            document.getElementById('submit-btn').disabled = true;
-                            if (window.highlightSuccess) window.highlightSuccess();
+                            alert(data.message);
                         }
-                    }
+                    });
                 });
-            });
-
-            document.getElementById('hint-btn').addEventListener('click', () => {
-                fetch(`{{ route('challenges.hint', ['challenge' => $challenge->id]) }}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                    body: JSON.stringify({ shown_hints: shownHints })
-                })
-                .then(r => r.json())
-                .then(data => {
-                    if (data.hint) {
-                        shownHints.push(data.id);
-                        const hintDiv = document.createElement('div');
-                        hintDiv.className = 'hint-item';
-                        hintDiv.innerHTML = `<p>💡 ${data.hint}</p>`;
-                        document.getElementById('hints-display').appendChild(hintDiv);
-                    } else {
-                        alert(data.message);
-                    }
-                });
-            });
-
-            document.getElementById('give-up-btn').addEventListener('click', () => {
-                fetch(`{{ route('challenges.reveal', ['challenge' => $challenge->id]) }}`)
-                .then(r => r.json())
-                .then(data => {
-                    const feedback = document.getElementById('feedback');
-                    if (data.answers) {
-                        feedback.textContent = `{{ __('Answers:') }} ${data.answers.join(', ')}`;
-                    } else {
-                        feedback.textContent = `{{ __('The answer was:') }} ${data.answer}`;
-                        document.getElementById('answer-input').value = data.answer;
-                    }
-                    feedback.className = 'feedback revealed';
-                    feedback.style.display = 'block';
-                    document.getElementById('submit-btn').disabled = true;
-                    if (window.highlightSuccess) window.highlightSuccess();
-                });
-            });
-
-            function highlightSuccess() {
-                const card = document.querySelector('.question-card');
-                if (card) {
-                    card.style.borderColor = '#2ea043';
-                    card.style.borderWidth = '2px';
-                    card.style.boxShadow = '0 0 20px rgba(46, 160, 67, 0.2)';
-                }
-
-                // Reveal image logic
-                const img = document.getElementById('challenge-image');
-                if (img) {
-                    img.classList.remove('silhouette-filter');
-                    const revealSrc = img.dataset.reveal;
-                    if (revealSrc) {
-                        img.src = revealSrc;
-                    }
-                }
             }
-            window.highlightSuccess = highlightSuccess;
+        });
+    }
 
-            document.getElementById('clear-btn').addEventListener('click', () => {
-                clearAutocomplete('answer-input', 'autocomplete-list');
-                document.getElementById('feedback').style.display = 'none';
+    const giveUpBtn = document.getElementById('give-up-btn');
+    if (giveUpBtn) {
+        giveUpBtn.addEventListener('click', () => {
+            fetch(`{{ route('challenges.reveal', ['challenge' => $challenge->id]) }}`)
+            .then(r => r.json())
+            .then(data => {
+                if (!feedback) return;
+                
+                if (data.answers) {
+                    feedback.textContent = `{{ __('Answers:') }} ${data.answers.join(', ')}`;
+                } else {
+                    feedback.textContent = `{{ __('The answer was:') }} ${data.answer}`;
+                    if (answerInput) answerInput.value = data.answer;
+                }
+                
+                feedback.className = 'p-4 rounded-xl font-display font-bold text-sm uppercase tracking-wide bg-primary/10 text-primary border border-primary/20';
+                feedback.classList.remove('hidden');
+                if (submitBtn) submitBtn.disabled = true;
+                if (window.highlightSuccess) window.highlightSuccess();
             });
-        </script>
-    @endpush
+        });
+    }
+
+    function highlightSuccess() {
+        // Stimulus reveal logic
+        const img = document.getElementById('challenge-image');
+        if (img) {
+            img.classList.remove('silhouette-filter');
+            const revealSrc = img.dataset.reveal;
+            if (revealSrc) img.src = revealSrc;
+        }
+        
+        // Success pulse on container
+        const arena = document.querySelector('.glass-card');
+        if (arena) {
+            arena.classList.add('neon-border-blue');
+        }
+    }
+    window.highlightSuccess = highlightSuccess;
+
+    const clearBtn = document.getElementById('clear-btn');
+    if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            if (typeof clearAutocomplete === 'function') {
+                clearAutocomplete('answer-input', 'autocomplete-list');
+            }
+            if (feedback) feedback.classList.add('hidden');
+        });
+    }
+</script>
+@endpush
 @endsection

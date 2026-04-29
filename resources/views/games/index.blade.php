@@ -1,322 +1,131 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container">
-        <section class="games-section">
-            <div class="section-header panel">
-                <div>
-                    <span class="badge">{{ __('Game Library') }}</span>
-                    <h1>{{ __('Available Challenges') }}</h1>
-                    <p>{{ __('Choose a mode, switch theme or direction whenever you want, and keep the current gameplay intact.') }}</p>
-                </div>
-                <div class="section-summary">
-                    <strong>{{ $games->count() }}</strong>
-                    <span>{{ __('Active game modes') }}</span>
+<div class="max-w-[1440px] mx-auto px-4 sm:px-8 space-y-12 pb-20">
+    
+    <!-- Library Header -->
+    <header class="relative py-12 border-b border-outline-variant/20 flex flex-col md:flex-row md:items-end justify-between gap-8">
+        <div class="space-y-4">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/10 border border-secondary/20 text-secondary text-[10px] font-display font-black uppercase tracking-[0.2em]">
+                {{ __('Explore') }}
+            </div>
+            <h1 class="text-4xl sm:text-5xl font-display font-black uppercase tracking-tight text-on-background">
+                {{ __('Game') }} <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">{{ __('Library') }}</span>
+            </h1>
+            <p class="text-on-surface-variant max-w-xl text-base leading-relaxed">
+                {{ __('Choose a mode, switch theme or direction whenever you want, and keep the current gameplay intact.') }}
+            </p>
+        </div>
+        
+        <div class="glass-card flex items-center gap-6 px-8 py-6 rounded-3xl border-primary/20">
+            <div class="space-y-1">
+                <div class="text-3xl font-display font-black text-primary leading-none">{{ $games->count() }}</div>
+                <div class="text-[10px] font-display font-bold uppercase tracking-widest text-on-surface-variant opacity-60">
+                    {{ __('Active') }} <br> {{ __('Modes') }}
                 </div>
             </div>
-            <div class="games-grid">
-                @forelse($games as $game)
-                    @php
-                        $route = route('games.play', ['slug' => $game->slug]);
-                    @endphp
-                    <div class="game-card-wrapper">
-                        <button class="bookmark-btn card-bookmark" type="button"
-                            onclick="event.preventDefault(); toggleBookmark({{ $game->id }})" data-id="{{ $game->id }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
-                            </svg>
-                        </button>
-                        <a href="{{ $route }}" class="game-card">
-                            <div class="game-media">
-                                @if ($game->image_url)
-                                    <img src="{{ $game->image_url }}" alt="{{ $game->localized_title }}">
-                                @else
-                                    <div class="placeholder-img">
-                                        <span>{{ $game->localized_title }}</span>
-                                    </div>
-                                @endif
-                                <div class="media-shine"></div>
-                                <span class="game-meta-chip">{{ $game->genre?->localized_name ?? __('Featured Game') }}</span>
-                            </div>
-                            <div class="game-info">
-                                <div class="game-copy">
-                                    <h2>{{ $game->localized_title }}</h2>
-                                    <p>{{ $game->localized_description }}</p>
-                                </div>
-                                <span class="play-cta">{{ __('Play now') }}</span>
-                            </div>
-                        </a>
-                    </div>
-                @empty
-                    <div class="no-games">
-                        <p>{{ __('No games found. New mysteries are coming soon!') }}</p>
-                    </div>
-                @endforelse
+            <div class="w-px h-10 bg-outline-variant/30"></div>
+            <div class="space-y-1">
+                <div class="text-3xl font-display font-black text-secondary leading-none">24/7</div>
+                <div class="text-[10px] font-display font-bold uppercase tracking-widest text-on-surface-variant opacity-60">
+                    {{ __('Live') }} <br> {{ __('Uptime') }}
+                </div>
             </div>
-        </section>
+        </div>
+    </header>
+
+    <!-- Genre Switcher -->
+    @if($genres->count() > 0)
+        <div class="flex items-center gap-3 overflow-x-auto pb-4 scrollbar-none">
+            <a href="{{ route('games.index') }}" 
+               class="flex-none flex items-center gap-2 px-6 py-3 rounded-full font-display font-bold text-xs uppercase tracking-widest transition-all {{ !$selectedGenre ? 'bg-primary text-on-primary shadow-lg shadow-primary/20' : 'glass-card text-on-surface-variant hover:text-primary' }}">
+                <span class="text-lg">🌐</span>
+                {{ __('All') }}
+            </a>
+            @foreach($genres as $genre)
+                <a href="{{ route('games.index', ['genre' => $genre->slug]) }}" 
+                   class="flex-none flex items-center gap-2 px-6 py-3 rounded-full font-display font-bold text-xs uppercase tracking-widest transition-all {{ $selectedGenre && $selectedGenre->id === $genre->id ? 'bg-primary text-on-primary shadow-lg shadow-primary/20' : 'glass-card text-on-surface-variant hover:text-primary' }}">
+                    <span class="text-lg">{{ $genre->icon ?? '🧩' }}</span>
+                    {{ $genre->localized_name }}
+                </a>
+            @endforeach
+        </div>
+    @endif
+
+    <!-- Games Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
+        @forelse($games as $game)
+            @php
+                $route = route('games.play', ['slug' => $game->slug]);
+            @endphp
+            <div class="group relative aspect-[3/4] rounded-[2rem] overflow-hidden glass-card transition-all duration-500 hover:-translate-y-2 hover:neon-border-blue">
+                <a href="{{ $route }}" class="absolute inset-0 z-10" aria-label="{{ $game->localized_title }}"></a>
+                
+                <!-- Background Image -->
+                @if ($game->image_url)
+                    <img src="{{ $game->image_url }}" alt="{{ $game->localized_title }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                @else
+                    <div class="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center p-8 text-center">
+                        <span class="text-xl font-display font-black uppercase tracking-tighter opacity-40">{{ $game->localized_title }}</span>
+                    </div>
+                @endif
+
+                <!-- Overlays -->
+                <div class="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent opacity-80 z-0"></div>
+                
+                <!-- Top Actions -->
+                <div class="absolute top-6 inset-x-6 z-20 flex justify-between items-start pointer-events-none">
+                    <span class="bg-white/10 backdrop-blur-md border border-white/20 text-white text-[9px] font-display font-black px-3 py-1 rounded-full uppercase tracking-widest flex items-center gap-1.5">
+                        <span class="text-xs">{{ $game->genre?->icon ?? '🧩' }}</span>
+                        {{ $game->genre?->localized_name ?? __('Featured') }}
+                    </span>
+                    <button class="w-10 h-10 rounded-full glass-card flex items-center justify-center text-on-surface-variant hover:text-primary shadow-lg hover:scale-110 transition-all active:scale-90 pointer-events-auto"
+                            onclick="event.preventDefault(); event.stopPropagation(); toggleBookmark({{ $game->id }})" 
+                            data-id="{{ $game->id }}">
+                        <span class="material-symbols-outlined transition-colors">bookmark</span>
+                    </button>
+                </div>
+
+                <!-- Content -->
+                <div class="absolute bottom-6 inset-x-6 z-20 space-y-3 pointer-events-none">
+                    <h3 class="text-2xl font-display font-black text-white uppercase tracking-tight group-hover:text-primary transition-colors line-clamp-1">
+                        {{ $game->localized_title }}
+                    </h3>
+                    <p class="text-white/60 text-xs font-medium line-clamp-2 leading-relaxed">
+                        {{ $game->localized_description }}
+                    </p>
+                    
+                    <div class="pt-4 flex items-center justify-between">
+                        <div class="flex items-center gap-1.5 text-white/40 text-[10px] font-display font-black uppercase tracking-widest">
+                            <span class="material-symbols-outlined text-sm">group</span>
+                            12k {{ __('Playing') }}
+                        </div>
+                        <div class="w-12 h-12 rounded-2xl bg-primary text-on-primary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform active:scale-95">
+                            <span class="material-symbols-outlined">play_arrow</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @empty
+            <div class="col-span-full py-20 text-center glass-card rounded-[2.5rem]">
+                <p class="text-on-surface-variant font-display font-bold uppercase tracking-widest">{{ __('No games found. New mysteries are coming soon!') }}</p>
+            </div>
+        @endforelse
     </div>
+</div>
 
-    @push('styles')
-        <style>
-            .games-section {
-                display: grid;
-                gap: 1.5rem;
-            }
-
-            .section-header {
-                display: grid;
-                grid-template-columns: minmax(0, 1fr) auto;
-                gap: 1rem;
-                align-items: end;
-                padding: clamp(1.5rem, 3vw, 2.3rem);
-                background: linear-gradient(135deg, rgba(59, 130, 246, 0.14), rgba(16, 185, 129, 0.1)), var(--surface);
-                position: relative;
-                overflow: hidden;
-            }
-
-            .section-header::before,
-            .section-header::after {
-                content: '';
-                position: absolute;
-                border-radius: 999px;
-                pointer-events: none;
-                filter: blur(16px);
-            }
-
-            .section-header::before {
-                width: 200px;
-                height: 200px;
-                inset-inline-end: -50px;
-                top: -80px;
-                background: rgba(59, 130, 246, 0.18);
-            }
-
-            .section-header::after {
-                width: 160px;
-                height: 160px;
-                inset-inline-start: 38%;
-                bottom: -90px;
-                background: rgba(16, 185, 129, 0.12);
-            }
-
-            .section-header h1 {
-                font-family: var(--font-display);
-                font-size: clamp(2rem, 5vw, 3.8rem);
-                line-height: 0.98;
-                letter-spacing: -0.05em;
-                margin: 0.85rem 0 0.7rem;
-            }
-
-            .section-header p {
-                color: var(--text-muted);
-                font-size: 1.02rem;
-                max-width: 62ch;
-            }
-
-            .section-summary {
-                background: rgba(var(--surface-rgb), 0.62);
-                border: 1px solid var(--border-soft);
-                border-radius: 22px;
-                padding: 1rem 1.15rem;
-                min-width: 180px;
-            }
-
-            .section-summary strong {
-                display: block;
-                font-family: var(--font-display);
-                font-size: 2rem;
-                line-height: 1;
-                margin-bottom: 0.35rem;
-            }
-
-            .section-summary span {
-                color: var(--text-soft);
-                font-size: 0.9rem;
-                font-weight: 700;
-            }
-
-            .games-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-                gap: 1.3rem;
-            }
-
-            .game-card-wrapper {
-                position: relative;
-            }
-
-            .card-bookmark {
-                position: absolute;
-                top: 1rem;
-                inset-inline-end: 1rem;
-                z-index: 10;
-            }
-
-            .game-card {
-                background: var(--surface);
-                border: 1px solid var(--border-soft);
-                border-radius: 28px;
-                overflow: hidden;
-                box-shadow: var(--shadow-soft);
-                transition: 0.24s ease;
-                text-decoration: none;
-                color: inherit;
-                display: grid;
-                position: relative;
-            }
-
-            .game-card:hover {
-                transform: translateY(-8px) scale(1.01);
-                border-color: rgba(59, 130, 246, 0.34);
-                box-shadow: var(--shadow-elevated);
-            }
-
-            .game-media {
-                position: relative;
-                isolation: isolate;
-                padding: 0.8rem 0.8rem 0;
-            }
-
-            .game-card img,
-            .placeholder-img {
-                width: 100%;
-                aspect-ratio: 16 / 11;
-                object-fit: cover;
-                border-radius: 22px;
-                transition: 0.24s ease;
-            }
-
-            .game-card:hover img {
-                transform: scale(1.035);
-            }
-
-            .placeholder-img {
-                background: linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(16, 185, 129, 0.18));
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-family: var(--font-display);
-                font-weight: 700;
-                font-size: 1.25rem;
-                color: var(--text);
-                text-transform: uppercase;
-                letter-spacing: 1px;
-            }
-
-            .media-shine {
-                position: absolute;
-                inset: 0.8rem 0.8rem auto;
-                height: 42%;
-                border-radius: 22px 22px 120px 120px;
-                background: linear-gradient(180deg, rgba(255, 255, 255, 0.26), transparent);
-                z-index: 1;
-                pointer-events: none;
-            }
-
-            .game-meta-chip {
-                position: absolute;
-                inset-inline-start: 1.35rem;
-                bottom: 1rem;
-                z-index: 2;
-                display: inline-flex;
-                align-items: center;
-                padding: 0.45rem 0.8rem;
-                border-radius: 999px;
-                background: rgba(2, 6, 23, 0.62);
-                color: white;
-                border: 1px solid rgba(255, 255, 255, 0.18);
-                font-size: 0.73rem;
-                font-weight: 800;
-                letter-spacing: 0.08em;
-                text-transform: uppercase;
-                backdrop-filter: blur(10px);
-            }
-
-            .game-info {
-                padding: 1.15rem 1.2rem 1.2rem;
-                display: flex;
-                align-items: end;
-                justify-content: space-between;
-                gap: 1rem;
-            }
-
-            .game-copy {
-                min-width: 0;
-            }
-
-            .game-info h2 {
-                font-family: var(--font-display);
-                font-size: 1.38rem;
-                margin-bottom: 0.5rem;
-                color: var(--text);
-                line-height: 1.05;
-            }
-
-            .game-info p {
-                color: var(--text-muted);
-                font-size: 0.95rem;
-                line-height: 1.5;
-                display: -webkit-box;
-                -webkit-line-clamp: 2;
-                -webkit-box-orient: vertical;
-                overflow: hidden;
-            }
-
-            .play-cta {
-                flex: 0 0 auto;
-                display: inline-flex;
-                align-items: center;
-                gap: 0.45rem;
-                padding: 0.7rem 0.95rem;
-                border-radius: 999px;
-                background: rgba(59, 130, 246, 0.1);
-                color: var(--accent-strong);
-                font-size: 0.85rem;
-                font-weight: 800;
-                white-space: nowrap;
-            }
-
-            .play-cta::after {
-                content: '↗';
-                font-size: 0.95rem;
-            }
-
-            .no-games {
-                grid-column: 1 / -1;
-                text-align: center;
-                padding: 3rem 2rem;
-                background: var(--surface);
-                border: 1px solid var(--border-soft);
-                border-radius: 28px;
-                box-shadow: var(--shadow-soft);
-                color: var(--text-muted);
-            }
-
-            @media (max-width: 780px) {
-                .section-header {
-                    grid-template-columns: 1fr;
-                }
-
-                .game-info {
-                    flex-direction: column;
-                    align-items: stretch;
-                }
-
-                .play-cta {
-                    justify-content: center;
-                }
-            }
-        </style>
-    @endpush
-
-    @push('scripts')
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const bookmarkedIds = getBookmarks();
-                bookmarkedIds.forEach(id => {
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof getBookmarks === 'function') {
+            const bookmarkedIds = getBookmarks();
+            bookmarkedIds.forEach(id => {
+                if (typeof updateBookmarkUI === 'function') {
                     updateBookmarkUI(id);
-                });
+                }
             });
-        </script>
-    @endpush
+        }
+    });
+</script>
+@endpush
 @endsection
