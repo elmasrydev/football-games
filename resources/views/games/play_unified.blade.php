@@ -190,7 +190,10 @@
     const csrfToken = '{{ csrf_token() }}';
     const currentLevel = {{ $currentLevel }};
     const totalChallenges = {{ $totalChallenges }};
-    const nextLevelUrl = '{{ $currentLevel < $totalChallenges ? route('games.play', ['slug' => $game->slug, 'genre' => $selectedGenre?->slug, 'level' => $currentLevel + 1]) : '#' }}';
+    
+    // Default progression is DESCENDING (150 -> 149) as newest levels are seeded last but shown first
+    const prevLevelUrl = '{{ $currentLevel > 1 ? route('games.play', ['slug' => $game->slug, 'genre' => $selectedGenre?->slug, 'level' => $currentLevel - 1]) : '#' }}';
+    
     let shownHints = [];
 
     // Level jump logic
@@ -206,13 +209,13 @@
 
         let content = `<span>${message}</span>`;
         
-        if (showNext && currentLevel < totalChallenges) {
+        if (showNext && currentLevel > 1) {
             content = `
                 <div class="flex flex-col sm:flex-row items-center justify-between gap-4 w-full">
                     <span>${message}</span>
-                    <a href="${nextLevelUrl}" class="flex items-center gap-2 px-6 py-2 bg-primary text-on-primary rounded-xl font-display font-black uppercase tracking-widest text-[10px] hover:brightness-110 transition-all shadow-lg shadow-primary/20 active:scale-95">
+                    <a href="${prevLevelUrl}" class="flex items-center gap-2 px-6 py-2 bg-primary text-on-primary rounded-xl font-display font-black uppercase tracking-widest text-[10px] hover:brightness-110 transition-all shadow-lg shadow-primary/20 active:scale-95">
                         {{ __('Next Level') }}
-                        <span class="material-symbols-outlined text-sm rtl:rotate-180">arrow_forward</span>
+                        <span class="material-symbols-outlined text-sm rtl:rotate-180">arrow_back</span>
                     </a>
                 </div>
             `;
