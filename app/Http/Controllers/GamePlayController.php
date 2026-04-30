@@ -191,14 +191,40 @@ class GamePlayController extends Controller
 
         $nameField = $locale === 'ar' ? 'name_ar' : 'name_en';
 
+        // Games Autocomplete
+        if ($type === 'game') {
+            $titleField = $locale === 'ar' ? 'title' : 'title'; // Both title columns exist, name_ar is usually for Items but Game model uses title/name_ar? Let's check
+            
+            // Re-check Game model fields: title (EN), name_ar (AR)
+            $displayField = $locale === 'ar' ? 'name_ar' : 'title';
+
+            $results = Game::where('is_active', true)
+                ->whereHas('challenges', function($q) use ($locale) {
+                    $q->where('language', $locale)->where('is_active', true);
+                })
+                ->where(function($q) use ($query, $locale) {
+                    $q->where('title', 'like', "%$query%");
+                    
+                    if ($locale === 'ar') {
+                        $normalizedQuery = $this->normalizeArabic($query);
+                        $q->orWhereRaw("REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(name_ar, 'أ', 'ا'), 'إ', 'ا'), 'آ', 'ا'), 'ٱ', 'ا'), 'ى', 'ي'), 'ئ', 'ي'), 'ؤ', 'و'), 'ة', 'ه'), 'ـ', '') LIKE ?", ["%$normalizedQuery%"]);
+                    } else {
+                        $q->orWhere('name_ar', 'like', "%$query%");
+                    }
+                })
+                ->limit(10)
+                ->pluck($displayField);
+
+            return response()->json($results);
+        }
+
+        // Default Item Search (Player, Club, etc.)
         $results = GameItem::ofType($type)
             ->where(function($q) use ($query, $locale) {
                 $q->where('name_en', 'like', "%$query%");
                 
                 if ($locale === 'ar') {
                     $normalizedQuery = $this->normalizeArabic($query);
-                    // MySQL REPLACE nesting to normalize the column on the fly
-                    // Replaces: أ, إ, آ, ٱ -> ا | ى, ئ -> ي | ؤ -> و | ة -> ه | ـ -> empty
                     $q->orWhereRaw("REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(name_ar, 'أ', 'ا'), 'إ', 'ا'), 'آ', 'ا'), 'ٱ', 'ا'), 'ى', 'ي'), 'ئ', 'ي'), 'ؤ', 'و'), 'ة', 'ه'), 'ـ', '') LIKE ?", ["%$normalizedQuery%"]);
                 } else {
                     $q->orWhere('name_ar', 'like', "%$query%");

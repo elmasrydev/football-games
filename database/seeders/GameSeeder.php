@@ -90,6 +90,7 @@ class GameSeeder extends Seeder
                 'name_ar' => 'صائد البطولات',
                 'slug' => 'trophy-hunter',
                 'description' => 'Identify the player or team from their trophy cabinet.',
+                'description_ar' => 'تعرف على اللاعب أو الفريق من خلال سجل بطولاته وإنجازاته.',
                 'game_type' => 'image_guess',
                 'answer_type' => 'player',
                 'image_file' => 'trophy-hunter.png'
@@ -99,6 +100,7 @@ class GameSeeder extends Seeder
                 'name_ar' => 'مسابقة المصطلحات',
                 'slug' => 'terminology-trivia',
                 'description' => 'Guess the word based on its definition or description across different genres.',
+                'description_ar' => 'خمن الكلمة بناءً على تعريفها أو وصفها في مختلف المجالات.',
                 'game_type' => 'word_puzzle',
                 'answer_type' => 'term',
                 'image_file' => 'terminology-trivia.png'
@@ -108,6 +110,7 @@ class GameSeeder extends Seeder
                 'name_ar' => 'الحلقة المفقودة',
                 'slug' => 'missing-link',
                 'description' => 'Find the word that connects these football terms.',
+                'description_ar' => 'اعثر على الكلمة التي تربط بين هذه المصطلحات الكروية.',
                 'game_type' => 'word_puzzle',
                 'answer_type' => 'term',
                 'image_file' => 'missing-link.png'
@@ -117,6 +120,7 @@ class GameSeeder extends Seeder
                 'name_ar' => 'مسيرة اللاعب',
                 'slug' => 'career',
                 'description' => 'Follow the clubs to identify the player.',
+                'description_ar' => 'تتبع الأندية التي لعب لها النجم للتعرف على هويته.',
                 'game_type' => 'connection_guess',
                 'answer_type' => 'player',
                 'image_file' => 'career-path.png'
@@ -126,6 +130,7 @@ class GameSeeder extends Seeder
                 'name_ar' => 'خمن المجموعة',
                 'slug' => 'group-players',
                 'description' => 'Identify the common link between a group of players.',
+                'description_ar' => 'تعرف على الرابط المشترك الذي يجمع بين مجموعة من اللاعبين.',
                 'game_type' => 'connection_guess',
                 'answer_type' => 'player',
                 'image_file' => 'group_guess_cover.png'

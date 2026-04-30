@@ -69,11 +69,13 @@
                 </div>
 
                 <!-- Search (Desktop) -->
-                <form action="{{ route('games.index') }}" method="GET" class="relative hidden lg:block group">
+                <form action="{{ route('games.index') }}" method="GET" class="relative hidden lg:block group" id="nav-search-form">
                     <span
                         class="material-symbols-outlined absolute start-3 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors">search</span>
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="{{ __('Search Gamesiano...') }}"
-                        class="bg-surface-variant/50 border-b border-outline-variant/30 text-sm py-2 ps-10 pe-4 rounded-t-lg focus:outline-none focus:border-primary focus:bg-surface-variant transition-all w-48 xl:w-64 uppercase font-display font-semibold tracking-wider">
+                    <input type="text" name="search" id="nav-search-input" value="{{ request('search') }}" placeholder="{{ __('Search Gamesiano...') }}"
+                        class="bg-surface-variant/50 border-b border-outline-variant/30 text-sm py-2 ps-10 pe-4 rounded-t-lg focus:outline-none focus:border-primary focus:bg-surface-variant transition-all w-48 xl:w-64 uppercase font-display font-semibold tracking-wider"
+                        autocomplete="off">
+                    <div id="nav-search-results" class="absolute top-full left-0 right-0 bg-surface border border-outline-variant/30 rounded-b-xl shadow-2xl overflow-hidden hidden z-[60]"></div>
                 </form>
 
                 <!-- Theme Toggle -->
@@ -286,6 +288,22 @@
         }
         window.openAdModal = openAdModal;
         window.openHintModal = (cb) => openAdModal('hint', cb); // Backward compatibility
+
+        // Nav Search Autocomplete
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchUrl = "{{ route('search.unified', ['type' => 'game']) }}";
+            initAutocomplete('nav-search-input', 'nav-search-results', searchUrl);
+            
+            // Auto-submit form when selection is made from autocomplete
+            const resultsList = document.getElementById('nav-search-results');
+            if (resultsList) {
+                resultsList.addEventListener('mousedown', () => {
+                    setTimeout(() => {
+                        document.getElementById('nav-search-form')?.submit();
+                    }, 50);
+                });
+            }
+        });
     </script>
 
     @stack('scripts')
