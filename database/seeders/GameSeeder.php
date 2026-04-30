@@ -142,13 +142,17 @@ class GameSeeder extends Seeder
             );
 
             $sourcePath = storage_path('app/seeds/games/' . $imageFile);
+            
             if (file_exists($sourcePath)) {
+                $this->command->info("Seeding image for game: {$game->slug} from {$sourcePath}");
                 $game->clearMediaCollection('cover');
                 $game->addMedia($sourcePath)
                      ->preservingOriginal()
                      ->toMediaCollection('cover');
                 
                 $game->update(['image' => 'games/' . $imageFile]);
+            } else {
+                $this->command->warn("Image not found for game: {$game->slug} at path: {$sourcePath}");
             }
         }
     }
