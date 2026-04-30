@@ -186,7 +186,7 @@
 
             <!-- Ad/Promo Spot (Optional, like in design) -->
             <div class="glass-card rounded-[2rem] p-6 border-primary/10 bg-gradient-to-br from-primary/5 to-transparent">
-                <span class="text-[9px] font-display font-black bg-primary text-on-primary px-2 py-0.5 rounded-full uppercase tracking-widest mb-3 inline-block">Pro Benefit</span>
+                <span class="text-[9px] font-display font-black bg-primary text-on-primary px-2 py-0.5 rounded-full uppercase tracking-widest mb-3 inline-block">{{ __('Pro Benefit') }}</span>
                 <h4 class="text-sm font-display font-black text-on-surface leading-tight uppercase mb-2">{{ __('Infinite Hints with Gamesiano Pro') }}</h4>
                 <p class="text-[10px] text-on-surface-variant mb-4 opacity-60">{{ __('Never get stuck again. Get unlimited hints and no ads.') }}</p>
                 <button class="w-full py-2.5 bg-white/5 hover:bg-white/10 text-white font-display font-bold rounded-xl uppercase tracking-widest text-[9px] transition-all border border-white/10">

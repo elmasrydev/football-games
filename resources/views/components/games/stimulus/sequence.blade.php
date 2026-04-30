@@ -44,7 +44,7 @@
                         @if(!empty($node['logo']))
                             <img src="{{ $node['logo'] }}" alt="{{ $node['name'] ?? __('Item') }}" class="node-logo">
                         @else
-                            <div class="node-logo-placeholder">{{ substr($node['name'] ?? '?', 0, 1) }}</div>
+                            <div class="node-logo-placeholder">{{ mb_substr($node['name'] ?? '?', 0, 1) }}</div>
                         @endif
                         <span class="node-name">{{ $node['name'] ?? __('Unknown') }}</span>
                     </div>
