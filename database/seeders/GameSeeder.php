@@ -145,14 +145,19 @@ class GameSeeder extends Seeder
             ],
         ];
 
+        $allGenres = \App\Models\Genre::all();
+
         foreach ($games as $gameData) {
             $imageFile = $gameData['image_file'];
             unset($gameData['image_file']);
             
             $game = Game::updateOrCreate(
                 ['slug' => $gameData['slug']], 
-                array_merge($gameData, ['genre_id' => $football->id])
+                $gameData
             );
+
+            // Sync all genres for now as requested
+            $game->genres()->sync($allGenres->pluck('id'));
 
             $sourcePath = storage_path('app/seeds/games/' . $imageFile);
             

@@ -29,11 +29,11 @@ class Game extends Model implements HasMedia
     ];
 
     protected $fillable = [
-        'genre_id',
         'title',
         'name_ar',
         'slug',
         'description',
+        'description_ar',
         'image',
         'game_type',
         'answer_type',
@@ -49,9 +49,9 @@ class Game extends Model implements HasMedia
         return 'slug';
     }
 
-    public function genre(): BelongsTo
+    public function genres(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
-        return $this->belongsTo(Genre::class);
+        return $this->belongsToMany(Genre::class);
     }
 
     public function challenges(): HasMany

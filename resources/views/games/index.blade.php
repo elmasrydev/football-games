@@ -61,9 +61,12 @@
             <div class="group relative flex flex-col bg-surface-variant/40 dark:bg-zinc-900/40 backdrop-blur-xl rounded-[2.5rem] overflow-hidden border border-outline-variant/10 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/20 hover:border-primary/30">
                 <!-- 1. Top Bar: Genre & Bookmark (Independent Layer) -->
                 <div class="p-5 flex justify-between items-center z-40 relative">
-                    <div class="bg-primary/10 text-primary text-[10px] font-display font-black px-3.5 py-1.5 rounded-full uppercase tracking-widest flex items-center gap-2">
-                        <span class="text-sm leading-none">{{ $game->genre?->icon ?? '🧩' }}</span>
-                        {{ $game->genre?->localized_name ?? __('Featured') }}
+                    <div class="flex items-center gap-1.5">
+                        @foreach($game->genres as $genre)
+                            <div class="bg-primary/10 text-primary text-[10px] font-display font-black w-8 h-8 rounded-full uppercase tracking-widest flex items-center justify-center hover:bg-primary/20 transition-colors" title="{{ $genre->localized_name }}">
+                                <span class="text-sm leading-none">{{ $genre->icon ?? '🧩' }}</span>
+                            </div>
+                        @endforeach
                     </div>
                     
                     <button class="w-9 h-9 rounded-full hover:bg-primary/10 flex items-center justify-center text-on-surface-variant hover:text-primary transition-all active:scale-90"

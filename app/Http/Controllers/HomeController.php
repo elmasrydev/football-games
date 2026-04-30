@@ -11,12 +11,15 @@ class HomeController extends Controller
     public function index()
     {
         $locale = app()->getLocale();
-        $games = Game::where('is_active', true)
+        $query = Game::where('is_active', true)
             ->whereHas('challenges', function($q) use ($locale) {
                 $q->where('language', $locale)->where('is_active', true);
-            })->get();
+            });
+
+        $games = (clone $query)->get();
+        $latestGames = (clone $query)->latest()->limit(2)->get();
             
-        return view('home', compact('games'));
+        return view('home', compact('games', 'latestGames'));
     }
 
     public function games(Request $request)
@@ -31,7 +34,7 @@ class HomeController extends Controller
             });
 
         if ($selectedGenreSlug) {
-            $query->whereHas('challenges.genre', function ($q) use ($selectedGenreSlug, $locale) {
+            $query->whereHas('genres', function ($q) use ($selectedGenreSlug) {
                 $q->where('slug', $selectedGenreSlug);
             });
         }

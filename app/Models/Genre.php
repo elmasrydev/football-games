@@ -26,9 +26,9 @@ class Genre extends Model
         return $this->hasMany(Challenge::class);
     }
 
-    public function games(): HasMany
+    public function games(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
-        return $this->hasMany(Game::class);
+        return $this->belongsToMany(Game::class);
     }
 
     public function getLocalizedNameAttribute(): string
