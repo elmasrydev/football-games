@@ -4,44 +4,73 @@
 <div class="max-w-[1440px] mx-auto px-4 sm:px-8 space-y-12 pb-20">
     
     <!-- Hero Section (Gamesiano Style) -->
-    <section class="relative h-[400px] sm:h-[500px] w-full rounded-[2.5rem] overflow-hidden flex items-center px-8 sm:px-16 group transition-all duration-700">
+    <section class="relative min-h-[500px] w-full rounded-[2.5rem] overflow-hidden flex items-center group transition-all duration-700 bg-surface">
         <!-- Background Art -->
         <div class="absolute inset-0 z-0">
-            <img class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" 
+            <img class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 opacity-30 dark:opacity-20" 
                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuAjCWz5z6rU52kQT7DtcsGAHDRbrkBxDmZs2l3aLuTEGcpOUrZqIflMKAz4el_ivm1XEevb5WwXeyMol93Dp7LNxcJYfXEjoWcPIoPlPhoGbgZrUdga88d_qzoI9BxJMvUEbwW6mRJPjY4zu-xDS4krKLY3m7K-AK_Boif9ganDtxLMTpeIWiQ5ml-arh1s1Dj3IZJTf7Pa0yfDrpY7hLviEkyTZ-rexDYpvqlAKRtSjI0Ooo34CviGCNpqWx74Sum_ko6f2_LVlw0"
                  alt="Hero Background">
-            <div class="absolute inset-0 bg-gradient-to-r from-background via-background/60 to-transparent rtl:bg-gradient-to-l"></div>
+            <div class="absolute inset-0 bg-gradient-to-br from-background via-background/90 to-transparent rtl:bg-gradient-to-bl"></div>
         </div>
 
-        <!-- Content -->
-        <div class="relative z-10 max-w-2xl space-y-6">
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-display font-black uppercase tracking-[0.2em]">
-                <span class="relative flex h-2 w-2">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-                </span>
-                {{ __('Your Arena') }}
-            </div>
-            
-            <h1 class="text-4xl sm:text-6xl font-display font-black italic tracking-tighter uppercase leading-[0.9] text-on-background">
-                {{ __('ENTER THE') }} <br>
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">{{ __('GAMESIANO') }}</span>
-            </h1>
-            
-            <p class="text-on-surface-variant text-base sm:text-lg max-w-md leading-relaxed font-medium">
-                {{ __('Jump back into your saved challenges with a cleaner, faster hub built for repeat play.') }}
-            </p>
+        <div class="relative z-10 w-full px-8 sm:px-16 py-12 grid lg:grid-cols-2 gap-12 items-center">
+            <!-- Left: Content -->
+            <div class="space-y-8">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-display font-black uppercase tracking-[0.2em]">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                    </span>
+                    {{ __('Your Arena') }}
+                </div>
+                
+                <div class="space-y-4">
+                    <h1 class="text-5xl sm:text-7xl font-display font-black italic tracking-tighter uppercase leading-[0.85] text-on-background">
+                        {{ __('ENTER THE') }} <br>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">{{ __('GAMESIANO') }}</span>
+                    </h1>
+                    
+                    <p class="text-on-surface-variant text-lg max-w-md leading-relaxed font-medium">
+                        {{ __('Jump back into your saved challenges with a cleaner, faster hub built for repeat play.') }}
+                    </p>
+                </div>
 
-            <div class="flex flex-wrap gap-4 pt-4">
-                <a href="{{ route('games.index') }}" class="bg-primary text-on-primary font-display font-black uppercase tracking-widest px-8 py-4 rounded-2xl shadow-xl shadow-primary/20 hover:brightness-110 active:scale-95 transition-all">
-                    {{ __('Browse All Games') }}
-                </a>
-                <div class="glass-card flex items-center gap-4 px-6 py-4 rounded-2xl">
-                    <div class="text-2xl font-display font-black text-secondary leading-none">{{ $games->count() }}</div>
-                    <div class="text-[10px] font-display font-bold uppercase tracking-widest leading-tight text-on-surface-variant">
-                        {{ __('Active') }} <br> {{ __('Modes') }}
+                <div class="flex flex-wrap items-center gap-6">
+                    <a href="{{ route('games.index') }}" class="bg-primary text-on-primary font-display font-black uppercase tracking-widest px-10 py-5 rounded-2xl shadow-2xl shadow-primary/30 hover:brightness-110 hover:-translate-y-1 active:scale-95 transition-all">
+                        {{ __('Browse All Games') }}
+                    </a>
+                    <div class="flex items-center gap-4">
+                        <div class="text-4xl font-display font-black text-secondary leading-none">{{ $games->count() }}</div>
+                        <div class="text-[10px] font-display font-bold uppercase tracking-widest leading-tight text-on-surface-variant">
+                            {{ __('Active') }} <br> {{ __('Modes') }}
+                        </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- Right: Latest Games -->
+            <div class="hidden lg:grid grid-cols-2 gap-6">
+                @foreach($latestGames as $latestGame)
+                    <div class="group/card relative aspect-[4/5] rounded-[2rem] overflow-hidden border border-outline-variant/10 shadow-2xl hover:-translate-y-2 transition-all duration-500">
+                        <a href="{{ route('games.play', ['slug' => $latestGame->slug]) }}" class="absolute inset-0 z-20"></a>
+                        
+                        @if ($latestGame->image_url)
+                            <img src="{{ $latestGame->image_url }}" alt="{{ $latestGame->localized_title }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-110">
+                        @endif
+
+                        <div class="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent z-10"></div>
+                        
+                        <!-- Content Overlay -->
+                        <div class="absolute bottom-6 inset-x-6 z-20">
+                            <div class="text-[9px] font-display font-black text-primary uppercase tracking-widest mb-2 px-2 py-0.5 bg-primary/10 w-fit rounded-full backdrop-blur-md">
+                                {{ __('New Arrival') }}
+                            </div>
+                            <h3 class="text-lg font-display font-black text-white uppercase tracking-tight group-hover/card:text-primary transition-colors line-clamp-1">
+                                {{ $latestGame->localized_title }}
+                            </h3>
+                        </div>
+                    </div>
+                @endforeach
             </div>
         </div>
     </section>
