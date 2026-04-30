@@ -24,13 +24,19 @@ class GamePlayController extends Controller
         $str = trim($str);
         
         // Alif variations -> Alif
-        $str = str_replace(['أ', 'إ', 'آ'], 'ا', $str);
+        $str = str_replace(['أ', 'إ', 'آ', 'ٱ'], 'ا', $str);
         
-        // Ya / Alef Maksura -> Ya (Commonly used interchangeably in search)
-        $str = str_replace('ى', 'ي', $str);
+        // Ya / Alef Maksura / Hamza on Ya -> Ya
+        $str = str_replace(['ى', 'ئ'], 'ي', $str);
+
+        // Waw with Hamza -> Waw
+        $str = str_replace('ؤ', 'و', $str);
         
-        // Ta Marbuta -> Ha (Optional, but often helpful for names)
-        // $str = str_replace('ة', 'ه', $str);
+        // Ta Marbuta -> Ha
+        $str = str_replace('ة', 'ه', $str);
+
+        // Remove Tatweel (Kashida)
+        $str = str_replace('ـ', '', $str);
 
         return $str;
     }
@@ -192,7 +198,8 @@ class GamePlayController extends Controller
                 if ($locale === 'ar') {
                     $normalizedQuery = $this->normalizeArabic($query);
                     // MySQL REPLACE nesting to normalize the column on the fly
-                    $q->orWhereRaw("REPLACE(REPLACE(REPLACE(REPLACE(name_ar, 'أ', 'ا'), 'إ', 'ا'), 'آ', 'ا'), 'ى', 'ي') LIKE ?", ["%$normalizedQuery%"]);
+                    // Replaces: أ, إ, آ, ٱ -> ا | ى, ئ -> ي | ؤ -> و | ة -> ه | ـ -> empty
+                    $q->orWhereRaw("REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(name_ar, 'أ', 'ا'), 'إ', 'ا'), 'آ', 'ا'), 'ٱ', 'ا'), 'ى', 'ي'), 'ئ', 'ي'), 'ؤ', 'و'), 'ة', 'ه'), 'ـ', '') LIKE ?", ["%$normalizedQuery%"]);
                 } else {
                     $q->orWhere('name_ar', 'like', "%$query%");
                 }

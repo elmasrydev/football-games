@@ -21,6 +21,8 @@ class DatabaseSeeder extends Seeder
             ArabicMissingLinkSeeder::class,
             TransferChainSeeder::class,
             ArabicTransferChainSeeder::class,
+            TerminologyTriviaSeeder::class,
+            ArabicTerminologyTriviaSeeder::class,
         ]);
     }
 }

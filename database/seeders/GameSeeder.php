@@ -95,13 +95,13 @@ class GameSeeder extends Seeder
                 'image_file' => 'trophy-hunter.png'
             ],
             [
-                'title' => 'Football Glossary',
-                'name_ar' => 'قاموس الكرة',
-                'slug' => 'football-glossary',
-                'description' => 'Test your knowledge of football terminology.',
-                'game_type' => 'image_guess',
+                'title' => 'Terminology Trivia',
+                'name_ar' => 'مسابقة المصطلحات',
+                'slug' => 'terminology-trivia',
+                'description' => 'Guess the word based on its definition or description across different genres.',
+                'game_type' => 'word_puzzle',
                 'answer_type' => 'term',
-                'image_file' => 'football-glossary.png'
+                'image_file' => 'terminology-trivia.png'
             ],
             [
                 'title' => 'Missing Link',

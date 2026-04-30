@@ -80,6 +80,7 @@
             <!-- Puzzle Area -->
             <div class="glass-card rounded-[2.5rem] overflow-hidden relative border-outline-variant/10 shadow-2xl">
                 {{-- Dynamic Stimulus Block --}}
+                @if($game->slug !== 'terminology-trivia')
                 <div class="{{ $challenge->stimulus_type === 'video' ? 'aspect-video' : '' }} flex items-center justify-center p-2">
                     @if($challenge->stimulus_type === 'image')
                         <x-games.stimulus.image :challenge="$challenge" :game="$game" />
@@ -98,8 +99,10 @@
                         </div>
                     @endif
                 </div>
+                @endif
 
                 <!-- Overlay Actions -->
+                @if($game->slug !== 'terminology-trivia')
                 <div class="absolute top-6 end-6 z-20 flex flex-col gap-3">
                     <button class="w-12 h-12 rounded-full glass-card flex items-center justify-center text-on-surface-variant hover:text-primary shadow-lg hover:scale-110 transition-all active:scale-90"
                             onclick="toggleBookmark({{ $game->id }})" 
@@ -107,6 +110,7 @@
                         <span class="material-symbols-outlined transition-colors">bookmark</span>
                     </button>
                 </div>
+                @endif
             </div>
 
             <!-- Answer Block (Directly below puzzle) -->
@@ -115,6 +119,15 @@
                 <div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32"></div>
                 
                 <div class="relative z-10 space-y-6 max-w-3xl mx-auto">
+                    @if($game->slug === 'terminology-trivia')
+                    <div class="absolute top-0 end-0">
+                        <button class="w-10 h-10 rounded-full glass-card flex items-center justify-center text-on-surface-variant hover:text-primary shadow-lg hover:scale-110 transition-all active:scale-90"
+                                onclick="toggleBookmark({{ $game->id }})" 
+                                data-id="{{ $game->id }}">
+                            <span class="material-symbols-outlined transition-colors">bookmark</span>
+                        </button>
+                    </div>
+                    @endif
                     <div class="text-center space-y-1">
                         <span class="text-[9px] font-display font-black text-primary uppercase tracking-[0.4em] block">{{ __('Interaction') }}</span>
                         <h2 class="text-2xl font-display font-black uppercase tracking-tight">{{ __('Your Answer') }}</h2>
@@ -239,7 +252,7 @@
         const answerInput = document.getElementById('answer-input');
         if (answerInput) {
             const answerType = answerInput.dataset.answerType;
-            if (answerType && ['player', 'club', 'stadium', 'actor', 'movie'].includes(answerType)) {
+            if (answerType && ['player', 'club', 'stadium', 'actor', 'movie', 'term'].includes(answerType)) {
                 const searchUrlTemplate = @json(route('search.unified', ['type' => '__TYPE__']));
                 const searchUrl = searchUrlTemplate.replace('__TYPE__', answerType);
                 if (typeof initAutocomplete === 'function') {
