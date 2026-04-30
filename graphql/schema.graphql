@@ -7,7 +7,7 @@ type Query {
     challenge(id: ID! @eq): Challenge @find
     genres: [Genre!]! @all
     
-    games: [Game!]! @all @scope(name: "activeWithChallenges")
+    games: [Game!]! @all(scopes: ["activeWithChallenges"])
 
     # Search queries
     searchPlayers(query: String!): [Player!]! @field(resolver: "App\\GraphQL\\Queries\\GameQueries@searchPlayers")
@@ -39,7 +39,7 @@ type Genre {
     sort_order: Int
     is_active: Boolean!
     challenges: [Challenge!]! @hasMany
-    games: [Game!]! @belongsToMany @scope(name: "activeWithChallenges")
+    games: [Game!]! @belongsToMany(scopes: ["activeWithChallenges"])
 }
 
 
