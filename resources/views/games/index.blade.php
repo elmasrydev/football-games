@@ -59,64 +59,65 @@
                 $route = route('games.play', ['slug' => $game->slug]);
             @endphp
             <div class="group relative flex flex-col bg-surface-variant/40 dark:bg-zinc-900/40 backdrop-blur-xl rounded-[2.5rem] overflow-hidden border border-outline-variant/10 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/20 hover:border-primary/30">
-                <a href="{{ $route }}" class="absolute inset-0 z-30" aria-label="{{ $game->localized_title }}"></a>
-                
-                <!-- 1. Top Bar: Genre & Bookmark -->
-                <div class="p-5 flex justify-between items-center z-20">
+                <!-- 1. Top Bar: Genre & Bookmark (Independent Layer) -->
+                <div class="p-5 flex justify-between items-center z-40 relative">
                     <div class="bg-primary/10 text-primary text-[10px] font-display font-black px-3.5 py-1.5 rounded-full uppercase tracking-widest flex items-center gap-2">
                         <span class="text-sm leading-none">{{ $game->genre?->icon ?? '🧩' }}</span>
                         {{ $game->genre?->localized_name ?? __('Featured') }}
                     </div>
                     
-                    <button class="w-9 h-9 rounded-full hover:bg-primary/10 flex items-center justify-center text-on-surface-variant hover:text-primary transition-all active:scale-90 z-40 relative"
+                    <button class="w-9 h-9 rounded-full hover:bg-primary/10 flex items-center justify-center text-on-surface-variant hover:text-primary transition-all active:scale-90"
                             onclick="event.preventDefault(); event.stopPropagation(); toggleBookmark({{ $game->id }})" 
                             data-id="{{ $game->id }}">
                         <span class="material-symbols-outlined text-[20px]">bookmark</span>
                     </button>
                 </div>
 
-                <!-- 2. Square Image Container -->
-                <div class="px-5">
-                    <div class="rounded-[1.8rem] overflow-hidden aspect-square">
-                        @if ($game->image_url)
-                            <img src="{{ $game->image_url }}" alt="{{ $game->localized_title }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                        @else
-                            <div class="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-                                <span class="text-xs font-display font-black uppercase opacity-20">{{ $game->localized_title }}</span>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-
-                <!-- 3. Name & Description -->
-                <div class="p-6 pb-4 space-y-2">
-                    <h3 class="text-xl font-display font-black text-on-surface uppercase tracking-tight group-hover:text-primary transition-colors line-clamp-1">
-                        {{ $game->localized_title }}
-                    </h3>
-                    <p class="text-on-surface-variant/70 text-xs font-medium line-clamp-2 leading-relaxed">
-                        {{ $game->localized_description }}
-                    </p>
-                </div>
-
-                <!-- 4. Separator -->
-                <div class="px-6">
-                    <div class="h-px bg-outline-variant/20"></div>
-                </div>
-
-                <!-- 5. Footer: Stats & Play Button -->
-                <div class="p-6 pt-4 mt-auto flex items-center justify-between">
-                    <div class="flex items-center gap-2 text-on-surface-variant/50 text-[10px] font-display font-black uppercase tracking-widest">
-                        <span class="material-symbols-outlined text-sm">trending_up</span>
-                        <span>12k {{ __('Playing') }}</span>
-                    </div>
-                    
-                    <div class="flex items-center gap-2 text-primary font-display font-black text-xs uppercase tracking-wider group-hover:gap-3 transition-all">
-                        <span>{{ __('Play Now') }}</span>
-                        <div class="w-8 h-8 rounded-xl bg-primary text-on-primary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
-                            <span class="material-symbols-outlined text-sm">play_arrow</span>
+                <!-- 2. Clickable Main Content Area -->
+                <a href="{{ $route }}" class="flex flex-col flex-grow z-30 group/link" aria-label="{{ $game->localized_title }}">
+                    <!-- Square Image Container -->
+                    <div class="px-5">
+                        <div class="rounded-[1.8rem] overflow-hidden aspect-square">
+                            @if ($game->image_url)
+                                <img src="{{ $game->image_url }}" alt="{{ $game->localized_title }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                            @else
+                                <div class="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+                                    <span class="text-xs font-display font-black uppercase opacity-20">{{ $game->localized_title }}</span>
+                                </div>
+                            @endif
                         </div>
                     </div>
-                </div>
+
+                    <!-- Name & Description -->
+                    <div class="p-6 pb-4 space-y-2">
+                        <h3 class="text-xl font-display font-black text-on-surface uppercase tracking-tight group-hover:text-primary transition-colors line-clamp-1">
+                            {{ $game->localized_title }}
+                        </h3>
+                        <p class="text-on-surface-variant/70 text-xs font-medium line-clamp-2 leading-relaxed">
+                            {{ $game->localized_description }}
+                        </p>
+                    </div>
+
+                    <!-- Separator -->
+                    <div class="px-6 mt-auto">
+                        <div class="h-px bg-outline-variant/20"></div>
+                    </div>
+
+                    <!-- Footer: Stats & Play Button -->
+                    <div class="p-6 pt-4 flex items-center justify-between">
+                        <div class="flex items-center gap-2 text-on-surface-variant/50 text-[10px] font-display font-black uppercase tracking-widest">
+                            <span class="material-symbols-outlined text-sm">trending_up</span>
+                            <span>12k {{ __('Playing') }}</span>
+                        </div>
+                        
+                        <div class="flex items-center gap-2 text-primary font-display font-black text-xs uppercase tracking-wider group-hover:gap-3 transition-all">
+                            <span>{{ __('Play Now') }}</span>
+                            <div class="w-8 h-8 rounded-xl bg-primary text-on-primary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
+                                <span class="material-symbols-outlined text-sm">play_arrow</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
             </div>
         @empty
             <div class="col-span-full py-20 text-center glass-card rounded-[2.5rem]">
