@@ -58,22 +58,23 @@
                         class="transition-all hover:text-primary {{ request()->routeIs('games.index', 'games.play') ? 'text-primary' : 'text-on-surface-variant' }}">
                         {{ __('Games') }}
                     </a>
-                    <a href="{{ route('about') }}"
-                        class="transition-all hover:text-primary {{ request()->routeIs('about') ? 'text-primary' : 'text-on-surface-variant' }}">
-                        {{ __('About') }}
-                    </a>
                 </div>
             </div>
 
             <!-- Toolbar -->
             <div class="flex items-center gap-2 sm:gap-4 shrink-0">
+                <!-- Stats (Compact) -->
+                <div class="hidden sm:block">
+                    <x-game-stats compact="true" />
+                </div>
+
                 <!-- Search (Desktop) -->
-                <div class="relative hidden lg:block group">
+                <form action="{{ route('games.index') }}" method="GET" class="relative hidden lg:block group">
                     <span
                         class="material-symbols-outlined absolute start-3 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors">search</span>
-                    <input type="text" placeholder="{{ __('Search Gamesiano...') }}"
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="{{ __('Search Gamesiano...') }}"
                         class="bg-surface-variant/50 border-b border-outline-variant/30 text-sm py-2 ps-10 pe-4 rounded-t-lg focus:outline-none focus:border-primary focus:bg-surface-variant transition-all w-48 xl:w-64 uppercase font-display font-semibold tracking-wider">
-                </div>
+                </form>
 
                 <!-- Theme Toggle -->
                 <button type="button" id="theme-toggle"
@@ -98,12 +99,8 @@
         </div>
     </nav>
 
-    <!-- Stats Bar (Under Header) -->
-    <div class="pt-20">
-        <div class="max-w-[1440px] mx-auto px-4 sm:px-8 py-4">
-            <x-game-stats />
-        </div>
-    </div>
+    <!-- Main Content -->
+    <div class="pt-20"></div>
 
     <!-- Main Content -->
     <main class="flex-grow">

@@ -5,8 +5,30 @@
         'total_correct' => 0,
         'total_questions' => 0
     ];
+    $compact = $compact ?? false;
 @endphp
 
+@if($compact)
+<div class="flex items-center gap-2 sm:gap-4">
+    <!-- Streak -->
+    <div class="flex items-center gap-1.5 px-2 py-1 rounded-xl bg-error/5 border border-error/10 text-error group" title="{{ __('Streak') }}">
+        <span class="material-symbols-outlined text-base" style="font-variation-settings: 'FILL' 1">local_fire_department</span>
+        <span class="text-sm font-display font-black" id="hud-streak">{{ $displayStats['streak'] }}</span>
+    </div>
+
+    <!-- Played -->
+    <div class="flex items-center gap-1.5 px-2 py-1 rounded-xl bg-primary/5 border border-primary/10 text-primary group" title="{{ __('Played') }}">
+        <span class="material-symbols-outlined text-base" style="font-variation-settings: 'FILL' 1">sports_esports</span>
+        <span class="text-sm font-display font-black" id="hud-played">{{ $displayStats['games_played'] }}</span>
+    </div>
+
+    <!-- Score -->
+    <div class="flex items-center gap-1.5 px-2 py-1 rounded-xl bg-tertiary/5 border border-tertiary/10 text-tertiary group" title="{{ __('Correct') }}">
+        <span class="material-symbols-outlined text-base" style="font-variation-settings: 'FILL' 1">stars</span>
+        <span class="text-sm font-display font-black" id="hud-score">{{ $displayStats['total_correct'] }}/{{ $displayStats['total_questions'] }}</span>
+    </div>
+</div>
+@else
 <div class="flex flex-wrap items-center justify-center gap-3 sm:gap-6">
     <!-- Streak -->
     <div class="glass-card flex items-center gap-3 px-4 py-2 rounded-2xl border-error/20 hover:border-error/50 transition-colors group">
@@ -41,6 +63,7 @@
         </div>
     </div>
 </div>
+@endif
 
 <script>
     window.updateHUD = function(stats) {

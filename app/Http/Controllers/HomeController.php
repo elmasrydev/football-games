@@ -23,6 +23,7 @@ class HomeController extends Controller
     {
         $locale = app()->getLocale();
         $selectedGenreSlug = $request->query('genre');
+        $search = $request->query('search');
         
         $query = Game::where('is_active', true)
             ->whereHas('challenges', function($q) use ($locale) {
@@ -32,6 +33,14 @@ class HomeController extends Controller
         if ($selectedGenreSlug) {
             $query->whereHas('challenges.genre', function ($q) use ($selectedGenreSlug, $locale) {
                 $q->where('slug', $selectedGenreSlug);
+            });
+        }
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('name_ar', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
