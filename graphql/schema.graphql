@@ -39,7 +39,7 @@ type Genre {
     sort_order: Int
     is_active: Boolean!
     challenges: [Challenge!]! @hasMany
-    games: [Game!]! @hasMany @scope(name: "activeWithChallenges")
+    games: [Game!]! @belongsToMany @scope(name: "activeWithChallenges")
 }
 
 
@@ -53,9 +53,8 @@ type Game {
     game_type: String
     answer_type: String
     is_active: Boolean!
-    genre: Genre @belongsTo
+    genres: [Genre!]! @belongsToMany
     challenges: [Challenge!]! @hasMany
-    videos: [Video!]! @hasMany
 }
 
 type Challenge {
@@ -68,7 +67,7 @@ type Challenge {
     answer: String
     answers: [String]
     answer_type: String
-    answer_type: String
+
     current_level: Int @method(name: "getCurrentLevelAttribute")
     total_levels: Int @method(name: "getTotalLevelsAttribute")
     is_active: Boolean!
@@ -151,10 +150,6 @@ type Mutation {
     getHint(id: ID!, shown_hints: [ID!]): HintResult! @field(resolver: "App\\GraphQL\\Mutations\\GameMutations@getHint")
     revealAnswer(id: ID!): RevealResult! @field(resolver: "App\\GraphQL\\Mutations\\GameMutations@revealAnswer")
 
-    # ── Legacy mutations (kept for backward compatibility) ──
-    checkAnswer(id: ID!, answer: String!, revealed_orders: [Int!]): GameResult! @field(resolver: "App\\GraphQL\\Mutations\\GameMutations@checkAnswer")
-    getHint(id: ID!, shown_hints: [ID!]): HintResult! @field(resolver: "App\\GraphQL\\Mutations\\GameMutations@getHint")
-    revealAnswer(id: ID!): RevealResult! @field(resolver: "App\\GraphQL\\Mutations\\GameMutations@revealAnswer")
 }
 
 type GameResult {
