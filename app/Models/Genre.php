@@ -14,6 +14,8 @@ class Genre extends Model implements HasMedia
     protected $fillable = [
         'name_en',
         'name_ar',
+        'description_en',
+        'description_ar',
         'slug',
         'icon',
         'image',
@@ -60,5 +62,12 @@ class Genre extends Model implements HasMedia
         return app()->getLocale() === 'ar'
             ? ($this->name_ar ?: $this->name_en)
             : $this->name_en;
+    }
+
+    public function getLocalizedDescriptionAttribute(): ?string
+    {
+        return app()->getLocale() === 'ar'
+            ? ($this->description_ar ?: $this->description_en)
+            : $this->description_en;
     }
 }

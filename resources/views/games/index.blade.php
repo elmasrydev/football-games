@@ -68,7 +68,7 @@
                             {{ $genre->localized_name }}
                         </h3>
                         <p class="text-on-surface-variant/70 text-xs font-medium line-clamp-2 leading-relaxed">
-                            {{ __('Explore our curated collection of :genre games and challenges.', ['genre' => $genre->localized_name]) }}
+                            {{ $genre->localized_description ?: __('Explore our curated collection of :genre games and challenges.', ['genre' => $genre->localized_name]) }}
                         </p>
                     </div>
 

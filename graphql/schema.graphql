@@ -36,6 +36,8 @@ type Genre {
     id: ID!
     name_en: String!
     name_ar: String
+    description_en: String
+    description_ar: String
     slug: String!
     icon: String
     image_url: String

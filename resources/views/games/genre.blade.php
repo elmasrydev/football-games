@@ -16,7 +16,7 @@
                 <span>{{ $genre->localized_name }}</span>
             </h1>
             <p class="text-on-surface-variant max-w-xl text-base leading-relaxed">
-                {{ __('Explore games in the :genre category. Bookmark your favorites for quick access.', ['genre' => $genre->localized_name]) }}
+                {{ $genre->localized_description ?: __('Explore games in the :genre category. Bookmark your favorites for quick access.', ['genre' => $genre->localized_name]) }}
             </p>
         </div>
         

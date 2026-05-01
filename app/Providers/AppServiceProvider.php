@@ -52,10 +52,17 @@ class AppServiceProvider extends ServiceProvider
             ], $stats);
 
             $locale = App::currentLocale();
+            $genres = \App\Models\Genre::where('is_active', true)
+                ->whereHas('challenges', function($query) {
+                    $query->where('is_active', true);
+                })
+                ->orderBy('sort_order')
+                ->get();
             
             $view->with('global_stats', $stats)
                 ->with('current_locale', $locale)
-                ->with('current_direction', $locale === 'ar' ? 'rtl' : 'ltr');
+                ->with('current_direction', $locale === 'ar' ? 'rtl' : 'ltr')
+                ->with('all_genres', $genres);
         });
     }
 }

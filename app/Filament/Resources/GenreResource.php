@@ -38,6 +38,14 @@ class GenreResource extends Resource
                         Forms\Components\TextInput::make('icon')
                             ->label('Icon (Emoji)')
                             ->maxLength(10),
+                        Forms\Components\Textarea::make('description_en')
+                            ->label('Description (English)')
+                            ->rows(3)
+                            ->columnSpanFull(),
+                        Forms\Components\Textarea::make('description_ar')
+                            ->label('Description (Arabic)')
+                            ->rows(3)
+                            ->columnSpanFull(),
                         Forms\Components\TextInput::make('sort_order')
                             ->numeric()
                             ->default(0),

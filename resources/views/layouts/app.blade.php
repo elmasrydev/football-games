@@ -54,10 +54,38 @@
                         class="transition-all hover:text-primary {{ request()->routeIs('home') ? 'text-primary' : 'text-on-surface-variant' }}">
                         {{ __('Home') }}
                     </a>
-                    <a href="{{ route('games.index') }}"
-                        class="transition-all hover:text-primary {{ request()->routeIs('games.index', 'games.play') ? 'text-primary' : 'text-on-surface-variant' }}">
-                        {{ __('Games') }}
-                    </a>
+                    <!-- Games Dropdown -->
+                    <div class="relative group">
+                        <a href="{{ route('games.index') }}"
+                            class="flex items-center gap-1 transition-all hover:text-primary {{ request()->routeIs('games.index', 'games.play', 'games.genre') ? 'text-primary' : 'text-on-surface-variant' }}">
+                            {{ __('Games') }}
+                            <span class="material-symbols-outlined text-[18px] transition-transform group-hover:rotate-180">expand_more</span>
+                        </a>
+                        
+                        <!-- Dropdown Menu -->
+                        <div class="absolute top-full start-0 pt-4 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 z-[100]">
+                            <div class="w-72 bg-surface dark:bg-zinc-900 border border-outline-variant/30 rounded-3xl shadow-2xl overflow-hidden py-3 backdrop-blur-xl">
+                                @foreach($all_genres ?? [] as $genre)
+                                    <a href="{{ route('games.genre', ['genre_slug' => $genre->slug]) }}" 
+                                       class="flex items-center gap-4 px-5 py-3.5 hover:bg-primary/10 transition-colors group/item">
+                                        <div class="w-10 h-10 rounded-full bg-surface-variant/50 flex items-center justify-center text-xl group-hover/item:scale-110 group-hover/item:bg-primary/20 transition-all">
+                                            {{ $genre->icon }}
+                                        </div>
+                                        <div class="flex flex-col">
+                                            <span class="text-sm font-display font-black uppercase tracking-tight text-on-surface group-hover/item:text-primary">{{ $genre->localized_name }}</span>
+                                            <span class="text-[9px] text-on-surface-variant/60 font-bold uppercase tracking-[0.1em]">{{ $genre->games_count }} {{ __('Games Available') }}</span>
+                                        </div>
+                                    </a>
+                                @endforeach
+                                
+                                <div class="h-px bg-outline-variant/10 my-2 mx-5"></div>
+                                
+                                <a href="{{ route('games.index') }}" class="flex items-center justify-center py-3 text-[10px] font-display font-black text-primary hover:bg-primary/5 transition-colors uppercase tracking-[0.2em]">
+                                    {{ __('Browse All Genres') }}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
