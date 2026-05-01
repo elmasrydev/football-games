@@ -51,11 +51,11 @@
             <!-- Right: Latest Games -->
             <div class="hidden lg:grid grid-cols-2 gap-6">
                 @foreach($latestGames as $latestGame)
-                    <div class="group/card relative flex flex-col h-full transition-all duration-500 hover:-translate-y-2">
-                        <!-- Image Block -->
-                        <div class="relative aspect-[4/5] rounded-t-[2.5rem] overflow-hidden border border-outline-variant/10 rounded-t-lg shadow-2xl transition-all duration-500 group-hover/card:shadow-primary/20 group-hover/card:border-primary/30 bg-surface-variant">
-                            <a href="{{ route('games.play', ['slug' => $latestGame->slug]) }}" class="absolute inset-0 z-20"></a>
-                            
+                    <div class="group/card relative flex flex-col h-full bg-surface-variant/40 dark:bg-zinc-900/40 backdrop-blur-xl rounded-[1rem] border border-outline-variant/10 shadow-2xl transition-all duration-500 hover:-translate-y-2 hover:shadow-primary/20 hover:border-primary/30 overflow-hidden">
+                        <a href="{{ route('games.play', ['slug' => $latestGame->slug]) }}" class="absolute inset-0 z-30"></a>
+                        
+                        <!-- Image Area -->
+                        <div class="relative aspect-[4/5] overflow-hidden">
                             @if ($latestGame->image_url)
                                 <img src="{{ $latestGame->image_url }}" alt="{{ $latestGame->localized_title }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-110">
                             @endif
@@ -66,13 +66,17 @@
                                     {{ __('New Arrival') }}
                                 </div>
                             </div>
+                            
+                            <!-- Bottom Image Gradient (Subtle) -->
+                            <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/20 to-transparent"></div>
                         </div>
 
-                        <!-- Name Block (Proper UI Block) -->
-                        <div class="rounded-b-lg shadow-2xl dark:bg-zinc-900/40 backdrop-blur-xl p-6">
+                        <!-- Content Area -->
+                        <div class="p-6 space-y-3">
                             <h3 class="text-xl font-display font-black text-on-surface uppercase tracking-tight group-hover/card:text-primary transition-colors line-clamp-1">
                                 {{ $latestGame->localized_title }}
-                            </h3>                           
+                            </h3>
+                           
                         </div>
                     </div>
                 @endforeach
@@ -126,16 +130,14 @@
                                 @php
                                     $route = route('games.play', ['slug' => $game->slug, 'genre' => $genre->slug]);
                                 @endphp
-                                <div class="bookmark-item group relative flex flex-col transition-all duration-500 hover:-translate-y-2" 
+                                <div class="bookmark-item group relative flex flex-col bg-surface-variant/40 dark:bg-zinc-900/40 backdrop-blur-xl rounded-[2.5rem] border border-outline-variant/10 shadow-2xl transition-all duration-500 hover:-translate-y-2 hover:neon-border-blue overflow-hidden" 
                                      data-id="{{ $game->id }}" 
                                      data-genre="{{ $genre->id }}"
                                      style="display: none;">
+                                    <a href="{{ $route }}" class="absolute inset-0 z-30" aria-label="{{ $game->localized_title }}"></a>
                                     
-                                    <!-- Image Block -->
-                                    <div class="relative aspect-square rounded-t-[2.5rem] overflow-hidden glass-card border border-outline-variant/10 transition-all duration-500 group-hover:neon-border-blue">
-                                        <a href="{{ $route }}" class="absolute inset-0 z-10" aria-label="{{ $game->localized_title }}"></a>
-                                        
-                                        <!-- Background Image -->
+                                    <!-- Image Area -->
+                                    <div class="relative aspect-square overflow-hidden">
                                         @if ($game->image_url)
                                             <img src="{{ $game->image_url }}" alt="{{ $game->localized_title }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                                         @else
@@ -145,8 +147,8 @@
                                         @endif
 
                                         <!-- Top Actions -->
-                                        <div class="absolute top-4 inset-x-4 z-20 flex justify-end items-start">
-                                            <button class="w-10 h-10 rounded-full glass-card flex items-center justify-center text-on-surface-variant hover:text-primary shadow-lg hover:scale-110 transition-all active:scale-90"
+                                        <div class="absolute top-4 inset-x-4 z-40 flex justify-end items-start">
+                                            <button class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:text-primary shadow-lg hover:scale-110 transition-all active:scale-90"
                                                     onclick="event.preventDefault(); event.stopPropagation(); toggleBookmark({{ $game->id }}, {{ $genre->id }})" 
                                                     data-id="{{ $game->id }}"
                                                     data-genre="{{ $genre->id }}">
@@ -155,20 +157,20 @@
                                         </div>
                                     </div>
 
-                                    <!-- Name Block (Proper UI Block) -->
-                                    <div class="bg-surface-variant/30 dark:bg-zinc-900/40 backdrop-blur-xl p-6 rounded-b-[2.5rem] border-x border-b border-outline-variant/10 flex-grow">
+                                    <!-- Content Area -->
+                                    <div class="p-6 space-y-4">
                                         <h3 class="text-xl font-display font-black text-on-surface uppercase tracking-tight group-hover:text-primary transition-colors line-clamp-1">
                                             {{ $game->localized_title }}
                                         </h3>
                                         
-                                        <div class="flex items-center justify-between mt-4">
+                                        <div class="flex items-center justify-between">
                                             <div class="flex items-center gap-1.5 text-on-surface-variant/50 text-[10px] font-display font-black uppercase tracking-widest">
                                                 <span class="material-symbols-outlined text-sm">trending_up</span>
                                                 12k {{ __('Playing') }}
                                             </div>
-                                            <a href="{{ $route }}" class="w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center shadow-lg shadow-primary/20 hover:scale-110 transition-transform active:scale-95">
+                                            <div class="w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform active:scale-95">
                                                 <span class="material-symbols-outlined text-sm">play_arrow</span>
-                                            </a>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
