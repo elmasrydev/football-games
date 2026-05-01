@@ -36,34 +36,36 @@
             @php
                 $route = route('games.play', ['slug' => $game->slug, 'genre' => $genre->slug]);
             @endphp
-            <div class="group relative flex flex-col bg-surface-variant/40 dark:bg-zinc-900/40 backdrop-blur-xl rounded-[2.5rem] overflow-hidden border border-outline-variant/10 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/20 hover:border-primary/30">
-                <!-- 1. Top Bar: Bookmark (Independent Layer) -->
-                <div class="p-5 flex justify-end items-center z-40 relative">
-                    <button class="w-10 h-10 rounded-full glass-card flex items-center justify-center text-on-surface-variant hover:text-primary transition-all active:scale-90"
-                            onclick="event.preventDefault(); event.stopPropagation(); toggleBookmark({{ $game->id }}, {{ $genre->id }})" 
-                            data-id="{{ $game->id }}"
-                            data-genre="{{ $genre->id }}">
-                        <span class="material-symbols-outlined text-[20px]">bookmark</span>
-                    </button>
-                </div>
-
-                <!-- 2. Clickable Main Content Area -->
-                <a href="{{ $route }}" class="flex flex-col flex-grow z-30 group/link" aria-label="{{ $game->localized_title }}">
-                    <!-- Square Image Container -->
-                    <div class="px-5">
-                        <div class="rounded-[1.8rem] overflow-hidden aspect-square">
-                            @if ($game->image_url)
-                                <img src="{{ $game->image_url }}" alt="{{ $game->localized_title }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                            @else
-                                <div class="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-                                    <span class="text-xs font-display font-black uppercase opacity-20">{{ $game->localized_title }}</span>
-                                </div>
-                            @endif
+            <div class="group relative flex flex-col bg-surface-variant/40 dark:bg-zinc-900/40 backdrop-blur-xl rounded-[1rem] overflow-hidden border border-outline-variant/10 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/20 hover:border-primary/30">
+                <a href="{{ $route }}" class="absolute inset-0 z-30" aria-label="{{ $game->localized_title }}"></a>
+                
+                <!-- Image Area -->
+                <div class="relative aspect-square overflow-hidden">
+                    @if ($game->image_url)
+                        <img src="{{ $game->image_url }}" alt="{{ $game->localized_title }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                    @else
+                        <div class="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center p-8 text-center">
+                            <span class="text-xs font-display font-black uppercase opacity-20">{{ $game->localized_title }}</span>
                         </div>
+                    @endif
+
+                    <!-- Bookmark Button Overlay -->
+                    <div class="absolute top-4 inset-x-4 z-40 flex justify-end">
+                        <button class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:text-primary shadow-lg hover:scale-110 transition-all active:scale-90"
+                                onclick="event.preventDefault(); event.stopPropagation(); toggleBookmark({{ $game->id }}, {{ $genre->id }})" 
+                                data-id="{{ $game->id }}"
+                                data-genre="{{ $genre->id }}">
+                            <span class="material-symbols-outlined text-[20px]">bookmark</span>
+                        </button>
                     </div>
 
-                    <!-- Name & Description -->
-                    <div class="p-6 pb-4 space-y-2">
+                    <!-- Subtle Bottom Gradient -->
+                    <div class="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/20 to-transparent"></div>
+                </div>
+
+                <!-- Content Area -->
+                <div class="p-6 space-y-4 flex flex-grow flex-col">
+                    <div class="space-y-2">
                         <h3 class="text-xl font-display font-black text-on-surface uppercase tracking-tight group-hover:text-primary transition-colors line-clamp-1">
                             {{ $game->localized_title }}
                         </h3>
@@ -72,26 +74,20 @@
                         </p>
                     </div>
 
-                    <!-- Separator -->
-                    <div class="px-6 mt-auto">
-                        <div class="h-px bg-outline-variant/20"></div>
-                    </div>
-
-                    <!-- Footer: Stats & Play Button -->
-                    <div class="p-6 pt-4 flex items-center justify-between">
-                        <div class="flex items-center gap-2 text-on-surface-variant/50 text-[10px] font-display font-black uppercase tracking-widest">
+                    <!-- Footer -->
+                    <div class="pt-4 mt-auto border-t border-outline-variant/10 flex items-center justify-between">
+                        <div class="flex items-center gap-1.5 text-on-surface-variant/50 text-[10px] font-display font-black uppercase tracking-widest">
                             <span class="material-symbols-outlined text-sm">trending_up</span>
-                            <span>12k {{ __('Playing') }}</span>
+                            12k {{ __('Playing') }}
                         </div>
                         
                         <div class="flex items-center gap-2 text-primary font-display font-black text-xs uppercase tracking-wider group-hover:gap-3 transition-all">
-                            <span>{{ __('Play Now') }}</span>
-                            <div class="w-8 h-8 rounded-xl bg-primary text-on-primary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
+                            <div class="w-8 h-8 rounded-xl bg-primary text-on-primary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform active:scale-95">
                                 <span class="material-symbols-outlined text-sm">play_arrow</span>
                             </div>
                         </div>
                     </div>
-                </a>
+                </div>
             </div>
         @empty
             <div class="col-span-full py-20 text-center glass-card rounded-[2.5rem]">
