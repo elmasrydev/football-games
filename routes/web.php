@@ -54,10 +54,11 @@ Route::post('/preferences/locale', function (Request $request) {
 
 Route::prefix('{locale}')->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
-    Route::get('/games', [HomeController::class, 'games'])->name('games.index');
-
     // Unified Game Routes
     Route::get('/games/{slug}/{challenge?}', [GamePlayController::class, 'play'])->name('games.play');
+
+    Route::get('/library', [HomeController::class, 'games'])->name('games.index');
+    Route::get('/library/{genre_slug}', [HomeController::class, 'genreGames'])->name('games.genre');
     Route::post('/challenges/{challenge}/check', [GamePlayController::class, 'checkAnswer'])->name('challenges.check');
     Route::post('/challenges/{challenge}/hint', [GamePlayController::class, 'getHint'])->name('challenges.hint');
     Route::get('/challenges/{challenge}/reveal', [GamePlayController::class, 'revealAnswer'])->name('challenges.reveal');

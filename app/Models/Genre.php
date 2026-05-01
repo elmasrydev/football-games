@@ -4,14 +4,19 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Genre extends Model
+class Genre extends Model implements HasMedia
 {
+    use InteractsWithMedia;
+
     protected $fillable = [
         'name_en',
         'name_ar',
         'slug',
         'icon',
+        'image',
         'sort_order',
         'is_active',
     ];
@@ -29,6 +34,25 @@ class Genre extends Model
     public function games(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(Game::class);
+    }
+
+    public function getImageUrlAttribute(): ?string
+    {
+        $media = $this->getFirstMediaUrl('cover');
+        if ($media) {
+            return $media;
+        }
+
+        if ($this->image) {
+            return asset('storage/' . $this->image);
+        }
+
+        return null;
+    }
+
+    public function getGamesCountAttribute(): int
+    {
+        return $this->games()->where('is_active', true)->count();
     }
 
     public function getLocalizedNameAttribute(): string

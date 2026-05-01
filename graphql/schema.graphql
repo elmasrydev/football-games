@@ -3,11 +3,13 @@ scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Date
 
 type Query {
     # ── Unified API ──
-    challenges(game_id: Int @eq, genre_id: Int @eq): [Challenge!]! @all
+    challenges(game_id: Int @eq, genre_id: Int @eq, language: String @eq): [Challenge!]! @all
     challenge(id: ID! @eq): Challenge @find
-    genres: [Genre!]! @all
+    genres(language: String): [Genre!]! @all
+    genre(slug: String! @eq): Genre @find
     
-    games: [Game!]! @all(scopes: ["activeWithChallenges"])
+    games(language: String @scope(name: "activeWithChallenges")): [Game!]! @all
+    recentGames(language: String @scope(name: "activeWithChallenges")): [Game!]! @all(orderBy: [{column: "created_at", direction: DESC}], limit: 2)
 
     # Search queries
     searchPlayers(query: String!): [Player!]! @field(resolver: "App\\GraphQL\\Queries\\GameQueries@searchPlayers")
@@ -36,10 +38,12 @@ type Genre {
     name_ar: String
     slug: String!
     icon: String
+    image_url: String
+    games_count: Int
     sort_order: Int
     is_active: Boolean!
     challenges: [Challenge!]! @hasMany
-    games: [Game!]! @belongsToMany(scopes: ["activeWithChallenges"])
+    games(language: String @scope(name: "activeWithChallenges")): [Game!]! @belongsToMany
 }
 
 
@@ -50,6 +54,7 @@ type Game {
     slug: String
     description: String
     image: String
+    image_url: String
     game_type: String
     answer_type: String
     is_active: Boolean!

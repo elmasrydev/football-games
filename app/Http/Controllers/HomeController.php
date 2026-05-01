@@ -18,43 +18,42 @@ class HomeController extends Controller
 
         $games = (clone $query)->get();
         $latestGames = (clone $query)->latest()->limit(2)->get();
+        
+        $genres = Genre::whereHas('challenges', function ($q) use ($locale) {
+            $q->where('language', $locale)->where('is_active', true);
+        })->get();
             
-        return view('home', compact('games', 'latestGames'));
+        return view('home', compact('games', 'latestGames', 'genres'));
     }
 
     public function games(Request $request)
     {
         $locale = app()->getLocale();
-        $selectedGenreSlug = $request->query('genre');
-        $search = $request->query('search');
-        
-        $query = Game::where('is_active', true)
-            ->whereHas('challenges', function($q) use ($locale) {
-                $q->where('language', $locale)->where('is_active', true);
-            });
-
-        if ($selectedGenreSlug) {
-            $query->whereHas('genres', function ($q) use ($selectedGenreSlug) {
-                $q->where('slug', $selectedGenreSlug);
-            });
-        }
-
-        if ($search) {
-            $query->where(function($q) use ($search) {
-                $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('name_ar', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
-            });
-        }
-
-        $games = $query->get();
         
         $genres = Genre::whereHas('challenges', function ($q) use ($locale) {
             $q->where('language', $locale)->where('is_active', true);
-        })->get();
+        })->withCount(['games' => function($q) {
+            $q->where('is_active', true);
+        }])->get();
 
-        $selectedGenre = $selectedGenreSlug ? Genre::where('slug', $selectedGenreSlug)->first() : null;
+        $totalGamesCount = Game::where('is_active', true)->count();
 
-        return view('games.index', compact('games', 'genres', 'selectedGenre'));
+        return view('games.index', compact('genres', 'totalGamesCount'));
+    }
+
+    public function genreGames(string $locale, string $genreSlug)
+    {
+        $genre = Genre::where('slug', $genreSlug)->firstOrFail();
+        
+        $games = Game::where('is_active', true)
+            ->whereHas('genres', function($q) use ($genre) {
+                $q->where('genres.id', $genre->id);
+            })
+            ->whereHas('challenges', function($q) use ($locale) {
+                $q->where('language', $locale)->where('is_active', true);
+            })
+            ->get();
+
+        return view('games.genre', compact('genre', 'games'));
     }
 }

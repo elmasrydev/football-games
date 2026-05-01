@@ -51,23 +51,28 @@
             <!-- Right: Latest Games -->
             <div class="hidden lg:grid grid-cols-2 gap-6">
                 @foreach($latestGames as $latestGame)
-                    <div class="group/card relative aspect-[4/5] rounded-[2rem] overflow-hidden border border-outline-variant/10 shadow-2xl hover:-translate-y-2 transition-all duration-500">
-                        <a href="{{ route('games.play', ['slug' => $latestGame->slug]) }}" class="absolute inset-0 z-20"></a>
-                        
-                        @if ($latestGame->image_url)
-                            <img src="{{ $latestGame->image_url }}" alt="{{ $latestGame->localized_title }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-110">
-                        @endif
+                    <div class="group/card relative flex flex-col h-full transition-all duration-500 hover:-translate-y-2">
+                        <!-- Image Block -->
+                        <div class="relative aspect-[4/5] rounded-t-[2.5rem] overflow-hidden border border-outline-variant/10 rounded-t-lg shadow-2xl transition-all duration-500 group-hover/card:shadow-primary/20 group-hover/card:border-primary/30 bg-surface-variant">
+                            <a href="{{ route('games.play', ['slug' => $latestGame->slug]) }}" class="absolute inset-0 z-20"></a>
+                            
+                            @if ($latestGame->image_url)
+                                <img src="{{ $latestGame->image_url }}" alt="{{ $latestGame->localized_title }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-110">
+                            @endif
 
-                        <div class="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent z-10"></div>
-                        
-                        <!-- Content Overlay -->
-                        <div class="absolute bottom-6 inset-x-6 z-20">
-                            <div class="text-[9px] font-display font-black text-primary uppercase tracking-widest mb-2 px-2 py-0.5 bg-primary/10 w-fit rounded-full backdrop-blur-md">
-                                {{ __('New Arrival') }}
+                            <!-- Top Badge -->
+                            <div class="absolute top-5 start-5 z-20">
+                                <div class="text-[10px] font-display font-black text-primary uppercase tracking-[0.2em] px-4 py-1.5 bg-primary/10 backdrop-blur-xl rounded-full border border-primary/20">
+                                    {{ __('New Arrival') }}
+                                </div>
                             </div>
-                            <h3 class="text-lg font-display font-black text-white uppercase tracking-tight group-hover/card:text-primary transition-colors line-clamp-1">
+                        </div>
+
+                        <!-- Name Block (Proper UI Block) -->
+                        <div class="rounded-b-lg shadow-2xl dark:bg-zinc-900/40 backdrop-blur-xl p-6">
+                            <h3 class="text-xl font-display font-black text-on-surface uppercase tracking-tight group-hover/card:text-primary transition-colors line-clamp-1">
                                 {{ $latestGame->localized_title }}
-                            </h3>
+                            </h3>                           
                         </div>
                     </div>
                 @endforeach
@@ -76,20 +81,20 @@
     </section>
 
     <!-- Content Grid -->
-    <div class="space-y-8">
+    <div class="space-y-16">
         <div class="flex items-end justify-between border-s-4 border-primary ps-6">
             <div>
                 <span class="text-[10px] font-display font-black text-primary uppercase tracking-[0.3em] block mb-1">{{ __('Quick Access') }}</span>
-                <h2 class="text-3xl font-display font-black uppercase tracking-tight">{{ __('Bookmarked Games') }}</h2>
+                <h2 class="text-3xl font-display font-black uppercase tracking-tight">{{ __('Your Interests') }}</h2>
             </div>
             <a href="{{ route('games.index') }}" class="text-xs font-display font-black text-on-surface-variant hover:text-primary transition-colors uppercase tracking-widest flex items-center gap-2">
-                {{ __('View All') }}
+                {{ __('Explore Library') }}
                 <span class="material-symbols-outlined text-sm">arrow_forward</span>
             </a>
         </div>
 
         <!-- Empty State -->
-        <div id="no-bookmarks" class="hidden flex-col items-center justify-center py-20 glass-card rounded-[2.5rem] text-center px-6 border-dashed border-2 border-outline-variant/30" style="display: none;">
+        <div id="no-bookmarks" class="hidden flex-col items-center justify-center py-20 glass-card rounded-[2.5rem] text-center px-6 border-dashed border-2 border-outline-variant/30">
             <div class="w-24 h-24 rounded-full bg-surface-variant/50 flex items-center justify-center text-on-surface-variant mb-6">
                 <span class="material-symbols-outlined text-5xl">bookmarks</span>
             </div>
@@ -98,67 +103,79 @@
                 <span class="w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse"></span>
                 <span class="text-[10px] font-display font-black uppercase tracking-widest text-on-surface-variant">{{ __('Live') }}</span>
             </div>
-            <p class="text-on-surface-variant max-w-sm mb-8 leading-relaxed">{{ __('Save games from the library and they will show up here for instant access on your next visit.') }}</p>
+            <p class="text-on-surface-variant max-w-sm mb-8 leading-relaxed">{{ __('Save games from the library and they will show up here grouped by your interests.') }}</p>
             <a href="{{ route('games.index') }}" class="bg-primary text-on-primary font-display font-black uppercase tracking-widest px-8 py-3 rounded-2xl shadow-xl shadow-primary/20 hover:brightness-110 active:scale-95 transition-all">
-                {{ __('Discover Games') }}
+                {{ __('Discover Genres') }}
             </a>
         </div>
 
-        <!-- Grid -->
-        <div id="bookmarks-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
-            @foreach($games as $game)
-                @php
-                    $route = route('games.play', ['slug' => $game->slug]);
-                @endphp
-                <div class="bookmark-item group relative aspect-[3/4] rounded-[2rem] overflow-hidden glass-card transition-all duration-500 hover:-translate-y-2 hover:neon-border-blue" 
-                     data-id="{{ $game->id }}" 
-                     style="display: none;">
-                    <a href="{{ $route }}" class="absolute inset-0 z-10" aria-label="{{ $game->localized_title }}"></a>
-                    
-                    <!-- Background Image -->
-                    @if ($game->image_url)
-                        <img src="{{ $game->image_url }}" alt="{{ $game->localized_title }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                    @else
-                        <div class="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center p-8 text-center">
-                            <span class="text-xl font-display font-black uppercase tracking-tighter opacity-40">{{ $game->localized_title }}</span>
+        <!-- Grouped Bookmarks Container -->
+        <div id="bookmarks-container" class="space-y-16">
+            @foreach($genres as $genre)
+                <section class="genre-section space-y-8" id="genre-section-{{ $genre->id }}" style="display: none;">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-secondary/10 border border-secondary/20 flex items-center justify-center text-secondary text-2xl">
+                            {{ $genre->icon ?? '🧩' }}
                         </div>
-                    @endif
-
-                    <!-- Overlays -->
-                    <div class="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent opacity-80 z-0"></div>
+                        <h3 class="text-2xl font-display font-black uppercase tracking-tight">{{ $genre->localized_name }}</h3>
+                    </div>
                     
-                    <!-- Top Actions -->
-                    <div class="absolute top-6 inset-x-6 z-20 flex justify-between items-start pointer-events-none">
-                        <span class="bg-white/10 backdrop-blur-md border border-white/20 text-white text-[9px] font-display font-black px-3 py-1 rounded-full uppercase tracking-widest">
-                            {{ $game->genre?->localized_name ?? __('Featured') }}
-                        </span>
-                        <button class="w-10 h-10 rounded-full glass-card flex items-center justify-center text-on-surface-variant hover:text-primary shadow-lg hover:scale-110 transition-all active:scale-90 pointer-events-auto"
-                                onclick="event.preventDefault(); event.stopPropagation(); toggleBookmark({{ $game->id }})" 
-                                data-id="{{ $game->id }}">
-                            <span class="material-symbols-outlined transition-colors">bookmark</span>
-                        </button>
-                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
+                        @foreach($games as $game)
+                            @if($game->genres->contains($genre->id))
+                                @php
+                                    $route = route('games.play', ['slug' => $game->slug, 'genre' => $genre->slug]);
+                                @endphp
+                                <div class="bookmark-item group relative flex flex-col transition-all duration-500 hover:-translate-y-2" 
+                                     data-id="{{ $game->id }}" 
+                                     data-genre="{{ $genre->id }}"
+                                     style="display: none;">
+                                    
+                                    <!-- Image Block -->
+                                    <div class="relative aspect-square rounded-t-[2.5rem] overflow-hidden glass-card border border-outline-variant/10 transition-all duration-500 group-hover:neon-border-blue">
+                                        <a href="{{ $route }}" class="absolute inset-0 z-10" aria-label="{{ $game->localized_title }}"></a>
+                                        
+                                        <!-- Background Image -->
+                                        @if ($game->image_url)
+                                            <img src="{{ $game->image_url }}" alt="{{ $game->localized_title }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                                        @else
+                                            <div class="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center p-8 text-center">
+                                                <span class="text-xl font-display font-black uppercase tracking-tighter opacity-40">{{ $game->localized_title }}</span>
+                                            </div>
+                                        @endif
 
-                    <!-- Content -->
-                    <div class="absolute bottom-6 inset-x-6 z-20 space-y-3 pointer-events-none">
-                        <h3 class="text-2xl font-display font-black text-white uppercase tracking-tight group-hover:text-primary transition-colors line-clamp-1">
-                            {{ $game->localized_title }}
-                        </h3>
-                        <p class="text-white/60 text-xs font-medium line-clamp-2 leading-relaxed">
-                            {{ $game->localized_description }}
-                        </p>
-                        
-                        <div class="pt-4 flex items-center justify-between">
-                            <div class="flex items-center gap-1.5 text-white/40 text-[10px] font-display font-black uppercase tracking-widest">
-                                <span class="material-symbols-outlined text-sm">group</span>
-                                12k {{ __('Playing') }}
-                            </div>
-                            <div class="w-12 h-12 rounded-2xl bg-primary text-on-primary flex items-center justify-center shadow-lg shadow-primary/20 hover:scale-110 transition-transform active:scale-95">
-                                <span class="material-symbols-outlined">play_arrow</span>
-                            </div>
-                        </div>
+                                        <!-- Top Actions -->
+                                        <div class="absolute top-4 inset-x-4 z-20 flex justify-end items-start">
+                                            <button class="w-10 h-10 rounded-full glass-card flex items-center justify-center text-on-surface-variant hover:text-primary shadow-lg hover:scale-110 transition-all active:scale-90"
+                                                    onclick="event.preventDefault(); event.stopPropagation(); toggleBookmark({{ $game->id }}, {{ $genre->id }})" 
+                                                    data-id="{{ $game->id }}"
+                                                    data-genre="{{ $genre->id }}">
+                                                <span class="material-symbols-outlined transition-colors">bookmark</span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Name Block (Proper UI Block) -->
+                                    <div class="bg-surface-variant/30 dark:bg-zinc-900/40 backdrop-blur-xl p-6 rounded-b-[2.5rem] border-x border-b border-outline-variant/10 flex-grow">
+                                        <h3 class="text-xl font-display font-black text-on-surface uppercase tracking-tight group-hover:text-primary transition-colors line-clamp-1">
+                                            {{ $game->localized_title }}
+                                        </h3>
+                                        
+                                        <div class="flex items-center justify-between mt-4">
+                                            <div class="flex items-center gap-1.5 text-on-surface-variant/50 text-[10px] font-display font-black uppercase tracking-widest">
+                                                <span class="material-symbols-outlined text-sm">trending_up</span>
+                                                12k {{ __('Playing') }}
+                                            </div>
+                                            <a href="{{ $route }}" class="w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center shadow-lg shadow-primary/20 hover:scale-110 transition-transform active:scale-95">
+                                                <span class="material-symbols-outlined text-sm">play_arrow</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                        @endforeach
                     </div>
-                </div>
+                </section>
             @endforeach
         </div>
     </div>
@@ -167,24 +184,32 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const bookmarkedIds = typeof getBookmarks === 'function' ? getBookmarks() : [];
+        const bookmarkedKeys = typeof getBookmarks === 'function' ? getBookmarks() : [];
         const items = document.querySelectorAll('.bookmark-item');
-        let found = 0;
+        const sections = document.querySelectorAll('.genre-section');
+        let totalFound = 0;
 
         items.forEach(item => {
-            const id = parseInt(item.getAttribute('data-id'));
-            if (bookmarkedIds.includes(id)) {
+            const id = item.getAttribute('data-id');
+            const genre = item.getAttribute('data-genre');
+            const key = `${id}_${genre}`;
+            
+            if (bookmarkedKeys.includes(key)) {
                 item.style.display = 'block';
-                found++;
+                totalFound++;
                 
-                // Ensure UI reflects bookmarked state
+                // Show the parent section
+                const section = document.getElementById(`genre-section-${genre}`);
+                if (section) section.style.display = 'block';
+
+                // Update UI
                 if (typeof updateBookmarkUI === 'function') {
-                    updateBookmarkUI(id);
+                    updateBookmarkUI(id, genre);
                 }
             }
         });
 
-        if (found === 0) {
+        if (totalFound === 0) {
             document.getElementById('no-bookmarks').style.display = 'flex';
         }
     });
@@ -192,16 +217,25 @@
     // Overriding toggleBookmark to also hide items on Home page
     if (typeof toggleBookmark === 'function') {
         const originalToggle = toggleBookmark;
-        window.toggleBookmark = function(gameId) {
-            originalToggle(gameId);
+        window.toggleBookmark = function(gameId, genreId) {
+            originalToggle(gameId, genreId);
             const bookmarks = getBookmarks();
-            if (!bookmarks.includes(gameId)) {
-                const item = document.querySelector(`.bookmark-item[data-id="${gameId}"]`);
+            const key = `${gameId}_${genreId}`;
+            
+            if (!bookmarks.includes(key)) {
+                const item = document.querySelector(`.bookmark-item[data-id="${gameId}"][data-genre="${genreId}"]`);
                 if (item) {
                     item.style.opacity = '0';
                     item.style.transform = 'scale(0.9) translateY(10px)';
                     setTimeout(() => {
+                        const section = item.closest('.genre-section');
                         item.remove();
+                        
+                        // If section is empty, hide it
+                        if (section && section.querySelectorAll('.bookmark-item').length === 0) {
+                            section.style.display = 'none';
+                        }
+                        
                         if (document.querySelectorAll('.bookmark-item').length === 0) {
                             document.getElementById('no-bookmarks').style.display = 'flex';
                         }

@@ -19,7 +19,7 @@
         
         <div class="glass-card flex items-center gap-6 px-8 py-6 rounded-3xl border-primary/20">
             <div class="space-y-1">
-                <div class="text-3xl font-display font-black text-primary leading-none">{{ $games->count() }}</div>
+                <div class="text-3xl font-display font-black text-primary leading-none">{{ $totalGamesCount }}</div>
                 <div class="text-[10px] font-display font-bold uppercase tracking-widest text-on-surface-variant opacity-60">
                     {{ __('Active') }} <br> {{ __('Modes') }}
                 </div>
@@ -34,70 +34,38 @@
         </div>
     </header>
 
-    <!-- Genre Switcher -->
-    @if($genres->count() > 0)
-        <div class="flex items-center gap-3 overflow-x-auto pb-4 scrollbar-none">
-            <a href="{{ route('games.index') }}" 
-               class="flex-none flex items-center gap-2 px-6 py-3 rounded-full font-display font-bold text-xs uppercase tracking-widest transition-all {{ !$selectedGenre ? 'bg-primary text-on-primary shadow-lg shadow-primary/20' : 'glass-card text-on-surface-variant hover:text-primary' }}">
-                <span class="text-lg">🌐</span>
-                {{ __('All') }}
-            </a>
-            @foreach($genres as $genre)
-                <a href="{{ route('games.index', ['genre' => $genre->slug]) }}" 
-                   class="flex-none flex items-center gap-2 px-6 py-3 rounded-full font-display font-bold text-xs uppercase tracking-widest transition-all {{ $selectedGenre && $selectedGenre->id === $genre->id ? 'bg-primary text-on-primary shadow-lg shadow-primary/20' : 'glass-card text-on-surface-variant hover:text-primary' }}">
-                    <span class="text-lg">{{ $genre->icon ?? '🧩' }}</span>
-                    {{ $genre->localized_name }}
-                </a>
-            @endforeach
-        </div>
-    @endif
-
-    <!-- Games Grid -->
+    <!-- Genre Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
-        @forelse($games as $game)
-            @php
-                $route = route('games.play', ['slug' => $game->slug]);
-            @endphp
+        @forelse($genres as $genre)
             <div class="group relative flex flex-col bg-surface-variant/40 dark:bg-zinc-900/40 backdrop-blur-xl rounded-[2.5rem] overflow-hidden border border-outline-variant/10 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/20 hover:border-primary/30">
-                <!-- 1. Top Bar: Genre & Bookmark (Independent Layer) -->
-                <div class="p-5 flex justify-between items-center z-40 relative">
-                    <div class="flex items-center gap-1.5">
-                        @foreach($game->genres as $genre)
-                            <div class="bg-primary/10 text-primary text-[10px] font-display font-black w-8 h-8 rounded-full uppercase tracking-widest flex items-center justify-center hover:bg-primary/20 transition-colors" title="{{ $genre->localized_name }}">
-                                <span class="text-sm leading-none">{{ $genre->icon ?? '🧩' }}</span>
-                            </div>
-                        @endforeach
-                    </div>
-                    
-                    <button class="w-9 h-9 rounded-full hover:bg-primary/10 flex items-center justify-center text-on-surface-variant hover:text-primary transition-all active:scale-90"
-                            onclick="event.preventDefault(); event.stopPropagation(); toggleBookmark({{ $game->id }})" 
-                            data-id="{{ $game->id }}">
-                        <span class="material-symbols-outlined text-[20px]">bookmark</span>
-                    </button>
-                </div>
-
                 <!-- 2. Clickable Main Content Area -->
-                <a href="{{ $route }}" class="flex flex-col flex-grow z-30 group/link" aria-label="{{ $game->localized_title }}">
+                <a href="{{ route('games.genre', ['genre_slug' => $genre->slug]) }}" class="flex flex-col flex-grow z-30 group/link" aria-label="{{ $genre->localized_name }}">
                     <!-- Square Image Container -->
-                    <div class="px-5">
-                        <div class="rounded-[1.8rem] overflow-hidden aspect-square">
-                            @if ($game->image_url)
-                                <img src="{{ $game->image_url }}" alt="{{ $game->localized_title }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                    <div class="px-5 pt-5">
+                        <div class="rounded-[1.8rem] overflow-hidden aspect-video relative">
+                            @if ($genre->image_url)
+                                <img src="{{ $genre->image_url }}" alt="{{ $genre->localized_name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                             @else
                                 <div class="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-                                    <span class="text-xs font-display font-black uppercase opacity-20">{{ $game->localized_title }}</span>
+                                    <span class="text-4xl">{{ $genre->icon ?? '🧩' }}</span>
                                 </div>
                             @endif
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                            <div class="absolute bottom-4 left-4 right-4 flex justify-between items-end">
+                                <div class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white text-xl">
+                                    {{ $genre->icon ?? '🧩' }}
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Name & Description -->
                     <div class="p-6 pb-4 space-y-2">
-                        <h3 class="text-xl font-display font-black text-on-surface uppercase tracking-tight group-hover:text-primary transition-colors line-clamp-1">
-                            {{ $game->localized_title }}
+                        <h3 class="text-2xl font-display font-black text-on-surface uppercase tracking-tight group-hover:text-primary transition-colors line-clamp-1">
+                            {{ $genre->localized_name }}
                         </h3>
                         <p class="text-on-surface-variant/70 text-xs font-medium line-clamp-2 leading-relaxed">
-                            {{ $game->localized_description }}
+                            {{ __('Explore our curated collection of :genre games and challenges.', ['genre' => $genre->localized_name]) }}
                         </p>
                     </div>
 
@@ -109,14 +77,14 @@
                     <!-- Footer: Stats & Play Button -->
                     <div class="p-6 pt-4 flex items-center justify-between">
                         <div class="flex items-center gap-2 text-on-surface-variant/50 text-[10px] font-display font-black uppercase tracking-widest">
-                            <span class="material-symbols-outlined text-sm">trending_up</span>
-                            <span>12k {{ __('Playing') }}</span>
+                            <span class="material-symbols-outlined text-sm">sports_esports</span>
+                            <span>{{ $genre->games_count }} {{ __('Games') }}</span>
                         </div>
                         
                         <div class="flex items-center gap-2 text-primary font-display font-black text-xs uppercase tracking-wider group-hover:gap-3 transition-all">
-                            <span>{{ __('Play Now') }}</span>
+                            <span>{{ __('Explore') }}</span>
                             <div class="w-8 h-8 rounded-xl bg-primary text-on-primary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
-                                <span class="material-symbols-outlined text-sm">play_arrow</span>
+                                <span class="material-symbols-outlined text-sm">arrow_forward</span>
                             </div>
                         </div>
                     </div>
@@ -124,7 +92,7 @@
             </div>
         @empty
             <div class="col-span-full py-20 text-center glass-card rounded-[2.5rem]">
-                <p class="text-on-surface-variant font-display font-bold uppercase tracking-widest">{{ __('No games found. New mysteries are coming soon!') }}</p>
+                <p class="text-on-surface-variant font-display font-bold uppercase tracking-widest">{{ __('No genres found. New worlds are coming soon!') }}</p>
             </div>
         @endforelse
     </div>

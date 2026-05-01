@@ -59,15 +59,31 @@ class Game extends Model implements HasMedia
         return $this->hasMany(Challenge::class);
     }
 
-    public function scopeActiveWithChallenges($query)
+    public function scopeActiveWithChallenges($query, $language = null)
     {
-        return $query->where('is_active', true)->has('challenges');
+        $query = $query->where('is_active', true);
+        if ($language) {
+            return $query->whereHas('challenges', function($q) use ($language) {
+                $q->where('language', $language)->where('is_active', true);
+            });
+        }
+        return $query->has('challenges');
     }
 
     public function getImageUrlAttribute(): ?string
     {
+        $path = null;
         $media = $this->getFirstMediaUrl('cover');
-        return $media ?: ($this->image ? asset('storage/' . $this->image) : null);
+        
+        if ($media) {
+            return $media;
+        }
+
+        if ($this->image) {
+            return asset('storage/' . $this->image);
+        }
+
+        return null;
     }
 
     public function getLocalizedTitleAttribute(): string
