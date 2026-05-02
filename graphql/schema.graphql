@@ -5,11 +5,11 @@ type Query {
     # ── Unified API ──
     challenges(game_id: Int @eq, genre_id: Int @eq, language: String @eq): [Challenge!]! @all
     challenge(id: ID! @eq): Challenge @find
-    genres(language: String): [Genre!]! @all
+    genres(language: String): [Genre!]! @all(scopes: ["activeWithChallenges"])
     genre(slug: String! @eq): Genre @find
     
-    games(language: String @scope(name: "activeWithChallenges")): [Game!]! @all
-    recentGames(language: String @scope(name: "activeWithChallenges")): [Game!]! @all(orderBy: [{column: "created_at", direction: DESC}], limit: 2)
+    games(language: String): [Game!]! @all(scopes: ["activeWithChallenges"])
+    recentGames(language: String): [Game!]! @all(scopes: ["activeWithChallenges"], orderBy: [{column: "created_at", direction: DESC}], limit: 2)
 
     # Search queries
     searchPlayers(query: String!): [Player!]! @field(resolver: "App\\GraphQL\\Queries\\GameQueries@searchPlayers")
@@ -105,11 +105,15 @@ type ChallengeStimulus {
     start_time: String
     end_time: String
     scrambled_word: String
+    consonant_display: String
     category: String
     part_a: String
     part_b: String
     club_a: String
     club_b: String
+    nodes: [TransferNode]
+    instruction: String
+    clues: [String]
     clubs: [CareerClubEntry]
     title: String
     image: String
@@ -119,6 +123,11 @@ type ChallengeStimulus {
     capacity: Int
     opened_year: Int
     country: String
+}
+
+type TransferNode {
+    name: String
+    type: String
 }
 
 type CareerClubEntry {

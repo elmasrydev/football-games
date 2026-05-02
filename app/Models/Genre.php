@@ -57,6 +57,19 @@ class Genre extends Model implements HasMedia
         return $this->games()->where('is_active', true)->count();
     }
 
+    public function scopeActiveWithChallenges($query, $args = null)
+    {
+        $query = $query->where('is_active', true);
+        $language = is_array($args) ? ($args['language'] ?? null) : $args;
+        
+        if ($language) {
+            return $query->whereHas('challenges', function($q) use ($language) {
+                $q->where('language', $language)->where('is_active', true);
+            });
+        }
+        return $query->has('challenges');
+    }
+
     public function getLocalizedNameAttribute(): string
     {
         return app()->getLocale() === 'ar'
