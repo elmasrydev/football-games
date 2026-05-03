@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 
 class GenreResource extends Resource
 {
@@ -45,6 +46,10 @@ class GenreResource extends Resource
                         Forms\Components\Textarea::make('description_ar')
                             ->label('Description (Arabic)')
                             ->rows(3)
+                            ->columnSpanFull(),
+                        SpatieMediaLibraryFileUpload::make('cover')
+                            ->collection('cover')
+                            ->image()
                             ->columnSpanFull(),
                         Forms\Components\TextInput::make('sort_order')
                             ->numeric()

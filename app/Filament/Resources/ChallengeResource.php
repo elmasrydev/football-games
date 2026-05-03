@@ -12,6 +12,7 @@ use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\HtmlString;
 
 class ChallengeResource extends Resource
 {
@@ -90,7 +91,17 @@ class ChallengeResource extends Resource
                             ->directory('challenges')
                             ->image()
                             ->visibility('public')
-                            ->visible(fn (Get $get) => in_array($get('stimulus_type'), ['image'])),
+                            ->visible(fn (Get $get) => in_array($get('stimulus_type'), ['image']))
+                            ->id('challenge_image_input')
+                            ->hintAction(
+                                Forms\Components\Actions\Action::make('removeBackground')
+                                    ->label('Remove Background')
+                                    ->icon('heroicon-m-sparkles')
+                                    ->color('warning')
+                                    ->extraAttributes([
+                                        'x-on:click.prevent.stop' => new \Illuminate\Support\HtmlString("removeImageBackground('data.stimulus_data.image_path')"),
+                                    ])
+                            ),
 
                         Forms\Components\FileUpload::make('stimulus_data.full_image_path')
                             ->label('Reveal Image (Full)')
