@@ -16,7 +16,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(\App\Services\SEOService::class, function ($app) {
+            return new \App\Services\SEOService();
+        });
     }
 
     /**
@@ -69,7 +71,8 @@ class AppServiceProvider extends ServiceProvider
             $view->with('global_stats', $stats)
                 ->with('current_locale', $locale)
                 ->with('current_direction', $locale === 'ar' ? 'rtl' : 'ltr')
-                ->with('all_genres', $genres);
+                ->with('all_genres', $genres)
+                ->with('seo', app(\App\Services\SEOService::class));
         });
     }
 }

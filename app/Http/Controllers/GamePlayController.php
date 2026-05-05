@@ -87,6 +87,11 @@ class GamePlayController extends Controller
         // Fetch User Stats
         $stats = $this->getStats();
 
+        app(\App\Services\SEOService::class)
+            ->set('title', __('Play :game - Level :level', ['game' => $game->localized_title, 'level' => $currentLevel]))
+            ->set('description', __('Challenge yourself with :game on Gamesiano. Can you complete level :level?', ['game' => $game->localized_title, 'level' => $currentLevel]))
+            ->set('image', $game->image_url);
+
         return view('games.play_unified', [
             'game' => $game,
             'challenge' => $challenge,

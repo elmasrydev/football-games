@@ -145,7 +145,7 @@
                                                 <span class="text-xl font-display font-black uppercase tracking-tighter opacity-40">{{ $game->localized_title }}</span>
                                             </div>
                                         @endif
-
+ 
                                         <!-- Top Actions -->
                                         <div class="absolute top-4 inset-x-4 z-40 flex justify-end items-start">
                                             <button class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:text-primary shadow-lg hover:scale-110 transition-all active:scale-90"
@@ -156,7 +156,7 @@
                                             </button>
                                         </div>
                                     </div>
-
+ 
                                     <!-- Content Area -->
                                     <div class="p-6 space-y-4">
                                         <h3 class="text-xl font-display font-black text-on-surface uppercase tracking-tight group-hover:text-primary transition-colors line-clamp-1">
@@ -180,9 +180,55 @@
                 </section>
             @endforeach
         </div>
+ 
+        <!-- AEO Content Blocks -->
+        <div class="grid lg:grid-cols-2 gap-12 mt-24">
+            <!-- Definition Block -->
+            <section class="bg-surface-variant/20 rounded-[2.5rem] p-8 sm:p-12 border border-outline-variant/10">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/10 border border-secondary/20 text-secondary text-[10px] font-display font-black uppercase tracking-[0.2em] mb-6">
+                    {{ __('About Us') }}
+                </div>
+                <h2 class="text-3xl sm:text-4xl font-display font-black uppercase tracking-tight mb-6 leading-tight">
+                    {{ __('What is Gamesiano?') }}
+                </h2>
+                <p class="text-on-surface-variant text-lg leading-relaxed font-medium">
+                    {{ __('Gamesiano is the ultimate gaming hub for interactive challenges and online games. We provide a seamless platform for players to test their skills across various genres including sports, logic, and trivia. Our mission is to make gaming accessible and fun for everyone, everywhere.') }}
+                </p>
+            </section>
+ 
+            <!-- FAQ Section -->
+            <section class="space-y-8">
+                <div>
+                    <h2 class="text-3xl font-display font-black uppercase tracking-tight mb-2">{{ __('Frequently Asked Questions') }}</h2>
+                    <p class="text-on-surface-variant text-sm font-medium">{{ __('Everything you need to know about Gamesiano and how to play.') }}</p>
+                </div>
+ 
+                <div class="space-y-4">
+                    @php
+                        $faqs = [
+                            ['q' => 'Is Gamesiano free to play?', 'a' => 'Yes, Gamesiano is completely free to play. You can access all our basic games and challenges without any subscription.'],
+                            ['q' => 'Do I need to create an account?', 'a' => 'No, you can play most games as a guest. However, creating an account allows you to save your progress and track your achievements.'],
+                            ['q' => 'How often are new games added?', 'a' => 'We add new games and challenges weekly to keep the experience fresh and exciting.'],
+                            ['q' => 'What devices are supported?', 'a' => 'Gamesiano is optimized for both desktop and mobile devices. You can play directly in your browser on any modern device.'],
+                        ];
+                    @endphp
+ 
+                    @foreach($faqs as $faq)
+                        <div class="group bg-surface border border-outline-variant/10 rounded-2xl p-6 transition-all hover:border-primary/30">
+                            <h3 class="text-lg font-display font-black uppercase tracking-tight mb-2 group-hover:text-primary transition-colors">
+                                {{ __($faq['q']) }}
+                            </h3>
+                            <p class="text-on-surface-variant text-sm leading-relaxed">
+                                {{ __($faq['a']) }}
+                            </p>
+                        </div>
+                    @endforeach
+                </div>
+            </section>
+        </div>
     </div>
 </div>
-
+ 
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', () => {
