@@ -19,9 +19,12 @@ class HomeController extends Controller
         $games = (clone $query)->get();
         $latestGames = (clone $query)->latest()->limit(2)->get();
         
-        $genres = Genre::whereHas('challenges', function ($q) use ($locale) {
-            $q->where('language', $locale)->where('is_active', true);
-        })->get();
+        $genres = Genre::where('is_active', true)
+            ->whereHas('challenges', function ($q) use ($locale) {
+                $q->where('language', $locale)->where('is_active', true);
+            })
+            ->orderBy('sort_order')
+            ->get();
 
         app(\App\Services\SEOService::class)
             ->set('title', __('Games Hub'))

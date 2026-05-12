@@ -38,6 +38,8 @@ class Game extends Model implements HasMedia
         'game_type',
         'answer_type',
         'is_active',
+        'how_to_play',
+        'how_to_play_ar',
     ];
 
     protected $casts = [
@@ -100,5 +102,11 @@ class Game extends Model implements HasMedia
         }
 
         return static::ARABIC_DESCRIPTIONS[$this->slug] ?? $this->description;
+    }
+    public function getLocalizedHowToPlayAttribute(): ?string
+    {
+        return app()->getLocale() === 'ar'
+            ? ($this->how_to_play_ar ?: $this->how_to_play)
+            : $this->how_to_play;
     }
 }

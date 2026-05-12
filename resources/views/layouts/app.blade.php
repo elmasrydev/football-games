@@ -205,6 +205,8 @@
         </div>
     </div>
 
+    @yield('modals')
+    
     <!-- Scripts -->
     <script src="{{ asset('js/bookmarks.js') }}"></script>
     <script

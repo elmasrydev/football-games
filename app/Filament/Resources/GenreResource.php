@@ -39,6 +39,8 @@ class GenreResource extends Resource
                         Forms\Components\TextInput::make('icon')
                             ->label('Icon (Emoji)')
                             ->maxLength(10),
+                        Forms\Components\ColorPicker::make('theme_color')
+                            ->label('Theme Color'),
                         Forms\Components\Textarea::make('description_en')
                             ->label('Description (English)')
                             ->rows(3)

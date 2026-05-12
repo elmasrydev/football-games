@@ -40,6 +40,7 @@ type Genre {
     description_ar: String
     slug: String!
     icon: String
+    theme_color: String
     image_url: String
     games_count: Int
     sort_order: Int
@@ -59,6 +60,7 @@ type Game {
     image_url: String
     game_type: String
     answer_type: String
+    how_to_play: String @method(name: "getLocalizedHowToPlayAttribute")
     is_active: Boolean!
     genres: [Genre!]! @belongsToMany
     challenges: [Challenge!]! @hasMany

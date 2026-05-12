@@ -18,6 +18,7 @@ class Genre extends Model implements HasMedia
         'description_ar',
         'slug',
         'icon',
+        'theme_color',
         'image',
         'sort_order',
         'is_active',

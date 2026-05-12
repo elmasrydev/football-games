@@ -113,15 +113,30 @@
             </a>
         </div>
 
-        <!-- Grouped Bookmarks Container -->
-        <div id="bookmarks-container" class="space-y-16">
+        <!-- Categories Container -->
+        <div id="categories-container" class="space-y-16">
             @foreach($genres as $genre)
-                <section class="genre-section space-y-8" id="genre-section-{{ $genre->id }}" style="display: none;">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-2xl bg-secondary/10 border border-secondary/20 flex items-center justify-center text-secondary text-2xl">
-                            {{ $genre->icon ?? '🧩' }}
+                @php
+                    $themeColor = $genre->theme_color ?: '#3b82f6'; // Default blue
+                @endphp
+                <section class="genre-section space-y-8" id="genre-section-{{ $genre->id }}" style="--genre-theme: {{ $themeColor }};">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-lg transition-transform hover:scale-110" 
+                                 style="background: {{ $themeColor }}20; border: 1px solid {{ $themeColor }}40; color: {{ $themeColor }};">
+                                {{ $genre->icon ?? '🧩' }}
+                            </div>
+                            <div>
+                                <h3 class="text-2xl font-display font-black uppercase tracking-tight">{{ $genre->localized_name }}</h3>
+                                <p class="text-[10px] font-display font-bold uppercase tracking-widest text-on-surface-variant opacity-60">
+                                    {{ $genre->games()->count() }} {{ __('Games Available') }}
+                                </p>
+                            </div>
                         </div>
-                        <h3 class="text-2xl font-display font-black uppercase tracking-tight">{{ $genre->localized_name }}</h3>
+                        <a href="{{ route('games.genre', ['genre_slug' => $genre->slug]) }}" 
+                           class="text-[10px] font-display font-black uppercase tracking-widest px-4 py-2 rounded-xl bg-surface-variant/50 hover:bg-surface-variant transition-colors">
+                            {{ __('View All') }}
+                        </a>
                     </div>
                     
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
@@ -130,45 +145,40 @@
                                 @php
                                     $route = route('games.play', ['slug' => $game->slug, 'genre' => $genre->slug]);
                                 @endphp
-                                <div class="bookmark-item group relative flex flex-col bg-surface-variant/40 dark:bg-zinc-900/40 backdrop-blur-xl rounded-[2.5rem] border border-outline-variant/10 shadow-2xl transition-all duration-500 hover:-translate-y-2 hover:neon-border-blue overflow-hidden" 
-                                     data-id="{{ $game->id }}" 
-                                     data-genre="{{ $genre->id }}"
-                                     style="display: none;">
+                                <div class="game-item group relative flex flex-col bg-surface-variant/40 dark:bg-zinc-900/40 backdrop-blur-xl rounded-[2.5rem] border border-outline-variant/10 shadow-2xl transition-all duration-500 hover:-translate-y-2 overflow-hidden hover:shadow-2xl"
+                                     style="--hover-glow: {{ $themeColor }}30;">
                                     <a href="{{ $route }}" class="absolute inset-0 z-30" aria-label="{{ $game->localized_title }}"></a>
                                     
                                     <!-- Image Area -->
-                                    <div class="relative aspect-square overflow-hidden">
+                                    <div class="relative aspect-square overflow-hidden bg-surface-variant/20">
                                         @if ($game->image_url)
-                                            <img src="{{ $game->image_url }}" alt="{{ $game->localized_title }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                                            <img src="{{ $game->image_url }}" alt="{{ $game->localized_title }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
                                         @else
-                                            <div class="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center p-8 text-center">
-                                                <span class="text-xl font-display font-black uppercase tracking-tighter opacity-40">{{ $game->localized_title }}</span>
+                                            <div class="absolute inset-0 flex items-center justify-center p-8 text-center" style="background: linear-gradient(135deg, {{ $themeColor }}10, {{ $themeColor }}20)">
+                                                <span class="text-xl font-display font-black uppercase tracking-tighter opacity-40" style="color: {{ $themeColor }}">{{ $game->localized_title }}</span>
                                             </div>
                                         @endif
- 
-                                        <!-- Top Actions -->
-                                        <div class="absolute top-4 inset-x-4 z-40 flex justify-end items-start">
-                                            <button class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:text-primary shadow-lg hover:scale-110 transition-all active:scale-90"
-                                                    onclick="event.preventDefault(); event.stopPropagation(); toggleBookmark({{ $game->id }}, {{ $genre->id }})" 
-                                                    data-id="{{ $game->id }}"
-                                                    data-genre="{{ $genre->id }}">
-                                                <span class="material-symbols-outlined transition-colors">bookmark</span>
-                                            </button>
-                                        </div>
+                                        
+                                        <!-- Overlay for better name clarity -->
+                                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                     </div>
  
                                     <!-- Content Area -->
                                     <div class="p-6 space-y-4">
-                                        <h3 class="text-xl font-display font-black text-on-surface uppercase tracking-tight group-hover:text-primary transition-colors line-clamp-1">
+                                        <h3 class="text-xl font-display font-black text-on-surface uppercase tracking-tight transition-colors line-clamp-1"
+                                            style="color: inherit;"
+                                            onmouseover="this.style.color='{{ $themeColor }}'" 
+                                            onmouseout="this.style.color='inherit'">
                                             {{ $game->localized_title }}
                                         </h3>
                                         
                                         <div class="flex items-center justify-between">
                                             <div class="flex items-center gap-1.5 text-on-surface-variant/50 text-[10px] font-display font-black uppercase tracking-widest">
-                                                <span class="material-symbols-outlined text-sm">trending_up</span>
-                                                12k {{ __('Playing') }}
+                                                <span class="material-symbols-outlined text-sm">play_circle</span>
+                                                {{ __('Quick Play') }}
                                             </div>
-                                            <div class="w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform active:scale-95">
+                                            <div class="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-110" 
+                                                 style="background: {{ $themeColor }}; color: white; box-shadow: 0 4px 15px {{ $themeColor }}40;">
                                                 <span class="material-symbols-outlined text-sm">play_arrow</span>
                                             </div>
                                         </div>
