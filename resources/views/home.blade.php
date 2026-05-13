@@ -125,9 +125,13 @@
                     <div class="absolute inset-0 bg-[var(--genre-theme)]/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-[3rem] -z-10 blur-3xl"></div>
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-lg transition-transform hover:scale-110" 
+                            <div class="w-12 h-12 rounded-2xl flex items-center justify-center overflow-hidden shadow-lg transition-transform hover:scale-110" 
                                  style="background: {{ $themeColor }}20; border: 1px solid {{ $themeColor }}40; color: {{ $themeColor }};">
-                                {{ $genre->icon ?? '🧩' }}
+                                @if($genre->image_url)
+                                    <img src="{{ $genre->image_url }}" alt="{{ $genre->localized_name }}" class="w-full h-full object-cover">
+                                @else
+                                    <span class="text-2xl">{{ $genre->icon ?? '🧩' }}</span>
+                                @endif
                             </div>
                             <div>
                                 <h3 class="text-2xl font-display font-black uppercase tracking-tight">{{ $genre->localized_name }}</h3>

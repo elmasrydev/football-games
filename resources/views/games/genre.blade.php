@@ -12,7 +12,13 @@
                 <span class="text-secondary">{{ $genre->localized_name }}</span>
             </nav>
             <h1 class="text-4xl sm:text-5xl font-display font-black uppercase tracking-tight text-on-background flex items-center gap-4">
-                <span class="text-5xl">{{ $genre->icon ?? '🧩' }}</span>
+                @if($genre->image_url)
+                    <div class="w-16 h-16 rounded-2xl overflow-hidden shadow-2xl">
+                        <img src="{{ $genre->image_url }}" alt="{{ $genre->localized_name }}" class="w-full h-full object-cover">
+                    </div>
+                @else
+                    <span class="text-5xl">{{ $genre->icon ?? '🧩' }}</span>
+                @endif
                 <span>{{ $genre->localized_name }}</span>
             </h1>
             <p class="text-on-surface-variant max-w-xl text-base leading-relaxed">
