@@ -119,7 +119,10 @@
                 @php
                     $themeColor = $genre->theme_color ?: '#3b82f6'; // Default blue
                 @endphp
-                <section class="genre-section space-y-8" id="genre-section-{{ $genre->id }}" style="--genre-theme: {{ $themeColor }};">
+                <section class="genre-section group space-y-8 relative p-8 -mx-8 rounded-[3rem] transition-all duration-700" 
+                         id="genre-section-{{ $genre->id }}" 
+                         style="--genre-theme: {{ $themeColor }};">
+                    <div class="absolute inset-0 bg-[var(--genre-theme)]/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-[3rem] -z-10 blur-3xl"></div>
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-4">
                             <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-lg transition-transform hover:scale-110" 
@@ -128,8 +131,13 @@
                             </div>
                             <div>
                                 <h3 class="text-2xl font-display font-black uppercase tracking-tight">{{ $genre->localized_name }}</h3>
+                                @php
+                                    $genreGames = $games->filter(function($g) use ($genre) {
+                                        return $g->challenges->where('genre_id', $genre->id)->count() > 0;
+                                    });
+                                @endphp
                                 <p class="text-[10px] font-display font-bold uppercase tracking-widest text-on-surface-variant opacity-60">
-                                    {{ $genre->games()->count() }} {{ __('Games Available') }}
+                                    {{ $genreGames->count() }} {{ __('Games Available') }}
                                 </p>
                             </div>
                         </div>
@@ -140,11 +148,10 @@
                     </div>
                     
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
-                        @foreach($games as $game)
-                            @if($game->genres->contains($genre->id))
-                                @php
-                                    $route = route('games.play', ['slug' => $game->slug, 'genre' => $genre->slug]);
-                                @endphp
+                        @foreach($genreGames as $game)
+                            @php
+                                $route = route('games.play', ['slug' => $game->slug, 'genre' => $genre->slug]);
+                            @endphp
                                 <div class="game-item group relative flex flex-col bg-surface-variant/40 dark:bg-zinc-900/40 backdrop-blur-xl rounded-[2.5rem] border border-outline-variant/10 shadow-2xl transition-all duration-500 hover:-translate-y-2 overflow-hidden hover:shadow-2xl"
                                      style="--hover-glow: {{ $themeColor }}30;">
                                     <a href="{{ $route }}" class="absolute inset-0 z-30" aria-label="{{ $game->localized_title }}"></a>
@@ -184,8 +191,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            @endif
-                        @endforeach
+                            @endforeach
                     </div>
                 </section>
             @endforeach

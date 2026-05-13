@@ -16,7 +16,9 @@ class HomeController extends Controller
                 $q->where('language', $locale)->where('is_active', true);
             });
 
-        $games = (clone $query)->get();
+        $games = (clone $query)->with(['challenges' => function($q) use ($locale) {
+            $q->where('language', $locale)->where('is_active', true);
+        }])->get();
         $latestGames = (clone $query)->latest()->limit(2)->get();
         
         $genres = Genre::where('is_active', true)

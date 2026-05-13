@@ -107,7 +107,7 @@ class GameSeeder extends Seeder
                 'how_to_play_ar' => "1. تعرف على الاحتفال أو اللحظة الشهيرة.\n2. تذكر المباراة أو اللاعب المعني.\n3. أجب بشكل صحيح للمتابعة.",
                 'game_type' => 'image_guess',
                 'answer_type' => 'player',
-                'image_file' => 'highlight_moments_generic_cover.png'
+                'image_file' => 'highlight-moments.png'
             ],
             [
                 'title' => 'Trophy Cabinet',
