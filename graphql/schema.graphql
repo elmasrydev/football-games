@@ -7,6 +7,7 @@ type Query {
     challenge(id: ID! @eq): Challenge @find
     genres(language: String): [Genre!]! @all(scopes: ["activeWithChallenges"])
     genre(slug: String! @eq): Genre @find
+    game(slug: String! @eq): Game @find
     
     games(language: String): [Game!]! @all(scopes: ["activeWithChallenges"])
     recentGames(language: String): [Game!]! @all(scopes: ["activeWithChallenges"], orderBy: [{column: "created_at", direction: DESC}], limit: 2)

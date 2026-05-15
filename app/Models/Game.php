@@ -26,6 +26,7 @@ class Game extends Model implements HasMedia
         'missing-link' => 'اعثر على الكلمة التي تربط بين هذه المصطلحات الكروية.',
         'career' => 'تتبع الأندية التي لعب لها النجم للتعرف على هويته.',
         'group-players' => 'تعرف على الرابط المشترك الذي يجمع بين مجموعة من اللاعبين.',
+        'category-crusher' => 'اعثر على الرابط المشترك الذي يجمع بين هذه العناصر.',
     ];
 
     protected $fillable = [

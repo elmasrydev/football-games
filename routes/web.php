@@ -1,12 +1,23 @@
 <?php
 
+use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\GamePlayController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\Auth\SocialController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Route;
+
+Route::get('/auth/google/redirect', [SocialController::class, 'redirectToGoogle'])->name('auth.google.redirect');
+Route::get('/auth/google/callback', [SocialController::class, 'handleGoogleCallback'])->name('auth.google.callback');
+
+Route::post('/logout', function() {
+    Auth::logout();
+    return redirect()->route('home', ['locale' => app()->getLocale()]);
+})->name('logout');
 
 Route::get('/sitemap.xml', [SitemapController::class, 'index']);
 
@@ -20,6 +31,22 @@ Route::get('/', function (Request $request) {
     $locale = in_array($locale, ['en', 'ar'], true) ? $locale : config('app.locale');
 
     return redirect()->route('home', ['locale' => $locale]);
+});
+
+Route::get('/login', function (Request $request) {
+    $locale = $request->hasSession()
+        ? $request->session()->get('locale', $request->cookie('locale', config('app.locale')))
+        : $request->cookie('locale', config('app.locale'));
+    $locale = in_array($locale, ['en', 'ar'], true) ? $locale : config('app.locale');
+    return redirect()->route('login', ['locale' => $locale]);
+});
+
+Route::get('/register', function (Request $request) {
+    $locale = $request->hasSession()
+        ? $request->session()->get('locale', $request->cookie('locale', config('app.locale')))
+        : $request->cookie('locale', config('app.locale'));
+    $locale = in_array($locale, ['en', 'ar'], true) ? $locale : config('app.locale');
+    return redirect()->route('register', ['locale' => $locale]);
 });
 
 Route::post('/preferences/locale', function (Request $request) {
@@ -57,6 +84,11 @@ Route::post('/preferences/locale', function (Request $request) {
 
 Route::prefix('{locale}')->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
+    
+    // Auth Routes (Localized)
+    Route::get('/login', fn() => view('auth.login'))->name('login');
+    Route::get('/register', fn() => view('auth.register'))->name('register');
+
     // Unified Game Routes
     Route::get('/games/{slug}/{challenge?}', [GamePlayController::class, 'play'])->name('games.play');
 
@@ -68,6 +100,15 @@ Route::prefix('{locale}')->group(function () {
 
     // Search Utilities
     Route::get('/search/{type}', [GamePlayController::class, 'search'])->name('search.unified');
+
+    // Bookmark Utility
+    Route::post('/bookmarks/toggle', [BookmarkController::class, 'toggle'])->name('bookmarks.toggle');
+
+    // Profile Management
+    Route::middleware('auth')->group(function () {
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    });
 
     // Informational Pages
     Route::get('/about', [PageController::class, 'about'])->name('about');

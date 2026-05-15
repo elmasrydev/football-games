@@ -33,15 +33,18 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\Challenge::observe(\App\Observers\ChallengeObserver::class);
         $request = request();
 
-        $locale = $request->segment(1)
-            ?? ($request->hasSession() ? $request->session()->get('locale') : null)
-            ?? $request->cookie('locale')
-            ?? config('app.locale');
-
-        if (in_array($locale, ['en', 'ar'], true)) {
-            App::setLocale($locale);
-            URL::defaults(['locale' => $locale]);
+        $locale = $request->segment(1);
+        
+        if (!in_array($locale, ['en', 'ar'], true)) {
+            $locale = ($request->hasSession() ? $request->session()->get('locale') : null)
+                ?? $request->cookie('locale')
+                ?? config('app.locale');
         }
+
+        $locale = in_array($locale, ['en', 'ar'], true) ? $locale : config('app.locale');
+
+        App::setLocale($locale);
+        URL::defaults(['locale' => $locale]);
 
         \Illuminate\Support\Facades\View::composer('*', function ($view) {
             $rawStats = request()->cookie('game_stats');
@@ -68,10 +71,19 @@ class AppServiceProvider extends ServiceProvider
                 ->orderBy('sort_order')
                 ->get();
             
+            $userBookmarks = [];
+            if (auth()->check()) {
+                $userBookmarks = \App\Models\Bookmark::where('user_id', auth()->id())
+                    ->get()
+                    ->map(fn($b) => $b->genre_id ? "{$b->game_id}_{$b->genre_id}" : "{$b->game_id}")
+                    ->toArray();
+            }
+
             $view->with('global_stats', $stats)
                 ->with('current_locale', $locale)
                 ->with('current_direction', $locale === 'ar' ? 'rtl' : 'ltr')
                 ->with('all_genres', $genres)
+                ->with('user_bookmarks', $userBookmarks)
                 ->with('seo', app(\App\Services\SEOService::class));
         });
     }

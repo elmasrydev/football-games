@@ -38,7 +38,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
         @forelse($genres as $genre)
             <div class="group relative flex flex-col bg-surface-variant/40 dark:bg-zinc-900/40 backdrop-blur-xl rounded-[1rem] overflow-hidden border border-outline-variant/10 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/20 hover:border-primary/30">
-                <a href="{{ route('games.genre', ['genre_slug' => $genre->slug]) }}" class="absolute inset-0 z-30" aria-label="{{ $genre->localized_name }}"></a>
+                <a href="{{ route('games.genre', ['locale' => app()->getLocale(), 'genre_slug' => $genre->slug]) }}" class="absolute inset-0 z-30" aria-label="{{ $genre->localized_name }}"></a>
                 
                 <!-- Image Area -->
                 <div class="relative aspect-video overflow-hidden">

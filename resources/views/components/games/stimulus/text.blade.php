@@ -61,6 +61,24 @@
             <div class="group-display">
                 <h2 class="group-title">{{ $challenge->stimulus_data['title'] ?? __('Mystery Group') }}</h2>
             </div>
+        @elseif($game->slug === 'category-crusher')
+            <div class="category-crusher-container">
+                <div class="items-grid">
+                    @php
+                        $items = $challenge->stimulus_data['items'] ?? [];
+                    @endphp
+                    @foreach($items as $item)
+                        <div class="item-card">
+                            <span class="item-text">{{ $item }}</span>
+                        </div>
+                    @endforeach
+                </div>
+                <div class="crusher-divider">
+                    <div class="divider-line"></div>
+                    <span class="material-symbols-outlined crusher-icon">Category</span>
+                    <div class="divider-line"></div>
+                </div>
+            </div>
         @else
             <div class="generic-text">
                 <p class="puzzle-clue">{{ $challenge->question ?? $challenge->stimulus_data['question'] ?? $challenge->stimulus_data['clue'] ?? __('Solve the mystery!') }}</p>
@@ -71,14 +89,19 @@
 
 <style>
     .text-shell {
-        display: grid;
-        gap: 0.9rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+        width: 100%;
     }
 
     .text-stage-meta {
-        display: grid;
-        gap: 0.35rem;
-        padding-inline: 0.2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: start;
+        gap: 0.5rem;
+        padding-top: 0.5rem;
     }
 
     .stimulus-tag {
@@ -152,6 +175,16 @@
 
     /* Group Players */
     .group-title { font-size: clamp(2rem, 6vw, 3rem); font-weight: 900; color: var(--text); text-align: center; position: relative; z-index: 1; }
+
+    /* Category Crusher */
+    .category-crusher-container { display: flex; flex-direction: column; align-items: center; gap: 2rem; width: 100%; position: relative; z-index: 1; }
+    .items-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; width: 100%; max-width: 500px; }
+    .item-card { padding: 1.5rem; background: rgba(var(--surface-muted-rgb), 0.5); border: 1px solid var(--border-soft); border-radius: 20px; display: flex; justify-content: center; align-items: center; transition: all 0.3s ease; box-shadow: var(--shadow-sm); }
+    .item-card:hover { transform: scale(1.05); background: rgba(var(--primary-rgb), 0.1); border-color: var(--primary); }
+    .item-text { font-size: clamp(1rem, 2.5vw, 1.25rem); font-weight: 800; color: var(--text); text-align: center; }
+    .crusher-divider { display: flex; items-center; gap: 1rem; width: 100%; max-width: 400px; opacity: 0.5; }
+    .divider-line { flex: 1; height: 1px; background: var(--text-muted); }
+    .crusher-icon { font-size: 24px !important; color: var(--text-muted); }
 
     /* Generic Clue */
     .puzzle-clue { font-size: clamp(1.15rem, 3vw, 1.6rem); font-weight: 700; color: var(--text); text-align: center; line-height: 1.5; position: relative; z-index: 1; }

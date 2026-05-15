@@ -7,7 +7,7 @@
     <header class="relative py-12 border-b border-outline-variant/20 flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div class="space-y-4">
             <nav class="flex items-center gap-2 text-[10px] font-display font-black uppercase tracking-[0.2em] text-on-surface-variant/60">
-                <a href="{{ route('games.index') }}" class="hover:text-primary transition-colors">{{ __('Library') }}</a>
+                <a href="{{ route('games.index', ['locale' => app()->getLocale()]) }}" class="hover:text-primary transition-colors">{{ __('Library') }}</a>
                 <span class="material-symbols-outlined text-[10px]">chevron_right</span>
                 <span class="text-secondary">{{ $genre->localized_name }}</span>
             </nav>
@@ -40,7 +40,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
         @forelse($games as $game)
             @php
-                $route = route('games.play', ['slug' => $game->slug, 'genre' => $genre->slug]);
+                $route = route('games.play', ['locale' => app()->getLocale(), 'slug' => $game->slug, 'genre' => $genre->slug]);
             @endphp
             <div class="group relative flex flex-col bg-surface-variant/40 dark:bg-zinc-900/40 backdrop-blur-xl rounded-[1rem] overflow-hidden border border-outline-variant/10 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/20 hover:border-primary/30">
                 <a href="{{ $route }}" class="absolute inset-0 z-30" aria-label="{{ $game->localized_title }}"></a>

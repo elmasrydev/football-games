@@ -36,7 +36,7 @@
 
             <div class="disclaimer-footer">
                 <p>If you believe any content on our site is inaccurate or violates intellectual property rights, please <a
-                        href="{{ route('contact') }}">contact us</a> immediately.</p>
+                        href="{{ route('contact', ['locale' => app()->getLocale()]) }}">contact us</a> immediately.</p>
             </div>
         </div>
     </div>

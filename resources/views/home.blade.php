@@ -36,7 +36,7 @@
                 </div>
 
                 <div class="flex flex-wrap items-center gap-6">
-                    <a href="{{ route('games.index') }}" class="bg-primary text-on-primary font-display font-black uppercase tracking-widest px-10 py-5 rounded-2xl shadow-2xl shadow-primary/30 hover:brightness-110 hover:-translate-y-1 active:scale-95 transition-all">
+                    <a href="{{ route('games.index', ['locale' => app()->getLocale()]) }}" class="bg-primary text-on-primary font-display font-black uppercase tracking-widest px-10 py-5 rounded-2xl shadow-2xl shadow-primary/30 hover:brightness-110 hover:-translate-y-1 active:scale-95 transition-all">
                         {{ __('Browse All Games') }}
                     </a>
                     <div class="flex items-center gap-4">
@@ -52,7 +52,7 @@
             <div class="hidden lg:grid grid-cols-2 gap-6">
                 @foreach($latestGames as $latestGame)
                     <div class="group/card relative flex flex-col h-full bg-surface-variant/40 dark:bg-zinc-900/40 backdrop-blur-xl rounded-[1rem] border border-outline-variant/10 shadow-2xl transition-all duration-500 hover:-translate-y-2 hover:shadow-primary/20 hover:border-primary/30 overflow-hidden">
-                        <a href="{{ route('games.play', ['slug' => $latestGame->slug]) }}" class="absolute inset-0 z-30"></a>
+                        <a href="{{ route('games.play', ['locale' => app()->getLocale(), 'slug' => $latestGame->slug]) }}" class="absolute inset-0 z-30"></a>
                         
                         <!-- Image Area -->
                         <div class="relative aspect-[4/5] overflow-hidden">
@@ -91,7 +91,7 @@
                 <span class="text-[10px] font-display font-black text-primary uppercase tracking-[0.3em] block mb-1">{{ __('Quick Access') }}</span>
                 <h2 class="text-3xl font-display font-black uppercase tracking-tight">{{ __('Your Interests') }}</h2>
             </div>
-            <a href="{{ route('games.index') }}" class="text-xs font-display font-black text-on-surface-variant hover:text-primary transition-colors uppercase tracking-widest flex items-center gap-2">
+            <a href="{{ route('games.index', ['locale' => app()->getLocale()]) }}" class="text-xs font-display font-black text-on-surface-variant hover:text-primary transition-colors uppercase tracking-widest flex items-center gap-2">
                 {{ __('Explore Library') }}
                 <span class="material-symbols-outlined text-sm">arrow_forward</span>
             </a>
@@ -108,7 +108,7 @@
                 <span class="text-[10px] font-display font-black uppercase tracking-widest text-on-surface-variant">{{ __('Live') }}</span>
             </div>
             <p class="text-on-surface-variant max-w-sm mb-8 leading-relaxed">{{ __('Save games from the library and they will show up here grouped by your interests.') }}</p>
-            <a href="{{ route('games.index') }}" class="bg-primary text-on-primary font-display font-black uppercase tracking-widest px-8 py-3 rounded-2xl shadow-xl shadow-primary/20 hover:brightness-110 active:scale-95 transition-all">
+            <a href="{{ route('games.index', ['locale' => app()->getLocale()]) }}" class="bg-primary text-on-primary font-display font-black uppercase tracking-widest px-8 py-3 rounded-2xl shadow-xl shadow-primary/20 hover:brightness-110 active:scale-95 transition-all">
                 {{ __('Discover Genres') }}
             </a>
         </div>
@@ -121,7 +121,7 @@
                 @endphp
                 <section class="genre-section group space-y-8 relative p-8 -mx-8 rounded-[3rem] transition-all duration-700" 
                          id="genre-section-{{ $genre->id }}" 
-                         style="--genre-theme: {{ $themeColor }};">
+                         style="--genre-theme: {{ $themeColor }}; display: none;">
                     <div class="absolute inset-0 bg-[var(--genre-theme)]/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-[3rem] -z-10 blur-3xl"></div>
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-4">
@@ -145,7 +145,7 @@
                                 </p>
                             </div>
                         </div>
-                        <a href="{{ route('games.genre', ['genre_slug' => $genre->slug]) }}" 
+                        <a href="{{ route('games.genre', ['locale' => app()->getLocale(), 'genre_slug' => $genre->slug]) }}" 
                            class="text-[10px] font-display font-black uppercase tracking-widest px-4 py-2 rounded-xl bg-surface-variant/50 hover:bg-surface-variant transition-colors">
                             {{ __('View All') }}
                         </a>
@@ -154,25 +154,36 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
                         @foreach($genreGames as $game)
                             @php
-                                $route = route('games.play', ['slug' => $game->slug, 'genre' => $genre->slug]);
+                                $route = route('games.play', ['locale' => app()->getLocale(), 'slug' => $game->slug, 'genre' => $genre->slug]);
                             @endphp
-                                <div class="game-item group relative flex flex-col bg-surface-variant/40 dark:bg-zinc-900/40 backdrop-blur-xl rounded-[2.5rem] border border-outline-variant/10 shadow-2xl transition-all duration-500 hover:-translate-y-2 overflow-hidden hover:shadow-2xl"
-                                     style="--hover-glow: {{ $themeColor }}30;">
+                                <div class="game-item bookmark-item group relative flex flex-col bg-surface-variant/40 dark:bg-zinc-900/40 backdrop-blur-xl rounded-[2.5rem] border border-outline-variant/10 shadow-2xl transition-all duration-500 hover:-translate-y-2 overflow-hidden hover:shadow-2xl"
+                                     data-id="{{ $game->id }}" data-genre="{{ $genre->id }}"
+                                     style="--hover-glow: {{ $themeColor }}30; display: none;">
                                     <a href="{{ $route }}" class="absolute inset-0 z-30" aria-label="{{ $game->localized_title }}"></a>
                                     
-                                    <!-- Image Area -->
-                                    <div class="relative aspect-square overflow-hidden bg-surface-variant/20">
-                                        @if ($game->image_url)
-                                            <img src="{{ $game->image_url }}" alt="{{ $game->localized_title }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
-                                        @else
-                                            <div class="absolute inset-0 flex items-center justify-center p-8 text-center" style="background: linear-gradient(135deg, {{ $themeColor }}10, {{ $themeColor }}20)">
-                                                <span class="text-xl font-display font-black uppercase tracking-tighter opacity-40" style="color: {{ $themeColor }}">{{ $game->localized_title }}</span>
+                                        <!-- Image Area -->
+                                        <div class="relative aspect-square overflow-hidden bg-surface-variant/20">
+                                            @if ($game->image_url)
+                                                <img src="{{ $game->image_url }}" alt="{{ $game->localized_title }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                                            @else
+                                                <div class="absolute inset-0 flex items-center justify-center p-8 text-center" style="background: linear-gradient(135deg, {{ $themeColor }}10, {{ $themeColor }}20)">
+                                                    <span class="text-xl font-display font-black uppercase tracking-tighter opacity-40" style="color: {{ $themeColor }}">{{ $game->localized_title }}</span>
+                                                </div>
+                                            @endif
+
+                                            <!-- Bookmark Button Overlay -->
+                                            <div class="absolute top-4 inset-x-4 z-40 flex justify-end">
+                                                <button class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:text-primary shadow-lg hover:scale-110 transition-all active:scale-90"
+                                                        onclick="event.preventDefault(); event.stopPropagation(); toggleBookmark({{ $game->id }}, {{ $genre->id }})" 
+                                                        data-id="{{ $game->id }}"
+                                                        data-genre="{{ $genre->id }}">
+                                                    <span class="material-symbols-outlined text-[20px]">bookmark</span>
+                                                </button>
                                             </div>
-                                        @endif
-                                        
-                                        <!-- Overlay for better name clarity -->
-                                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                    </div>
+                                            
+                                            <!-- Overlay for better name clarity -->
+                                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                        </div>
  
                                     <!-- Content Area -->
                                     <div class="p-6 space-y-4">

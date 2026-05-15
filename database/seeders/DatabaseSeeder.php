@@ -23,6 +23,8 @@ class DatabaseSeeder extends Seeder
             ArabicTransferChainSeeder::class,
             TerminologyTriviaSeeder::class,
             ArabicTerminologyTriviaSeeder::class,
+            CategoryCrusherSeeder::class,
+            ArabicCategoryCrusherSeeder::class,
         ]);
     }
 }

@@ -109,7 +109,7 @@
             <div
                 class="glass-card flex items-center justify-between p-2 rounded-2xl border-outline-variant/20 min-w-[320px]">
                 @if($currentLevel > 1)
-                    <a href="{{ route('games.play', ['slug' => $game->slug, 'genre' => $selectedGenre?->slug, 'level' => $currentLevel - 1]) }}"
+                    <a href="{{ route('games.play', ['locale' => app()->getLocale(), 'slug' => $game->slug, 'genre' => $selectedGenre?->slug, 'level' => $currentLevel - 1]) }}"
                         class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors active:scale-90">
                         <span class="material-symbols-outlined rtl:rotate-180">arrow_back</span>
                     </a>
@@ -132,7 +132,7 @@
                 </div>
 
                 @if($currentLevel < $totalChallenges)
-                    <a href="{{ route('games.play', ['slug' => $game->slug, 'genre' => $selectedGenre?->slug, 'level' => $currentLevel + 1]) }}"
+                    <a href="{{ route('games.play', ['locale' => app()->getLocale(), 'slug' => $game->slug, 'genre' => $selectedGenre?->slug, 'level' => $currentLevel + 1]) }}"
                         class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors active:scale-90">
                         <span class="material-symbols-outlined rtl:rotate-180">arrow_forward</span>
                     </a>
@@ -148,7 +148,7 @@
         <!-- Genre Switcher -->
         @if($genres->count() > 1)
             <div class="flex items-center gap-3 overflow-x-auto pb-4 scrollbar-none">
-                <a href="{{ route('games.play', ['slug' => $game->slug]) }}"
+                <a href="{{ route('games.play', ['locale' => app()->getLocale(), 'slug' => $game->slug]) }}"
                     class="flex-none flex items-center gap-2 px-6 py-3 rounded-full font-display font-bold text-xs uppercase tracking-widest transition-all {{ !$selectedGenre ? 'bg-[var(--genre-theme)] text-on-primary shadow-lg shadow-[var(--genre-theme)]/20' : 'glass-card text-on-surface-variant hover:text-[var(--genre-theme)]' }}">
                     <span class="text-lg">🌐</span>
                     {{ __('All') }}
@@ -157,7 +157,7 @@
                     @php
                         $gTheme = $genre->theme_color ?: '#3b82f6';
                     @endphp
-                    <a href="{{ route('games.play', ['slug' => $game->slug, 'genre' => $genre->slug]) }}"
+                    <a href="{{ route('games.play', ['locale' => app()->getLocale(), 'slug' => $game->slug, 'genre' => $genre->slug]) }}"
                         class="flex-none flex items-center gap-2 px-6 py-3 rounded-full font-display font-bold text-xs uppercase tracking-widest transition-all {{ $selectedGenre && $selectedGenre->id === $genre->id ? 'text-on-primary shadow-lg shadow-[var(--genre-theme)]/20' : 'glass-card text-on-surface-variant hover:text-primary' }}"
                         style="{{ $selectedGenre && $selectedGenre->id === $genre->id ? 'background: ' . $gTheme . ';' : '' }}">
                         <span class="text-lg">{{ $genre->icon ?? '🧩' }}</span>
@@ -177,8 +177,9 @@
                     {{-- Dynamic Stimulus Block --}}
                     @if($game->slug !== 'terminology-trivia')
                         <div
-                            class="{{ $challenge->stimulus_type === 'video' ? 'aspect-video' : '' }} flex items-center justify-center p-2">
+                            class="{{ $challenge->stimulus_type === 'video' ? 'aspect-video' : '' }} w-full flex items-center justify-center p-4 sm:p-6">
                             @if($challenge->stimulus_type === 'image')
+
                                 <x-games.stimulus.image :challenge="$challenge" :game="$game" />
                             @elseif($challenge->stimulus_type === 'video')
                                 <x-games.stimulus.video :challenge="$challenge" :game="$game" />
@@ -203,7 +204,9 @@
                         <div class="absolute top-6 end-6 z-20 flex flex-col gap-3">
                             <button
                                 class="w-12 h-12 rounded-full glass-card flex items-center justify-center text-on-surface-variant hover:text-[var(--genre-theme)] shadow-lg hover:scale-110 transition-all active:scale-90"
-                                onclick="toggleBookmark({{ $game->id }})" data-id="{{ $game->id }}">
+                                onclick="toggleBookmark({{ $game->id }}, {{ $selectedGenre?->id ?? 'null' }})" 
+                                data-id="{{ $game->id }}"
+                                data-genre="{{ $selectedGenre?->id ?? '' }}">
                                 <span class="material-symbols-outlined transition-colors">bookmark</span>
                             </button>
                         </div>
@@ -223,7 +226,9 @@
                             <div class="absolute top-0 end-0">
                                 <button
                                     class="w-10 h-10 rounded-full glass-card flex items-center justify-center text-on-surface-variant hover:text-[var(--genre-theme)] shadow-lg hover:scale-110 transition-all active:scale-90"
-                                    onclick="toggleBookmark({{ $game->id }})" data-id="{{ $game->id }}">
+                                    onclick="toggleBookmark({{ $game->id }}, {{ $selectedGenre?->id ?? 'null' }})" 
+                                    data-id="{{ $game->id }}"
+                                    data-genre="{{ $selectedGenre?->id ?? '' }}">
                                     <span class="material-symbols-outlined transition-colors">bookmark</span>
                                 </button>
                             </div>
@@ -358,7 +363,7 @@
             const currentLevel = {{ $currentLevel }};
             const totalChallenges = {{ $totalChallenges }};
 
-            const prevLevelUrl = '{{ $currentLevel > 1 ? route('games.play', ['slug' => $game->slug, 'genre' => $selectedGenre?->slug, 'level' => $currentLevel - 1]) : '#' }}';
+            const prevLevelUrl = '{{ $currentLevel > 1 ? route('games.play', ['locale' => app()->getLocale(), 'slug' => $game->slug, 'genre' => $selectedGenre?->slug, 'level' => $currentLevel - 1]) : '#' }}';
 
             let shownHints = [];
 
@@ -399,7 +404,7 @@
                 if (answerInput) {
                     const answerType = answerInput.dataset.answerType;
                     if (answerType && ['player', 'club', 'stadium', 'actor', 'movie', 'term'].includes(answerType)) {
-                        const searchUrlTemplate = @json(route('search.unified', ['type' => '__TYPE__']));
+                        const searchUrlTemplate = @json(route('search.unified', ['locale' => app()->getLocale(), 'type' => '__TYPE__']));
                         const searchUrl = searchUrlTemplate.replace('__TYPE__', answerType);
                         if (typeof initAutocomplete === 'function') {
                             initAutocomplete('answer-input', 'autocomplete-list', searchUrl);
@@ -422,7 +427,7 @@
 
                     const revealedOrders = window.revealedOrders || [];
 
-                    fetch(`{{ route('challenges.check', ['challenge' => $challenge->id]) }}`, {
+                    fetch(`{{ route('challenges.check', ['locale' => app()->getLocale(), 'challenge' => $challenge->id]) }}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
                         body: JSON.stringify({ answer, revealed_orders: revealedOrders })
@@ -452,7 +457,7 @@
             const hintBtn = document.getElementById('hint-btn');
             if (hintBtn) {
                 hintBtn.addEventListener('click', () => {
-                    fetch(`{{ route('challenges.hint', ['challenge' => $challenge->id]) }}`, {
+                    fetch(`{{ route('challenges.hint', ['locale' => app()->getLocale(), 'challenge' => $challenge->id]) }}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
                         body: JSON.stringify({ shown_hints: shownHints })
@@ -483,7 +488,7 @@
             const giveUpBtn = document.getElementById('give-up-btn');
             if (giveUpBtn) {
                 giveUpBtn.addEventListener('click', () => {
-                    fetch(`{{ route('challenges.reveal', ['challenge' => $challenge->id]) }}`)
+                    fetch(`{{ route('challenges.reveal', ['locale' => app()->getLocale(), 'challenge' => $challenge->id]) }}`)
                         .then(r => r.json())
                         .then(data => {
                             let msg = '';
@@ -531,4 +536,13 @@
             }
         </script>
     @endpush
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof updateBookmarkUI === 'function') {
+            updateBookmarkUI({{ $game->id }}, {{ $selectedGenre?->id ?? 'null' }});
+        }
+    });
+</script>
+@endpush
 @endsection

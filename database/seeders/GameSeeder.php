@@ -169,6 +169,18 @@ class GameSeeder extends Seeder
                 'answer_type' => 'player',
                 'image_file' => 'group_guess_cover.png'
             ],
+            [
+                'title' => 'Category Crusher',
+                'name_ar' => 'خبير الفئات',
+                'slug' => 'category-crusher',
+                'description' => 'Find the common category for a set of items.',
+                'description_ar' => 'ابحث عن الفئة المشتركة لمجموعة من العناصر.',
+                'how_to_play' => "1. Look at the 4 items provided.\n2. Think of the category or group they all belong to.\n3. Type the category name.",
+                'how_to_play_ar' => "1. انظر إلى العناصر الأربعة المقدمة.\n2. فكر في الفئة أو المجموعة التي ينتمون إليها جميعاً.\n3. اكتب اسم الفئة.",
+                'game_type' => 'word_puzzle',
+                'answer_type' => 'term',
+                'image_file' => 'category-crusher.png'
+            ],
         ];
 
         $allGenres = \App\Models\Genre::all();

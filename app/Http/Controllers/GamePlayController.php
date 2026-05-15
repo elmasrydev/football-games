@@ -77,6 +77,10 @@ class GamePlayController extends Controller
         // Level number matches the natural ASC order: COUNT where ID <= current ID
         $currentLevel = (clone $query)->where('id', '<=', $challenge->id)->count();
 
+        if (!$selectedGenre && $challenge->genre_id) {
+            $selectedGenre = Genre::find($challenge->genre_id);
+        }
+
         // Get only genres that have challenges for this game
         $availableGenres = Genre::whereHas('challenges', function($q) use ($game, $locale) {
             $q->where('game_id', $game->id)
@@ -219,6 +223,25 @@ class GamePlayController extends Controller
                 })
                 ->limit(10)
                 ->pluck($displayField);
+
+            return response()->json($results);
+        }
+
+        // Terms/Categories Autocomplete (Category Crusher, Terminology Trivia)
+        if ($type === 'term') {
+            $results = Challenge::where('answer_type', 'term')
+                ->where('language', $locale)
+                ->where('is_active', true)
+                ->where(function($q) use ($query, $locale) {
+                    $q->where('answer', 'like', "%$query%");
+                    if ($locale === 'ar') {
+                        $normalizedQuery = $this->normalizeArabic($query);
+                        $q->orWhereRaw("REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(answer, 'أ', 'ا'), 'إ', 'ا'), 'آ', 'ا'), 'ٱ', 'ا'), 'ى', 'ي'), 'ئ', 'ي'), 'ؤ', 'و'), 'ة', 'ه'), 'ـ', '') LIKE ?", ["%$normalizedQuery%"]);
+                    }
+                })
+                ->distinct()
+                ->limit(10)
+                ->pluck('answer');
 
             return response()->json($results);
         }

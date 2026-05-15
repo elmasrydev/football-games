@@ -40,7 +40,7 @@
 
             <div class="flex items-center gap-8 lg:gap-12 min-w-0">
                 <!-- Brand -->
-                <a href="{{ route('home') }}" class="flex items-center shrink-0 overflow-hidden">
+                <a href="{{ route('home', ['locale' => app()->getLocale()]) }}" class="flex items-center shrink-0 overflow-hidden">
                     <img src="{{ asset('images/logo_dark.png') }}" alt="Gamesiano Logo"
                         class="h-[120px] w-[200px] object-contain hidden dark:block mix-blend-screen">
                     <img src="{{ asset('images/logo_light.png') }}" alt="Gamesiano Logo"
@@ -50,13 +50,13 @@
                 <!-- Main Nav -->
                 <div
                     class="hidden md:flex items-center gap-6 lg:gap-8 font-display font-bold uppercase tracking-tight text-sm">
-                    <a href="{{ route('home') }}"
+                    <a href="{{ route('home', ['locale' => app()->getLocale()]) }}"
                         class="transition-all hover:text-primary {{ request()->routeIs('home') ? 'text-primary' : 'text-on-surface-variant' }}">
                         {{ __('Home') }}
                     </a>
                     <!-- Games Dropdown -->
                     <div class="relative group">
-                        <a href="{{ route('games.index') }}"
+                        <a href="{{ route('games.index', ['locale' => app()->getLocale()]) }}"
                             class="flex items-center gap-1 transition-all hover:text-primary {{ request()->routeIs('games.index', 'games.play', 'games.genre') ? 'text-primary' : 'text-on-surface-variant' }}">
                             {{ __('Games') }}
                             <span class="material-symbols-outlined text-[18px] transition-transform group-hover:rotate-180">expand_more</span>
@@ -66,7 +66,7 @@
                         <div class="absolute top-full start-0 pt-4 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 z-[100]">
                             <div class="w-72 bg-surface dark:bg-zinc-900 border border-outline-variant/30 rounded-3xl shadow-2xl overflow-hidden py-3 backdrop-blur-xl">
                                 @foreach($all_genres ?? [] as $genre)
-                                    <a href="{{ route('games.genre', ['genre_slug' => $genre->slug]) }}" 
+                                    <a href="{{ route('games.genre', ['locale' => app()->getLocale(), 'genre_slug' => $genre->slug]) }}" 
                                        class="flex items-center gap-4 px-5 py-3.5 hover:bg-primary/10 transition-colors group/item">
                                         <div class="w-10 h-10 rounded-full bg-surface-variant/50 flex items-center justify-center text-xl group-hover/item:scale-110 group-hover/item:bg-primary/20 transition-all">
                                             {{ $genre->icon }}
@@ -80,7 +80,7 @@
                                 
                                 <div class="h-px bg-outline-variant/10 my-2 mx-5"></div>
                                 
-                                <a href="{{ route('games.index') }}" class="flex items-center justify-center py-3 text-[10px] font-display font-black text-primary hover:bg-primary/5 transition-colors uppercase tracking-[0.2em]">
+                                <a href="{{ route('games.index', ['locale' => app()->getLocale()]) }}" class="flex items-center justify-center py-3 text-[10px] font-display font-black text-primary hover:bg-primary/5 transition-colors uppercase tracking-[0.2em]">
                                     {{ __('Browse All Genres') }}
                                 </a>
                             </div>
@@ -97,7 +97,7 @@
                 </div>
 
                 <!-- Search (Desktop) -->
-                <form action="{{ route('games.index') }}" method="GET" class="relative hidden lg:block group" id="nav-search-form">
+                <form action="{{ route('games.index', ['locale' => app()->getLocale()]) }}" method="GET" class="relative hidden lg:block group" id="nav-search-form">
                     <span
                         class="material-symbols-outlined absolute start-3 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors">search</span>
                     <input type="text" name="search" id="nav-search-input" value="{{ request('search') }}" placeholder="{{ __('Search Gamesiano...') }}"
@@ -125,6 +125,51 @@
                 <button class="md:hidden p-2.5 rounded-full hover:bg-surface-variant/50 text-on-surface-variant">
                     <span class="material-symbols-outlined">menu</span>
                 </button>
+
+                <!-- Auth Buttons -->
+                <div class="ms-2 ps-4 border-s border-outline-variant/20 flex items-center gap-3">
+                    @auth
+                        <div class="relative group">
+                            <button class="flex items-center gap-3 p-1.5 rounded-2xl hover:bg-surface-variant/50 transition-all">
+                                <div class="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-display font-black text-xs uppercase shadow-inner border border-primary/20">
+                                    {{ mb_substr(auth()->user()->name, 0, 1) }}
+                                </div>
+                                <span class="hidden xl:block text-[10px] font-display font-black uppercase tracking-widest text-on-surface">{{ explode(' ', auth()->user()->name)[0] }}</span>
+                            </button>
+                            
+                            <!-- User Dropdown -->
+                            <div class="absolute top-full end-0 pt-4 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 z-[100]">
+                                <div class="w-56 bg-surface dark:bg-zinc-900 border border-outline-variant/30 rounded-3xl shadow-2xl overflow-hidden py-2 backdrop-blur-xl">
+                                    <div class="px-5 py-3 border-b border-outline-variant/10">
+                                        <p class="text-[10px] font-display font-black uppercase tracking-widest text-on-surface">{{ auth()->user()->name }}</p>
+                                        <p class="text-[9px] text-on-surface-variant/60 truncate">{{ auth()->user()->email }}</p>
+                                    </div>
+                                    <a href="{{ route('profile.edit', ['locale' => app()->getLocale()]) }}" class="flex items-center gap-3 px-5 py-3 hover:bg-primary/5 text-[10px] font-display font-black uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors">
+                                        <span class="material-symbols-outlined text-lg">person_outline</span>
+                                        {{ __('Profile') }}
+                                    </a>
+                                    <div class="h-px bg-outline-variant/10 my-1"></div>
+                                    <form action="{{ route('logout') }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="w-full flex items-center gap-3 px-5 py-3 hover:bg-error/5 text-[10px] font-display font-black uppercase tracking-widest text-error transition-colors">
+                                            <span class="material-symbols-outlined text-lg">logout</span>
+                                            {{ __('Logout') }}
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    @else
+                        <div class="flex items-center gap-2">
+                            <a href="{{ route('login') }}" class="px-5 py-2.5 rounded-xl text-[10px] font-display font-black uppercase tracking-widest text-on-surface hover:text-primary transition-all">
+                                {{ __('Login') }}
+                            </a>
+                            <a href="{{ route('register') }}" class="hidden sm:flex px-6 py-2.5 rounded-xl bg-primary text-on-primary text-[10px] font-display font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:brightness-110 active:scale-95 transition-all">
+                                {{ __('Sign Up') }}
+                            </a>
+                        </div>
+                    @endauth
+                </div>
             </div>
         </div>
     </nav>
@@ -154,14 +199,16 @@
             </div>
 
             <nav class="flex flex-wrap justify-center gap-6 lg:gap-12">
-                <a href="{{ route('about') }}"
+                <a href="{{ route('about', ['locale' => app()->getLocale()]) }}"
                     class="text-on-surface-variant hover:text-primary text-xs font-display font-bold uppercase tracking-widest transition-colors">{{ __('About') }}</a>
-                <a href="{{ route('contact') }}"
+                <a href="{{ route('contact', ['locale' => app()->getLocale()]) }}"
                     class="text-on-surface-variant hover:text-primary text-xs font-display font-bold uppercase tracking-widest transition-colors">{{ __('Contact') }}</a>
-                <a href="{{ route('privacy') }}"
+                <a href="{{ route('privacy', ['locale' => app()->getLocale()]) }}"
                     class="text-on-surface-variant hover:text-primary text-xs font-display font-bold uppercase tracking-widest transition-colors">{{ __('Privacy') }}</a>
-                <a href="{{ route('terms') }}"
+                <a href="{{ route('terms', ['locale' => app()->getLocale()]) }}"
                     class="text-on-surface-variant hover:text-primary text-xs font-display font-bold uppercase tracking-widest transition-colors">{{ __('Terms') }}</a>
+                <a href="{{ route('disclaimer', ['locale' => app()->getLocale()]) }}"
+                    class="text-on-surface-variant hover:text-primary text-xs font-display font-bold uppercase tracking-widest transition-colors">{{ __('Disclaimer') }}</a>
             </nav>
 
             <div class="flex gap-4">
@@ -207,6 +254,13 @@
 
     @yield('modals')
     
+    <!-- Global State -->
+    <script>
+        window.userBookmarks = @json($user_bookmarks ?? []);
+        window.isLoggedIn = @json(auth()->check());
+        window.bookmarkToggleUrl = "{{ route('bookmarks.toggle', ['locale' => app()->getLocale()]) }}";
+    </script>
+
     <!-- Scripts -->
     <script src="{{ asset('js/bookmarks.js') }}"></script>
     <script
@@ -219,7 +273,7 @@
             const dirToggle = document.getElementById('dir-toggle');
             const themeIcon = document.getElementById('theme-icon');
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-            const localePreferenceUrl = @json(route('preferences.locale'));
+            const localePreferenceUrl = @json(route('preferences.locale', ['locale' => app()->getLocale()]));
 
             function updateThemeIcon() {
                 const isDark = root.classList.contains('dark');
@@ -321,7 +375,7 @@
 
         // Nav Search Autocomplete
         document.addEventListener('DOMContentLoaded', () => {
-            const searchUrl = "{{ route('search.unified', ['type' => 'game']) }}";
+            const searchUrl = "{{ route('search.unified', ['locale' => app()->getLocale(), 'type' => 'game']) }}";
             initAutocomplete('nav-search-input', 'nav-search-results', searchUrl);
             
             // Auto-submit form when selection is made from autocomplete
