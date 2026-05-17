@@ -51,9 +51,9 @@
             <div class="flex items-center gap-8 lg:gap-12 min-w-0">
                 <!-- Brand -->
                 <a href="{{ route('home', ['locale' => app()->getLocale()]) }}" class="flex items-center shrink-0 overflow-hidden">
-                    <img src="{{ asset('images/logo_dark.png') }}" alt="Gamesiano Logo"
+                    <img src="/images/logo_dark.png" alt="Gamesiano Logo"
                         class="h-[120px] w-[200px] object-contain hidden dark:block mix-blend-screen">
-                    <img src="{{ asset('images/logo_light.png') }}" alt="Gamesiano Logo"
+                    <img src="/images/logo_light.png" alt="Gamesiano Logo"
                         class="h-[120px] w-[200px] object-contain block dark:hidden mix-blend-multiply">
                 </a>
 
@@ -198,9 +198,9 @@
         <div class="max-w-[1440px] mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
             <div class="flex flex-col items-center md:items-start gap-3">
                 <div class="overflow-hidden rounded-lg">
-                    <img src="{{ asset('images/logo_dark.png') }}" alt="Gamesiano Logo"
+                    <img src="/images/logo_dark.png" alt="Gamesiano Logo"
                         class="h-8 w-auto hidden dark:block mix-blend-screen opacity-80 hover:opacity-100 transition-opacity">
-                    <img src="{{ asset('images/logo_light.png') }}" alt="Gamesiano Logo"
+                    <img src="/images/logo_light.png" alt="Gamesiano Logo"
                         class="h-8 w-auto block dark:hidden mix-blend-multiply opacity-80 hover:opacity-100 transition-opacity">
                 </div>
                 <p class="text-on-surface-variant text-xs font-display tracking-widest uppercase opacity-60">©
@@ -272,9 +272,9 @@
     </script>
 
     <!-- Scripts -->
-    <script src="{{ asset('js/bookmarks.js') }}?v={{ file_exists(public_path('js/bookmarks.js')) ? filemtime(public_path('js/bookmarks.js')) : time() }}"></script>
+    <script src="/js/bookmarks.js?v={{ file_exists(public_path('js/bookmarks.js')) ? filemtime(public_path('js/bookmarks.js')) : time() }}"></script>
     <script
-        src="{{ asset('js/autocomplete.js') }}?v={{ file_exists(public_path('js/autocomplete.js')) ? filemtime(public_path('js/autocomplete.js')) : time() }}"></script>
+        src="/js/autocomplete.js?v={{ file_exists(public_path('js/autocomplete.js')) ? filemtime(public_path('js/autocomplete.js')) : time() }}"></script>
 
     <script>
         (function () {
