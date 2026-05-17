@@ -272,7 +272,7 @@
     </script>
 
     <!-- Scripts -->
-    <script src="{{ asset('js/bookmarks.js') }}"></script>
+    <script src="{{ asset('js/bookmarks.js') }}?v={{ file_exists(public_path('js/bookmarks.js')) ? filemtime(public_path('js/bookmarks.js')) : time() }}"></script>
     <script
         src="{{ asset('js/autocomplete.js') }}?v={{ file_exists(public_path('js/autocomplete.js')) ? filemtime(public_path('js/autocomplete.js')) : time() }}"></script>
 
