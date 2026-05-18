@@ -169,6 +169,21 @@ type Mutation {
     getHint(id: ID!, shown_hints: [ID!]): HintResult! @field(resolver: "App\\GraphQL\\Mutations\\GameMutations@getHint")
     revealAnswer(id: ID!): RevealResult! @field(resolver: "App\\GraphQL\\Mutations\\GameMutations@revealAnswer")
 
+    # ── Mobile Auth mutations ──
+    socialLogin(provider: String!, token: String!): AuthPayload! @field(resolver: "App\\GraphQL\\Mutations\\AuthMutations@socialLogin")
+    logout: Boolean! @field(resolver: "App\\GraphQL\\Mutations\\AuthMutations@logout") @guard(with: ["api"])
+}
+
+type AuthPayload {
+    token: String!
+    user: User!
+}
+
+type User {
+    id: ID!
+    name: String!
+    email: String!
+    avatar: String
 }
 
 type GameResult {

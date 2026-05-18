@@ -37,6 +37,10 @@
       gtag('config', 'G-3K9YNH5F49');
     </script>
 
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-0775499495751821"
+         crossorigin="anonymous"></script>
+
     @stack('styles')
 </head>
 
