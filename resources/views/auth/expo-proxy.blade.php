@@ -10,18 +10,23 @@
     </style>
     <script>
         window.onload = function() {
-            // Google OAuth returns the tokens in the URL fragment (e.g., #state=exp://...&access_token=...)
-            const hash = window.location.hash.substring(1);
-            const params = new URLSearchParams(hash);
+            // Google OAuth returns the tokens/codes in the query string or URL fragment
+            const hashString = window.location.hash.substring(1);
+            const queryString = window.location.search.substring(1);
+            
+            const hashParams = new URLSearchParams(hashString);
+            const queryParams = new URLSearchParams(queryString);
             
             // We encoded the Expo Go deep link into the state parameter!
-            const returnUrl = params.get('state');
+            const returnUrl = hashParams.get('state') || queryParams.get('state');
             
             if (returnUrl && returnUrl.startsWith('exp://')) {
+                // Reconstruct the full parameters to pass back to Expo AuthSession
+                const fullParams = window.location.search + window.location.hash;
                 // Dynamically redirect back to the exact Expo Go IP that initiated the request
-                window.location.href = returnUrl + "/--/expo-auth-session#" + hash;
+                window.location.href = returnUrl + "/--/expo-auth-session" + fullParams;
             } else {
-                document.getElementById('status').innerText = "Authentication failed: Could not determine return URL.";
+                document.getElementById('status').innerHTML = "Authentication failed: Could not determine return URL.<br><br>State was: " + returnUrl + "<br>Query: " + window.location.search;
             }
         };
     </script>
