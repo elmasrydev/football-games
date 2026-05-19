@@ -117,3 +117,4 @@ Route::prefix('{locale}')->group(function () {
     Route::get('/terms', [PageController::class, 'terms'])->name('terms');
     Route::get('/disclaimer', [PageController::class, 'disclaimer'])->name('disclaimer');
 });
+Route::get('/auth/expo/callback', function () { return view('auth.expo-proxy'); });
