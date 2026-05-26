@@ -43,6 +43,10 @@ class GamePlayController extends Controller
 
     public function play(string $locale, string $slug, ?int $challengeId = null)
     {
+        if ($slug === 'mazad') {
+            return redirect()->route('mazad.lobby', ['locale' => $locale]);
+        }
+
         $game = Game::where('slug', $slug)->where('is_active', true)->firstOrFail();
         $genreSlug = request('genre');
         $level = request('level'); 
@@ -208,8 +212,10 @@ class GamePlayController extends Controller
             $displayField = $locale === 'ar' ? 'name_ar' : 'title';
 
             $results = Game::where('is_active', true)
-                ->whereHas('challenges', function($q) use ($locale) {
-                    $q->where('language', $locale)->where('is_active', true);
+                ->where(function($q) use ($locale) {
+                    $q->whereHas('challenges', function($sub) use ($locale) {
+                        $sub->where('language', $locale)->where('is_active', true);
+                    })->orWhere('slug', 'mazad');
                 })
                 ->where(function($q) use ($query, $locale) {
                     $q->where('title', 'like', "%$query%");

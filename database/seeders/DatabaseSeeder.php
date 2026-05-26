@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             ArabicTerminologyTriviaSeeder::class,
             CategoryCrusherSeeder::class,
             ArabicCategoryCrusherSeeder::class,
+            MazadQuestionSeeder::class,
         ]);
     }
 }

@@ -181,6 +181,18 @@ class GameSeeder extends Seeder
                 'answer_type' => 'term',
                 'image_file' => 'category-crusher.png'
             ],
+            [
+                'title' => 'Mazad',
+                'name_ar' => 'مزاد',
+                'slug' => 'mazad',
+                'description' => 'Compete in real-time speed trivia! Answer as many correct answers as possible before time runs out.',
+                'description_ar' => 'تنافس في الوقت الفعلي في لعبة سرعة المعلومات! اكتب أكبر عدد من الإجابات الصحيحة قبل انتهاء الوقت.',
+                'how_to_play' => "1. Create or join a public or private room.\n2. Wait for players to join.\n3. Type as many correct answers as you can for each question before the timer ends!",
+                'how_to_play_ar' => "1. أنشئ أو انضم إلى غرفة عامة أو خاصة.\n2. انتظر انضمام اللاعبين الآخرين.\n3. اكتب أكبر عدد ممكن من الإجابات الصحيحة لكل سؤال قبل انتهاء المؤقت!",
+                'game_type' => 'multiplayer',
+                'answer_type' => 'term',
+                'image_file' => 'mazad.png'
+            ],
         ];
 
         $allGenres = \App\Models\Genre::all();

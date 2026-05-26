@@ -27,6 +27,7 @@ class Game extends Model implements HasMedia
         'career' => 'تتبع الأندية التي لعب لها النجم للتعرف على هويته.',
         'group-players' => 'تعرف على الرابط المشترك الذي يجمع بين مجموعة من اللاعبين.',
         'category-crusher' => 'اعثر على الرابط المشترك الذي يجمع بين هذه العناصر.',
+        'mazad' => 'تنافس في الوقت الفعلي في لعبة سرعة المعلومات! اكتب أكبر عدد من الإجابات الصحيحة قبل انتهاء الوقت.',
     ];
 
     protected $fillable = [
@@ -102,7 +103,9 @@ class Game extends Model implements HasMedia
             return $this->description;
         }
 
-        return static::ARABIC_DESCRIPTIONS[$this->slug] ?? $this->description;
+        return static::ARABIC_DESCRIPTIONS[$this->slug] 
+            ?? $this->description_ar 
+            ?? $this->description;
     }
     public function getLocalizedHowToPlayAttribute(): ?string
     {

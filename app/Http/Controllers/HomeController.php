@@ -12,8 +12,10 @@ class HomeController extends Controller
     {
         $locale = app()->getLocale();
         $query = Game::where('is_active', true)
-            ->whereHas('challenges', function($q) use ($locale) {
-                $q->where('language', $locale)->where('is_active', true);
+            ->where(function($q) use ($locale) {
+                $q->whereHas('challenges', function($sub) use ($locale) {
+                    $sub->where('language', $locale)->where('is_active', true);
+                })->orWhere('slug', 'mazad');
             });
 
         $games = (clone $query)->with(['challenges' => function($q) use ($locale) {
@@ -62,8 +64,10 @@ class HomeController extends Controller
             ->whereHas('genres', function($q) use ($genre) {
                 $q->where('genres.id', $genre->id);
             })
-            ->whereHas('challenges', function($q) use ($locale) {
-                $q->where('language', $locale)->where('is_active', true);
+            ->where(function($q) use ($locale) {
+                $q->whereHas('challenges', function($sub) use ($locale) {
+                    $sub->where('language', $locale)->where('is_active', true);
+                })->orWhere('slug', 'mazad');
             })
             ->get();
 
