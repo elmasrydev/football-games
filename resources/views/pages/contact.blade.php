@@ -12,7 +12,7 @@
                 <div class="contact-info">
                     <section>
                         <h2>Get in Touch</h2>
-                        <p>We are always looking to improve the Football Mystery experience. If you have ideas for new
+                        <p>We are always looking to improve the Games Hub experience. If you have ideas for new
                             games, suggestions for challenges, or just want to say hi, feel free to reach out.</p>
                     </section>
 
@@ -24,7 +24,7 @@
 
                     <div class="email-box">
                         <strong>Email us at:</strong>
-                        <a href="mailto:support@footballmystery.com" class="contact-email">support@footballmystery.com</a>
+                        <a href="mailto:support@gameshub.com" class="contact-email">support@gameshub.com</a>
                     </div>
                 </div>
 
@@ -48,7 +48,7 @@
             .static-page {
                 max-width: 900px;
                 margin: 0 auto;
-                padding: 4rem 2rem;
+                padding: 1rem 0;
             }
 
             .page-header {
@@ -57,14 +57,14 @@
             }
 
             .page-header h1 {
-                font-family: 'Outfit', sans-serif;
+                font-family: var(--font-display);
                 font-size: 2.5rem;
-                color: var(--pitch-dark);
+                color: var(--text);
                 margin-bottom: 1rem;
             }
 
             .subtitle {
-                color: var(--text-dim);
+                color: var(--text-soft);
                 font-size: 1.1rem;
             }
 
@@ -75,9 +75,9 @@
             }
 
             .page-content h2 {
-                font-family: 'Outfit', sans-serif;
+                font-family: var(--font-display);
                 font-size: 1.5rem;
-                color: var(--stadium-green);
+                color: var(--accent-strong);
                 margin-bottom: 1rem;
             }
 
@@ -87,10 +87,10 @@
             }
 
             .email-box {
-                background: #f8fafc;
+                background: rgba(var(--surface-muted-rgb), 0.9);
                 padding: 1.5rem;
-                border-radius: 12px;
-                border: 1px solid var(--glass-border);
+                border-radius: 20px;
+                border: 1px solid var(--border-soft);
                 display: inline-block;
             }
 
@@ -98,7 +98,7 @@
                 display: block;
                 margin-top: 0.5rem;
                 font-size: 1.2rem;
-                color: var(--stadium-green);
+                color: var(--accent-strong);
                 text-decoration: none;
                 font-weight: 600;
             }
@@ -111,11 +111,11 @@
 
             .social-placeholder {
                 padding: 0.75rem 1rem;
-                background: #fff;
-                border: 1px solid var(--glass-border);
-                border-radius: 8px;
+                background: rgba(var(--surface-rgb), 0.6);
+                border: 1px solid var(--border-soft);
+                border-radius: 16px;
                 font-weight: 600;
-                color: var(--text-dim);
+                color: var(--text-muted);
             }
 
             @media (max-width: 768px) {

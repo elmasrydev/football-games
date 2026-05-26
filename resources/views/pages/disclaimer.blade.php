@@ -9,34 +9,34 @@
 
         <div class="page-content">
             <div class="disclaimer-hero">
-                <p>Football Mystery is an independent fan-made platform for entertainment and trivia purposes.</p>
+                <p>Games Hub is an independent platform built for entertainment, puzzle solving, and trivia-style play.</p>
             </div>
 
             <section>
                 <h2>Entertainment Only</h2>
                 <p>All hints, solutions, and answers provided across our games are for <strong>entertainment purposes
                         only</strong>. While we strive for 100% accuracy in our database, we do not claim to be the official
-                    source for football statistics or historical records.</p>
+                    source for historical records, rankings, or reference data of any kind.</p>
             </section>
 
             <section>
                 <h2>Not Official Solutions</h2>
-                <p>The answers presented in our games (e.g., player names, kit years, stadium details) should not be used as
+                <p>The answers presented in our games (for example names, dates, locations, or categories) should not be used as
                     official references for legal, commercial, or professional decisions. We are not affiliated with,
-                    endorsed by, or sponsored by FIFA, UEFA, or any specific football league, club, or player.</p>
+                    endorsed by, or sponsored by any governing body, franchise, rights holder, or public figure.</p>
             </section>
 
             <section>
                 <h2>Fair Use Notice</h2>
                 <p>This site may contain copyrighted material, the use of which has not always been specifically authorized
-                    by the copyright owner. We are making such material available in our efforts to provide trivia and
-                    commentary on football history. We believe this constitutes a 'fair use' of any such copyrighted
+                    by the copyright owner. We are making such material available in our efforts to provide trivia,
+                    commentary, and interactive challenge content. We believe this constitutes a 'fair use' of any such copyrighted
                     material as provided for in section 107 of the US Copyright Law.</p>
             </section>
 
             <div class="disclaimer-footer">
                 <p>If you believe any content on our site is inaccurate or violates intellectual property rights, please <a
-                        href="{{ route('contact') }}">contact us</a> immediately.</p>
+                        href="{{ route('contact', ['locale' => app()->getLocale()]) }}">contact us</a> immediately.</p>
             </div>
         </div>
     </div>
@@ -46,7 +46,7 @@
             .static-page {
                 max-width: 800px;
                 margin: 0 auto;
-                padding: 4rem 2rem;
+                padding: 1rem 0;
             }
 
             .page-header {
@@ -63,25 +63,25 @@
             }
 
             .subtitle {
-                color: var(--text-dim);
+                color: var(--text-soft);
                 font-size: 1.1rem;
             }
 
             .disclaimer-hero {
-                background: #fffcf0;
-                border-left: 6px solid #f59e0b;
+                background: rgba(245, 158, 11, 0.1);
+                border-inline-start: 6px solid #f59e0b;
                 padding: 2rem;
                 margin-bottom: 3rem;
-                border-radius: 0 12px 12px 0;
+                border-radius: 0 20px 20px 0;
                 font-size: 1.25rem;
                 font-weight: 600;
                 color: #92400e;
             }
 
             .page-content h2 {
-                font-family: 'Outfit', sans-serif;
+                font-family: var(--font-display);
                 font-size: 1.75rem;
-                color: var(--pitch-dark);
+                color: var(--text);
                 margin-bottom: 1rem;
             }
 
@@ -94,14 +94,18 @@
             .disclaimer-footer {
                 margin-top: 3rem;
                 padding-top: 2rem;
-                border-top: 1px solid var(--glass-border);
+                border-top: 1px solid var(--border-soft);
                 text-align: center;
                 font-style: italic;
             }
 
             .disclaimer-footer a {
-                color: var(--stadium-green);
+                color: var(--accent-strong);
                 text-decoration: underline;
+            }
+
+            [dir='rtl'] .disclaimer-hero {
+                border-radius: 20px 0 0 20px;
             }
         </style>
     @endpush

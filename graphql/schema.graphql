@@ -1,0 +1,219 @@
+"A datetime string with format `Y-m-d H:i:s`, e.g. `2018-05-23 13:43:32`."
+scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTime")
+
+type Query {
+    # ── Unified API ──
+    challenges(game_id: Int @eq, genre_id: Int @eq, language: String @eq): [Challenge!]! @all
+    challenge(id: ID! @eq): Challenge @find
+    genres(language: String): [Genre!]! @all(scopes: ["activeWithChallenges"])
+    genre(slug: String! @eq): Genre @find
+    game(slug: String! @eq): Game @find
+    
+    games(language: String): [Game!]! @all(scopes: ["activeWithChallenges"])
+    recentGames(language: String): [Game!]! @all(scopes: ["activeWithChallenges"], orderBy: [{column: "created_at", direction: DESC}], limit: 2)
+
+    # Search queries
+    searchPlayers(query: String!): [Player!]! @field(resolver: "App\\GraphQL\\Queries\\GameQueries@searchPlayers")
+    searchClubs(query: String!): [Club!]! @field(resolver: "App\\GraphQL\\Queries\\GameQueries@searchClubs")
+    searchStadiums(query: String!): [StadiumSearchResult!]! @field(resolver: "App\\GraphQL\\Queries\\GameQueries@searchStadiums")
+    
+    # Unified Item Search
+    searchItems(query: String!, type: String!): [GameItem!]! @field(resolver: "App\\GraphQL\\Queries\\GameItemQueries@searchItems")
+    
+    players(name: String @where(operator: "like")): [Player!]! @all
+}
+
+type Player {
+    id: ID!
+    name: String!
+}
+
+type Club {
+    id: ID!
+    name: String!
+}
+
+type Genre {
+    id: ID!
+    name_en: String!
+    name_ar: String
+    description_en: String
+    description_ar: String
+    slug: String!
+    icon: String
+    theme_color: String
+    image_url: String
+    games_count: Int
+    sort_order: Int
+    is_active: Boolean!
+    challenges: [Challenge!]! @hasMany
+    games(language: String @scope(name: "activeWithChallenges")): [Game!]! @belongsToMany
+}
+
+
+type Game {
+    id: ID!
+    title: String!
+    name_ar: String
+    slug: String
+    description: String
+    image: String
+    image_url: String
+    game_type: String
+    answer_type: String
+    how_to_play: String @method(name: "getLocalizedHowToPlayAttribute")
+    is_active: Boolean!
+    genres: [Genre!]! @belongsToMany
+    challenges: [Challenge!]! @hasMany
+}
+
+type Challenge {
+    id: ID!
+    game_id: Int!
+    genre_id: Int!
+    difficulty: String
+    stimulus_type: String!
+    stimulus_data: ChallengeStimulus
+    answer: String
+    answers: [String]
+    answer_type: String
+
+    current_level: Int @method(name: "getCurrentLevelAttribute")
+    total_levels: Int @method(name: "getTotalLevelsAttribute")
+    is_active: Boolean!
+    hints: [ChallengeHint!]! @hasMany
+    game: Game! @belongsTo
+    genre: Genre! @belongsTo
+
+    # ── Proxy Fields ──
+    image_path: String @method(name: "getImagePathAttribute")
+    reveal_image_path: String @method(name: "getRevealImagePathAttribute")
+    youtube_url: String @method(name: "getYoutubeUrlAttribute")
+    question: String @method(name: "getQuestionAttribute")
+    scrambled_word: String @method(name: "getScrambledWordAttribute")
+    part_a: String @method(name: "getPartAAttribute")
+    part_b: String @method(name: "getPartBAttribute")
+    club_a: String @method(name: "getClubAAttribute")
+    club_b: String @method(name: "getClubBAttribute")
+}
+
+type ChallengeStimulus {
+    image_path: String
+    full_image_path: String
+    reveal_image_path: String
+    youtube_url: String
+    uploaded_video: String
+    question: String
+    clue: String
+    start_time: String
+    end_time: String
+    scrambled_word: String
+    consonant_display: String
+    category: String
+    part_a: String
+    part_b: String
+    club_a: String
+    club_b: String
+    nodes: [TransferNode]
+    instruction: String
+    clues: [String]
+    clubs: [CareerClubEntry]
+    title: String
+    image: String
+    players: [String]
+    players_count: Int
+    player_image: String
+    capacity: Int
+    opened_year: Int
+    country: String
+}
+
+type TransferNode {
+    name: String
+    type: String
+}
+
+type CareerClubEntry {
+    club_id: Int
+    year: String
+    sort_order: Int
+}
+
+type ChallengeHint {
+    id: ID!
+    challenge_id: Int!
+    content: String!
+    sort_order: Int!
+}
+
+type GameItem {
+    id: ID!
+    type: String!
+    name_en: String!
+    name_ar: String
+    country: String
+    external_id: String
+    metadata: String @method(name: "getMetadataAttribute")
+    image: String @method(name: "getFirstMediaUrl")
+    is_active: Boolean!
+}
+
+type StadiumSearchResult {
+    id: ID!
+    name: String!
+}
+
+type Mutation {
+    # ── Unified mutations ──
+    checkAnswer(id: ID!, answer: String!, revealed_orders: [Int!]): GameResult! @field(resolver: "App\\GraphQL\\Mutations\\GameMutations@checkAnswer")
+    getHint(id: ID!, shown_hints: [ID!]): HintResult! @field(resolver: "App\\GraphQL\\Mutations\\GameMutations@getHint")
+    revealAnswer(id: ID!): RevealResult! @field(resolver: "App\\GraphQL\\Mutations\\GameMutations@revealAnswer")
+
+    # ── Mobile Auth mutations ──
+    socialLogin(provider: String!, token: String!): AuthPayload! @field(resolver: "App\\GraphQL\\Mutations\\AuthMutations@socialLogin")
+    logout: Boolean! @field(resolver: "App\\GraphQL\\Mutations\\AuthMutations@logout") @guard(with: ["api"])
+}
+
+type AuthPayload {
+    token: String!
+    user: User!
+}
+
+type User {
+    id: ID!
+    name: String!
+    email: String!
+    avatar: String
+}
+
+type GameResult {
+    correct: Boolean!
+    message: String!
+    matched_sort_order: Int
+    stats: GameStats
+}
+
+type GameStats {
+    streak: Int
+    last_played_at: String
+    total_correct: Int
+    total_questions: Int
+    games_played: Int
+}
+
+type HintResult {
+    hint: String
+    id: ID
+    message: String
+}
+
+type RevealResult {
+    answer: String
+    answers: [String]
+    message: String
+}
+
+type MultiRevealResult {
+    answers: [String!]
+    message: String
+}

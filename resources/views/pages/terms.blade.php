@@ -10,7 +10,7 @@
         <div class="page-content">
             <section>
                 <h2>1. Acceptance of Terms</h2>
-                <p>By accessing or using Football Mystery, you agree to be bound by these Terms of Service. If you do not
+                <p>By accessing or using Games Hub, you agree to be bound by these Terms of Service. If you do not
                     agree, please do not use the site.</p>
             </section>
 
@@ -27,14 +27,14 @@
 
             <section>
                 <h2>3. Intellectual Property</h2>
-                <p>The "Football Mystery" brand, our custom code, game logic, and proprietary visual assets are the
-                    intellectual property of Football Mystery. Team logos, player images, and video clips are used for
-                    trivia and educational purposes under "Fair Use" or provided via third-party APIs.</p>
+                <p>The "Games Hub" brand, our custom code, game logic, and proprietary visual assets are the
+                    intellectual property of Games Hub. Third-party media or reference materials may be used for
+                    gameplay, educational, or commentary purposes where appropriate.</p>
             </section>
 
             <section>
                 <h2>4. Limitation of Liability</h2>
-                <p>Football Mystery is provided "as is." We do not guarantee that the site will always be available or
+                <p>Games Hub is provided "as is." We do not guarantee that the site will always be available or
                     error-free. We are not liable for any damages arising from your use of the site.</p>
             </section>
 
@@ -57,7 +57,7 @@
             .static-page {
                 max-width: 800px;
                 margin: 0 auto;
-                padding: 4rem 2rem;
+                padding: 1rem 0;
             }
 
             .page-header {
@@ -66,14 +66,14 @@
             }
 
             .page-header h1 {
-                font-family: 'Outfit', sans-serif;
+                font-family: var(--font-display);
                 font-size: 2.25rem;
-                color: var(--pitch-dark);
+                color: var(--text);
                 margin-bottom: 0.5rem;
             }
 
             .subtitle {
-                color: var(--text-dim);
+                color: var(--text-soft);
                 font-size: 0.9rem;
             }
 
@@ -82,9 +82,9 @@
             }
 
             .page-content h2 {
-                font-family: 'Outfit', sans-serif;
+                font-family: var(--font-display);
                 font-size: 1.25rem;
-                color: var(--pitch-dark);
+                color: var(--text);
                 margin-bottom: 0.75rem;
                 font-weight: 700;
                 text-transform: uppercase;

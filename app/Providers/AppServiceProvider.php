@@ -2,7 +2,12 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use Filament\Support\Assets\Js;
+use Filament\Support\Facades\FilamentAsset;
+use Illuminate\Support\Facades\Vite;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -11,7 +16,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(\App\Services\SEOService::class, function ($app) {
+            return new \App\Services\SEOService();
+        });
     }
 
     /**
@@ -19,6 +26,26 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        FilamentAsset::register([
+            Js::make('background-remover', Vite::asset('resources/js/background-remover.js')),
+        ]);
+
+        \App\Models\Challenge::observe(\App\Observers\ChallengeObserver::class);
+        $request = request();
+
+        $locale = $request->segment(1);
+        
+        if (!in_array($locale, ['en', 'ar'], true)) {
+            $locale = ($request->hasSession() ? $request->session()->get('locale') : null)
+                ?? $request->cookie('locale')
+                ?? config('app.locale');
+        }
+
+        $locale = in_array($locale, ['en', 'ar'], true) ? $locale : config('app.locale');
+
+        App::setLocale($locale);
+        URL::defaults(['locale' => $locale]);
+
         \Illuminate\Support\Facades\View::composer('*', function ($view) {
             $rawStats = request()->cookie('game_stats');
             
@@ -35,8 +62,29 @@ class AppServiceProvider extends ServiceProvider
                 'total_questions' => 0,
                 'games_played' => 0,
             ], $stats);
+
+            $locale = App::currentLocale();
+            $genres = \App\Models\Genre::where('is_active', true)
+                ->whereHas('challenges', function($query) {
+                    $query->where('is_active', true);
+                })
+                ->orderBy('sort_order')
+                ->get();
             
-            $view->with('global_stats', $stats);
+            $userBookmarks = [];
+            if (auth()->check()) {
+                $userBookmarks = \App\Models\Bookmark::where('user_id', auth()->id())
+                    ->get()
+                    ->map(fn($b) => $b->genre_id ? "{$b->game_id}_{$b->genre_id}" : "{$b->game_id}")
+                    ->toArray();
+            }
+
+            $view->with('global_stats', $stats)
+                ->with('current_locale', $locale)
+                ->with('current_direction', $locale === 'ar' ? 'rtl' : 'ltr')
+                ->with('all_genres', $genres)
+                ->with('user_bookmarks', $userBookmarks)
+                ->with('seo', app(\App\Services\SEOService::class));
         });
     }
 }

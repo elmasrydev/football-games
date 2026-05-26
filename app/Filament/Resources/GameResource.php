@@ -33,12 +33,18 @@ class GameResource extends Resource
                     ->unique(ignoreRecord: true),
                 Forms\Components\Textarea::make('description')
                     ->columnSpanFull(),
+                Forms\Components\Textarea::make('description_ar')
+                    ->label('Description (Arabic)')
+                    ->columnSpanFull(),
+                Forms\Components\Textarea::make('how_to_play')
+                    ->label('How to Play (English)')
+                    ->columnSpanFull(),
+                Forms\Components\Textarea::make('how_to_play_ar')
+                    ->label('How to Play (Arabic)')
+                    ->columnSpanFull(),
                 Forms\Components\FileUpload::make('image')
                     ->image(),
-                Forms\Components\Toggle::make('is_active')
-                    ->label('Active')
-                    ->default(true)
-                    ->helperText('Whether this game is visible to users on the home page.'),
+
             ]);
     }
 

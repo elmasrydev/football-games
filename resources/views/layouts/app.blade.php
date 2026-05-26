@@ -1,442 +1,409 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', $current_locale ?? app()->getLocale()) }}"
+    dir="{{ $current_direction ?? (app()->getLocale() === 'ar' ? 'rtl' : 'ltr') }}" class="light">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FOOTBALL MYSTERY</title>
+    <x-seo />
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Outfit:wght@700;800&display=swap"
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=Be+Vietnam+Pro:wght@400;500;600;700&family=Readex+Pro:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <style>
-        :root {
-            --pitch-dark: #1a2e1c;
-            --pitch-green: #2ea043;
-            --stadium-green: #3fb950;
-            --stadium-glow: rgba(63, 185, 80, 0.1);
-            --bg-main: #fcfdfc;
-            --text-main: #1a1f1b;
-            --text-dim: #57605a;
-            --glass: rgba(255, 255, 255, 0.8);
-            --glass-border: rgba(46, 160, 67, 0.15);
-            --shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('fm-theme') || 'dark';
+            document.documentElement.classList.remove('light', 'dark');
+            document.documentElement.classList.add(savedTheme);
+        })();
+    </script>
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-main);
-            background-image:
-                radial-gradient(circle at 50% -20%, #eefbf0, transparent);
-            color: var(--text-main);
-            line-height: 1.5;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-        header {
-            background: var(--glass);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--glass-border);
-            padding: 0.75rem 2rem;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-3K9YNH5F49"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
 
-        .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
+      gtag('config', 'G-3K9YNH5F49');
+    </script>
 
-        .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            text-decoration: none;
-        }
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-0775499495751821"
+         crossorigin="anonymous"></script>
 
-        .logo-area img {
-            height: 40px;
-            width: 40px;
-            object-fit: contain;
-        }
-
-        .logo-area h1 {
-            font-family: 'Outfit', sans-serif;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: 1.25rem;
-            color: var(--pitch-dark);
-            margin: 0;
-        }
-
-        nav ul {
-            display: flex;
-            list-style: none;
-            gap: 2rem;
-        }
-
-        nav a {
-            text-decoration: none;
-            color: var(--text-dim);
-            font-family: 'Outfit', sans-serif;
-            font-weight: 600;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            transition: var(--transition);
-        }
-
-        nav a:hover {
-            color: var(--stadium-green);
-        }
-
-        main {
-            flex: 1;
-            width: 100%;
-        }
-
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-            width: 100%;
-            padding: 2rem;
-        }
-
-        .main-footer {
-            padding: 3rem 2rem;
-            background: white;
-            border-top: 1px solid var(--glass-border);
-            margin-top: 4rem;
-        }
-
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            text-align: center;
-        }
-
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-        }
-
-        .footer-links a {
-            color: var(--text-dim);
-            text-decoration: none;
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: var(--transition);
-        }
-
-        .footer-links a:hover {
-            color: var(--stadium-green);
-        }
-
-        .copyright {
-            font-size: 0.8rem;
-            color: var(--text-dim);
-            opacity: 0.7;
-            letter-spacing: 0.5px;
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0.6rem 1.5rem;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 600;
-            font-family: 'Outfit', sans-serif;
-            cursor: pointer;
-            transition: var(--transition);
-            border: none;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--stadium-green), #2ea043);
-            color: white;
-            box-shadow: 0 4px 12px var(--stadium-glow);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px var(--stadium-glow);
-            opacity: 0.95;
-        }
-
-        .btn-outline {
-            background-color: transparent;
-            border: 2px solid var(--stadium-green);
-            color: var(--stadium-green);
-        }
-
-        .btn-outline:hover {
-            background-color: var(--stadium-green);
-            color: white;
-            transform: translateY(-2px);
-        }
-
-        @media (max-width: 768px) {
-            .logo-area h1 {
-                display: none;
-            }
-
-            nav ul {
-                gap: 1rem;
-            }
-        }
-
-        /* Autocomplete Styles */
-        .autocomplete-wrapper {
-            position: relative;
-            flex: 1;
-        }
-
-        .autocomplete-items {
-            position: absolute;
-            border: 1px solid var(--glass-border);
-            border-bottom: none;
-            border-top: none;
-            z-index: 99;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border-radius: 0 0 12px 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-
-        .autocomplete-item {
-            padding: 12px 16px;
-            cursor: pointer;
-            border-bottom: 1px solid var(--glass-border);
-            font-size: 0.95rem;
-            color: var(--text-main);
-            transition: background 0.2s;
-            text-align: left;
-        }
-
-        .autocomplete-item:hover {
-            background-color: #f1f5f9;
-            color: var(--stadium-green);
-        }
-
-        .autocomplete-active {
-            background-color: var(--stadium-green) !important;
-            color: white !important;
-        }
-
-        /* Hint Modal Styles */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(4px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-            animation: fadeIn 0.2s ease-out;
-        }
-
-        .modal-card {
-            background: white;
-            border-radius: 20px;
-            padding: 2rem;
-            max-width: 400px;
-            width: 90%;
-            text-align: center;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
-            transform: scale(0.9);
-            animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes modalPop {
-            from {
-                transform: scale(0.9);
-                opacity: 0;
-            }
-
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        .modal-card h3 {
-            font-family: 'Outfit', sans-serif;
-            margin-bottom: 1rem;
-            color: var(--pitch-dark);
-        }
-
-        .modal-card p {
-            color: var(--text-dim);
-            margin-bottom: 2rem;
-            line-height: 1.5;
-        }
-
-        .modal-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .hint-icon {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .hint-icon svg {
-            width: 1.25rem;
-            height: 1.25rem;
-            color: #fbbf24;
-            /* Amber bulb */
-        }
-    </style>
     @stack('styles')
 </head>
 
-<body>
-    <header>
-        <div class="header-content">
-            <a href="{{ route('home') }}" class="logo-area">
-                <img src="{{ asset('images/logo.png') }}" alt="Football Mystery Logo">
-                <h1>FOOTBALL MYSTERY</h1>
-            </a>
-            <nav>
-                <ul>
-                    <li><a href="{{ route('games.index') }}">Games</a></li>
-                </ul>
-            </nav>
+<body
+    class="bg-background text-on-background font-sans selection:bg-primary-container selection:text-on-primary-container min-h-screen flex flex-col transition-colors duration-300">
+
+    <!-- Top Navigation Bar -->
+    <nav
+        class="fixed top-0 w-full z-50 border-b border-outline-variant/20 bg-surface/80 backdrop-blur-xl transition-all duration-300">
+        <div class="max-w-[1440px] mx-auto h-20 px-4 sm:px-8 flex items-center justify-between gap-4">
+
+            <div class="flex items-center gap-8 lg:gap-12 min-w-0">
+                <!-- Brand -->
+                <a href="{{ route('home', ['locale' => app()->getLocale()]) }}" class="flex items-center shrink-0 overflow-hidden">
+                    <img src="/images/logo_dark.png" alt="Gamesiano Logo"
+                        class="h-[120px] w-[200px] object-contain hidden dark:block mix-blend-screen">
+                    <img src="/images/logo_light.png" alt="Gamesiano Logo"
+                        class="h-[120px] w-[200px] object-contain block dark:hidden mix-blend-multiply">
+                </a>
+
+                <!-- Main Nav -->
+                <div
+                    class="hidden md:flex items-center gap-6 lg:gap-8 font-display font-bold uppercase tracking-tight text-sm">
+                    <a href="{{ route('home', ['locale' => app()->getLocale()]) }}"
+                        class="transition-all hover:text-primary {{ request()->routeIs('home') ? 'text-primary' : 'text-on-surface-variant' }}">
+                        {{ __('Home') }}
+                    </a>
+                    <!-- Games Dropdown -->
+                    <div class="relative group">
+                        <a href="{{ route('games.index', ['locale' => app()->getLocale()]) }}"
+                            class="flex items-center gap-1 transition-all hover:text-primary {{ request()->routeIs('games.index', 'games.play', 'games.genre') ? 'text-primary' : 'text-on-surface-variant' }}">
+                            {{ __('Games') }}
+                            <span class="material-symbols-outlined text-[18px] transition-transform group-hover:rotate-180">expand_more</span>
+                        </a>
+                        
+                        <!-- Dropdown Menu -->
+                        <div class="absolute top-full start-0 pt-4 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 z-[100]">
+                            <div class="w-72 bg-surface dark:bg-zinc-900 border border-outline-variant/30 rounded-3xl shadow-2xl overflow-hidden py-3 backdrop-blur-xl">
+                                @foreach($all_genres ?? [] as $genre)
+                                    <a href="{{ route('games.genre', ['locale' => app()->getLocale(), 'genre_slug' => $genre->slug]) }}" 
+                                       class="flex items-center gap-4 px-5 py-3.5 hover:bg-primary/10 transition-colors group/item">
+                                        <div class="w-10 h-10 rounded-full bg-surface-variant/50 flex items-center justify-center text-xl group-hover/item:scale-110 group-hover/item:bg-primary/20 transition-all">
+                                            {{ $genre->icon }}
+                                        </div>
+                                        <div class="flex flex-col">
+                                            <span class="text-sm font-display font-black uppercase tracking-tight text-on-surface group-hover/item:text-primary">{{ $genre->localized_name }}</span>
+                                            <span class="text-[9px] text-on-surface-variant/60 font-bold uppercase tracking-[0.1em]">{{ $genre->games_count }} {{ __('Games Available') }}</span>
+                                        </div>
+                                    </a>
+                                @endforeach
+                                
+                                <div class="h-px bg-outline-variant/10 my-2 mx-5"></div>
+                                
+                                <a href="{{ route('games.index', ['locale' => app()->getLocale()]) }}" class="flex items-center justify-center py-3 text-[10px] font-display font-black text-primary hover:bg-primary/5 transition-colors uppercase tracking-[0.2em]">
+                                    {{ __('Browse All Genres') }}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Toolbar -->
+            <div class="flex items-center gap-2 sm:gap-4 shrink-0">
+                <!-- Stats (Compact) -->
+                <div class="hidden sm:block">
+                    <x-game-stats compact="true" />
+                </div>
+
+                <!-- Search (Desktop) -->
+                <form action="{{ route('games.index', ['locale' => app()->getLocale()]) }}" method="GET" class="relative hidden lg:block group" id="nav-search-form">
+                    <span
+                        class="material-symbols-outlined absolute start-3 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors">search</span>
+                    <input type="text" name="search" id="nav-search-input" value="{{ request('search') }}" placeholder="{{ __('Search Gamesiano...') }}"
+                        class="bg-surface-variant/50 border-b border-outline-variant/30 text-sm py-2 ps-10 pe-4 rounded-t-lg focus:outline-none focus:border-primary focus:bg-surface-variant transition-all w-48 xl:w-64 uppercase font-display font-semibold tracking-wider"
+                        autocomplete="off">
+                    <div id="nav-search-results" class="absolute top-full left-0 right-0 bg-surface border border-outline-variant/30 rounded-b-xl shadow-2xl overflow-hidden hidden z-[60]"></div>
+                </form>
+
+                <!-- Theme Toggle -->
+                <button type="button" id="theme-toggle"
+                    class="p-2.5 rounded-full hover:bg-surface-variant/50 text-on-surface-variant hover:text-primary transition-all active:scale-90"
+                    aria-label="Toggle theme">
+                    <span
+                        class="material-symbols-outlined transition-transform duration-500 [font-variation-settings:'FILL'0]"
+                        id="theme-icon">dark_mode</span>
+                </button>
+
+                <!-- Language Toggle -->
+                <button type="button" id="dir-toggle"
+                    class="px-4 py-2 rounded-full border border-outline-variant/30 hover:border-primary text-on-surface-variant hover:text-primary font-display font-bold text-xs uppercase tracking-widest transition-all active:scale-95">
+                    <span id="dir-toggle-label">{{ app()->getLocale() === 'en' ? 'AR' : 'EN' }}</span>
+                </button>
+
+                <!-- Mobile Menu Toggle -->
+                <button class="md:hidden p-2.5 rounded-full hover:bg-surface-variant/50 text-on-surface-variant">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+
+                <!-- Auth Buttons -->
+                <div class="ms-2 ps-4 border-s border-outline-variant/20 flex items-center gap-3">
+                    @auth
+                        <div class="relative group">
+                            <button class="flex items-center gap-3 p-1.5 rounded-2xl hover:bg-surface-variant/50 transition-all">
+                                <div class="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-display font-black text-xs uppercase shadow-inner border border-primary/20">
+                                    {{ mb_substr(auth()->user()->name, 0, 1) }}
+                                </div>
+                                <span class="hidden xl:block text-[10px] font-display font-black uppercase tracking-widest text-on-surface">{{ explode(' ', auth()->user()->name)[0] }}</span>
+                            </button>
+                            
+                            <!-- User Dropdown -->
+                            <div class="absolute top-full end-0 pt-4 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 z-[100]">
+                                <div class="w-56 bg-surface dark:bg-zinc-900 border border-outline-variant/30 rounded-3xl shadow-2xl overflow-hidden py-2 backdrop-blur-xl">
+                                    <div class="px-5 py-3 border-b border-outline-variant/10">
+                                        <p class="text-[10px] font-display font-black uppercase tracking-widest text-on-surface">{{ auth()->user()->name }}</p>
+                                        <p class="text-[9px] text-on-surface-variant/60 truncate">{{ auth()->user()->email }}</p>
+                                    </div>
+                                    <a href="{{ route('profile.edit', ['locale' => app()->getLocale()]) }}" class="flex items-center gap-3 px-5 py-3 hover:bg-primary/5 text-[10px] font-display font-black uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors">
+                                        <span class="material-symbols-outlined text-lg">person_outline</span>
+                                        {{ __('Profile') }}
+                                    </a>
+                                    <div class="h-px bg-outline-variant/10 my-1"></div>
+                                    <form action="{{ route('logout') }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="w-full flex items-center gap-3 px-5 py-3 hover:bg-error/5 text-[10px] font-display font-black uppercase tracking-widest text-error transition-colors">
+                                            <span class="material-symbols-outlined text-lg">logout</span>
+                                            {{ __('Logout') }}
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    @else
+                        <div class="flex items-center gap-2">
+                            <a href="{{ route('login') }}" class="px-5 py-2.5 rounded-xl text-[10px] font-display font-black uppercase tracking-widest text-on-surface hover:text-primary transition-all">
+                                {{ __('Login') }}
+                            </a>
+                            <a href="{{ route('register') }}" class="hidden sm:flex px-6 py-2.5 rounded-xl bg-primary text-on-primary text-[10px] font-display font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:brightness-110 active:scale-95 transition-all">
+                                {{ __('Sign Up') }}
+                            </a>
+                        </div>
+                    @endauth
+                </div>
+            </div>
         </div>
-    </header>
+    </nav>
 
-    <div class="stats-bar">
-        <x-game-stats />
-    </div>
+    <!-- Main Content -->
+    <div class="pt-20"></div>
 
-    <style>
-        .stats-bar {
-            background: white;
-            border-bottom: 1px solid var(--glass-border);
-            padding: 0.5rem 0;
-            display: flex;
-            justify-content: center;
-        }
-        .stats-bar .game-stats-hud {
-            margin-bottom: 0 !important;
-        }
-    </style>
-
-    <main>
+    <!-- Main Content -->
+    <main class="flex-grow">
         @yield('content')
     </main>
 
-    <footer class="main-footer">
-        <div class="footer-content">
-            <div class="footer-links">
-                <a href="{{ route('about') }}">About Us</a>
-                <a href="{{ route('contact') }}">Contact Us</a>
-                <a href="{{ route('privacy') }}">Privacy Policy</a>
-                <a href="{{ route('terms') }}">Terms of Service</a>
-                <a href="{{ route('disclaimer') }}">Disclaimer</a>
+    <!-- Footer -->
+    <footer
+        class="bg-surface border-t border-outline-variant/10 py-12 px-4 sm:px-8 mt-12 transition-colors duration-300">
+        <div class="max-w-[1440px] mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+            <div class="flex flex-col items-center md:items-start gap-3">
+                <div class="overflow-hidden rounded-lg">
+                    <img src="/images/logo_dark.png" alt="Gamesiano Logo"
+                        class="h-8 w-auto hidden dark:block mix-blend-screen opacity-80 hover:opacity-100 transition-opacity">
+                    <img src="/images/logo_light.png" alt="Gamesiano Logo"
+                        class="h-8 w-auto block dark:hidden mix-blend-multiply opacity-80 hover:opacity-100 transition-opacity">
+                </div>
+                <p class="text-on-surface-variant text-xs font-display tracking-widest uppercase opacity-60">©
+                    {{ date('Y') }} {{ __('Gamesiano Gaming Hub') }}
+                </p>
             </div>
-            <p class="copyright">
-                &copy; {{ date('Y') }} Football Mystery. All rights reserved. Built for the love of the game.
-            </p>
+
+            <nav class="flex flex-wrap justify-center gap-6 lg:gap-12">
+                <a href="{{ route('about', ['locale' => app()->getLocale()]) }}"
+                    class="text-on-surface-variant hover:text-primary text-xs font-display font-bold uppercase tracking-widest transition-colors">{{ __('About') }}</a>
+                <a href="{{ route('contact', ['locale' => app()->getLocale()]) }}"
+                    class="text-on-surface-variant hover:text-primary text-xs font-display font-bold uppercase tracking-widest transition-colors">{{ __('Contact') }}</a>
+                <a href="{{ route('privacy', ['locale' => app()->getLocale()]) }}"
+                    class="text-on-surface-variant hover:text-primary text-xs font-display font-bold uppercase tracking-widest transition-colors">{{ __('Privacy') }}</a>
+                <a href="{{ route('terms', ['locale' => app()->getLocale()]) }}"
+                    class="text-on-surface-variant hover:text-primary text-xs font-display font-bold uppercase tracking-widest transition-colors">{{ __('Terms') }}</a>
+                <a href="{{ route('disclaimer', ['locale' => app()->getLocale()]) }}"
+                    class="text-on-surface-variant hover:text-primary text-xs font-display font-bold uppercase tracking-widest transition-colors">{{ __('Disclaimer') }}</a>
+            </nav>
+
+            <div class="flex gap-4">
+                <a href="#"
+                    class="w-10 h-10 rounded-full border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all">
+                    <span class="material-symbols-outlined text-lg">public</span>
+                </a>
+                <a href="#"
+                    class="w-10 h-10 rounded-full border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all">
+                    <span class="material-symbols-outlined text-lg">chat</span>
+                </a>
+            </div>
         </div>
     </footer>
 
-    <div id="hint-modal" class="modal-overlay">
-        <div class="modal-card">
-            <div style="margin-bottom: 1rem;">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                    stroke="currentColor" style="width: 3rem; height: 3rem; color: #fbbf24; margin: 0 auto;">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M12 18v-3m0 0a8.1 8.1 0 0 0 4.5-1.55c3.3-2.45 3.3-6.45 0-8.9A8.1 8.1 0 0 0 12 3a8.1 8.1 0 0 0-4.5 1.55c-3.3 2.45-3.3 6.45 0 8.9A8.1 8.1 0 0 0 12 15Zm0 3v2m0 0h-3m3 0h3" />
-                </svg>
+    <!-- Ad-Gate Modal (Hints & Reveal) -->
+    <div id="ad-modal"
+        class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-md">
+        <div
+            class="bg-surface dark:bg-zinc-900 border border-outline-variant/30 max-w-sm w-full rounded-[2.5rem] p-8 text-center shadow-2xl animate-in zoom-in-95 duration-200">
+            <div class="mb-6 flex justify-center">
+                <div class="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center text-primary" id="modal-icon-container">
+                    <span class="material-symbols-outlined text-4xl" id="modal-icon"
+                        style="font-variation-settings: 'FILL' 1">lightbulb</span>
+                </div>
             </div>
-            <h3>Need a Hint?</h3>
-            <p>Watch a short video ad to receive a hint for the current puzzle. You can choose to skip this if you
-                prefer.</p>
-            <div class="modal-actions">
-                <button id="modal-watch-ad" class="btn btn-primary">Watch Ad for Hint</button>
-                <button id="modal-close" class="btn btn-outline" style="border-color: #94a3b8; color: #64748b;">No
-                    Thanks</button>
+            <h3 class="text-2xl font-display font-black uppercase tracking-tight mb-3 text-on-surface" id="modal-title">{{ __('Need a Hint?') }}</h3>
+            <p class="text-on-surface-variant text-sm mb-8 leading-relaxed font-medium" id="modal-description">
+                {{ __('Watch a short video ad to unlock the next clue for this challenge.') }}
+            </p>
+            <div class="flex flex-col gap-3">
+                <button id="modal-watch-ad"
+                    class="bg-primary text-on-primary font-display font-black uppercase tracking-widest py-4 rounded-2xl shadow-xl shadow-primary/20 hover:brightness-110 active:scale-95 transition-all">
+                    {{ __('Watch Ad') }}
+                </button>
+                <button id="modal-close"
+                    class="text-on-surface-variant font-display font-bold uppercase tracking-widest py-3 hover:text-on-surface transition-all">
+                    {{ __('No Thanks') }}
+                </button>
             </div>
         </div>
     </div>
 
-    <script
-        src="{{ asset('js/autocomplete.js') }}?v={{ file_exists(public_path('js/autocomplete.js')) ? filemtime(public_path('js/autocomplete.js')) : time() }}"></script>
+    @yield('modals')
+    
+    <!-- Global State -->
     <script>
-        function openHintModal(onConfirm) {
-            const modal = document.getElementById('hint-modal');
+        window.userBookmarks = @json($user_bookmarks ?? []);
+        window.isLoggedIn = @json(auth()->check());
+        window.bookmarkToggleUrl = "{{ route('bookmarks.toggle', ['locale' => app()->getLocale()]) }}";
+    </script>
+
+    <!-- Scripts -->
+    <script src="/js/bookmarks.js?v={{ file_exists(public_path('js/bookmarks.js')) ? filemtime(public_path('js/bookmarks.js')) : time() }}"></script>
+    <script
+        src="/js/autocomplete.js?v={{ file_exists(public_path('js/autocomplete.js')) ? filemtime(public_path('js/autocomplete.js')) : time() }}"></script>
+
+    <script>
+        (function () {
+            const root = document.documentElement;
+            const themeToggle = document.getElementById('theme-toggle');
+            const dirToggle = document.getElementById('dir-toggle');
+            const themeIcon = document.getElementById('theme-icon');
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            const localePreferenceUrl = @json(route('preferences.locale', ['locale' => app()->getLocale()]));
+
+            function updateThemeIcon() {
+                const isDark = root.classList.contains('dark');
+                if (themeIcon) {
+                    themeIcon.textContent = isDark ? 'light_mode' : 'dark_mode';
+                    themeIcon.style.fontVariationSettings = isDark ? "'FILL' 1" : "'FILL' 0";
+                }
+            }
+
+            themeToggle?.addEventListener('click', () => {
+                const isDark = root.classList.contains('dark');
+                const nextTheme = isDark ? 'light' : 'dark';
+
+                root.classList.remove('light', 'dark');
+                root.classList.add(nextTheme);
+                localStorage.setItem('fm-theme', nextTheme);
+                updateThemeIcon();
+            });
+
+            dirToggle?.addEventListener('click', async () => {
+                const currentLocale = root.lang === 'ar' ? 'ar' : 'en';
+                const nextLocale = currentLocale === 'en' ? 'ar' : 'en';
+
+                dirToggle.disabled = true;
+
+                try {
+                    const response = await fetch(localePreferenceUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                        body: JSON.stringify({
+                            locale: nextLocale,
+                            current_url: window.location.pathname + window.location.search,
+                        }),
+                    });
+
+                    if (!response.ok) throw new Error('Locale update failed');
+
+                    const data = await response.json();
+                    window.location.assign(data.redirect_url);
+                } catch (error) {
+                    console.error(error);
+                    dirToggle.disabled = false;
+                }
+            });
+
+            updateThemeIcon();
+        })();
+
+        // Ad Modal Logic (Hints & Reveal)
+        function openAdModal(type, onConfirm) {
+            const modal = document.getElementById('ad-modal');
             const watchBtn = document.getElementById('modal-watch-ad');
             const closeBtn = document.getElementById('modal-close');
+            const title = document.getElementById('modal-title');
+            const desc = document.getElementById('modal-description');
+            const icon = document.getElementById('modal-icon');
+            const iconContainer = document.getElementById('modal-icon-container');
 
-            modal.style.display = 'flex';
+            if (!modal) return;
 
-            const cleanup = () => {
-                modal.style.display = 'none';
-                watchBtn.removeEventListener('click', confirmHandler);
-                closeBtn.removeEventListener('click', cleanup);
+            if (type === 'reveal') {
+                title.textContent = "{{ __('Reveal Answer?') }}";
+                desc.textContent = "{{ __('Watch an ad to reveal the full answer and complete this level.') }}";
+                icon.textContent = "visibility";
+                iconContainer.classList.remove('text-secondary', 'bg-secondary/10');
+                iconContainer.classList.add('text-primary', 'bg-primary/10');
+            } else {
+                title.textContent = "{{ __('Need a Hint?') }}";
+                desc.textContent = "{{ __('Watch a short video ad to unlock the next clue for this challenge.') }}";
+                icon.textContent = "lightbulb";
+                iconContainer.classList.remove('text-primary', 'bg-primary/10');
+                iconContainer.classList.add('text-secondary', 'bg-secondary/10');
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            const closeModal = () => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                watchBtn.removeEventListener('click', confirmAction);
             };
 
-            const confirmHandler = () => {
-                cleanup();
-                onConfirm();
+            const confirmAction = () => {
+                closeModal();
+                if (onConfirm) onConfirm();
             };
 
-            const outsideClick = (e) => {
-                if (e.target === modal) cleanup();
-            };
-
-            watchBtn.addEventListener('click', confirmHandler);
-            closeBtn.addEventListener('click', cleanup);
-            modal.addEventListener('click', outsideClick);
+            watchBtn.addEventListener('click', confirmAction);
+            closeBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
         }
+        window.openAdModal = openAdModal;
+        window.openHintModal = (cb) => openAdModal('hint', cb); // Backward compatibility
+
+        // Nav Search Autocomplete
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchUrl = "{{ route('search.unified', ['locale' => app()->getLocale(), 'type' => 'game']) }}";
+            initAutocomplete('nav-search-input', 'nav-search-results', searchUrl);
+            
+            // Auto-submit form when selection is made from autocomplete
+            const resultsList = document.getElementById('nav-search-results');
+            if (resultsList) {
+                resultsList.addEventListener('mousedown', () => {
+                    setTimeout(() => {
+                        document.getElementById('nav-search-form')?.submit();
+                    }, 50);
+                });
+            }
+        });
     </script>
+
     @stack('scripts')
 </body>
 

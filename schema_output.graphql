@@ -1,0 +1,246 @@
+type Query {
+  challenges(game_id: Int, genre_id: Int, language: String): [Challenge!]!
+  challenge(id: ID!): Challenge
+  genres(language: String): [Genre!]!
+  genre(slug: String!): Genre
+  game(slug: String!): Game
+  games(language: String): [Game!]!
+  recentGames(language: String): [Game!]!
+  searchPlayers(query: String!): [Player!]!
+  searchClubs(query: String!): [Club!]!
+  searchStadiums(query: String!): [StadiumSearchResult!]!
+  searchItems(query: String!, type: String!): [GameItem!]!
+  players(name: String): [Player!]!
+}
+
+type Mutation {
+  checkAnswer(id: ID!, answer: String!, revealed_orders: [Int!]): GameResult!
+  getHint(id: ID!, shown_hints: [ID!]): HintResult!
+  revealAnswer(id: ID!): RevealResult!
+}
+
+"A datetime string with format `Y-m-d H:i:s`, e.g. `2018-05-23 13:43:32`."
+scalar DateTime
+
+type Player {
+  id: ID!
+  name: String!
+}
+
+type Club {
+  id: ID!
+  name: String!
+}
+
+type Genre {
+  id: ID!
+  name_en: String!
+  name_ar: String
+  description_en: String
+  description_ar: String
+  slug: String!
+  icon: String
+  theme_color: String
+  image_url: String
+  games_count: Int
+  sort_order: Int
+  is_active: Boolean!
+  challenges: [Challenge!]!
+  games(language: String): [Game!]!
+}
+
+type Game {
+  id: ID!
+  title: String!
+  name_ar: String
+  slug: String
+  description: String
+  image: String
+  image_url: String
+  game_type: String
+  answer_type: String
+  how_to_play: String
+  is_active: Boolean!
+  genres: [Genre!]!
+  challenges: [Challenge!]!
+}
+
+type Challenge {
+  id: ID!
+  game_id: Int!
+  genre_id: Int!
+  difficulty: String
+  stimulus_type: String!
+  stimulus_data: ChallengeStimulus
+  answer: String
+  answers: [String]
+  answer_type: String
+  current_level: Int
+  total_levels: Int
+  is_active: Boolean!
+  hints: [ChallengeHint!]!
+  game: Game!
+  genre: Genre!
+  image_path: String
+  reveal_image_path: String
+  youtube_url: String
+  question: String
+  scrambled_word: String
+  part_a: String
+  part_b: String
+  club_a: String
+  club_b: String
+}
+
+type ChallengeStimulus {
+  image_path: String
+  full_image_path: String
+  reveal_image_path: String
+  youtube_url: String
+  uploaded_video: String
+  question: String
+  clue: String
+  start_time: String
+  end_time: String
+  scrambled_word: String
+  consonant_display: String
+  category: String
+  part_a: String
+  part_b: String
+  club_a: String
+  club_b: String
+  nodes: [TransferNode]
+  instruction: String
+  clues: [String]
+  clubs: [CareerClubEntry]
+  title: String
+  image: String
+  players: [String]
+  players_count: Int
+  player_image: String
+  capacity: Int
+  opened_year: Int
+  country: String
+}
+
+type TransferNode {
+  name: String
+  type: String
+}
+
+type CareerClubEntry {
+  club_id: Int
+  year: String
+  sort_order: Int
+}
+
+type ChallengeHint {
+  id: ID!
+  challenge_id: Int!
+  content: String!
+  sort_order: Int!
+}
+
+type GameItem {
+  id: ID!
+  type: String!
+  name_en: String!
+  name_ar: String
+  country: String
+  external_id: String
+  metadata: String
+  image: String
+  is_active: Boolean!
+}
+
+type StadiumSearchResult {
+  id: ID!
+  name: String!
+}
+
+type GameResult {
+  correct: Boolean!
+  message: String!
+  matched_sort_order: Int
+  stats: GameStats
+}
+
+type GameStats {
+  streak: Int
+  last_played_at: String
+  total_correct: Int
+  total_questions: Int
+  games_played: Int
+}
+
+type HintResult {
+  hint: String
+  id: ID
+  message: String
+}
+
+type RevealResult {
+  answer: String
+  answers: [String]
+  message: String
+}
+
+type MultiRevealResult {
+  answers: [String!]
+  message: String
+}
+
+"Directions for ordering a list of records."
+enum SortOrder {
+  "Sort records in ascending order."
+  ASC
+
+  "Sort records in descending order."
+  DESC
+}
+
+"Aggregate functions when ordering by a relation without specifying a column."
+enum OrderByRelationAggregateFunction {
+  "Amount of items."
+  COUNT
+}
+
+"Aggregate functions when ordering by a relation that may specify a column."
+enum OrderByRelationWithColumnAggregateFunction {
+  "Average."
+  AVG
+
+  "Minimum."
+  MIN
+
+  "Maximum."
+  MAX
+
+  "Sum."
+  SUM
+
+  "Amount of items."
+  COUNT
+}
+
+"Allows ordering a list of records."
+input OrderByClause {
+  "The column that is used for ordering."
+  column: String!
+
+  "The direction that is used for ordering."
+  order: SortOrder!
+}
+
+"Specify if you want to include or exclude trashed results from a query."
+enum Trashed {
+  "Only return trashed results."
+  ONLY
+
+  "Return both trashed and non-trashed results."
+  WITH
+
+  "Only return non-trashed results."
+  WITHOUT
+}
+

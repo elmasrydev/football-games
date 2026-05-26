@@ -1,69 +1,120 @@
 <?php
 
+use App\Http\Controllers\BookmarkController;
+use App\Http\Controllers\GamePlayController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\BlackWhiteController;
-use App\Http\Controllers\StadiumSpotterController;
-use App\Http\Controllers\CelebrationStationController;
-use App\Http\Controllers\CareerController;
-use App\Http\Controllers\KitDetectiveController;
-use App\Http\Controllers\TrophyHunterController;
-use App\Http\Controllers\SilhouetteController;
-use App\Http\Controllers\GroupChallengeController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\Auth\SocialController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('/games', [HomeController::class, 'games'])->name('games.index');
+Route::get('/auth/google/redirect', [SocialController::class, 'redirectToGoogle'])->name('auth.google.redirect');
+Route::get('/auth/google/callback', [SocialController::class, 'handleGoogleCallback'])->name('auth.google.callback');
 
-// Stadium Spotter Game Routes (MUST come before wildcard {game} route)
-Route::get('/games/stadium-spotter/{stadium?}', [StadiumSpotterController::class, 'play'])->name('games.stadium.play');
-Route::post('/stadiums/{stadium}/check', [StadiumSpotterController::class, 'checkAnswer']);
-Route::post('/stadiums/{stadium}/hint', [StadiumSpotterController::class, 'getHint']);
+Route::post('/logout', function() {
+    Auth::logout();
+    return redirect()->route('home', ['locale' => app()->getLocale()]);
+})->name('logout');
 
-// Career Path Game Routes
-Route::get('/games/career/{challenge?}', [CareerController::class, 'play'])->name('games.career.play');
-Route::post('/career/{challenge}/check', [CareerController::class, 'checkAnswer'])->name('career.check');
-Route::post('/career/{challenge}/hint', [CareerController::class, 'getHint'])->name('career.hint');
-Route::get('/career/players/search', [CareerController::class, 'searchPlayers'])->name('career.players.search');
+Route::get('/sitemap.xml', [SitemapController::class, 'index']);
 
-// Kit Detective Game Routes
-Route::get('/games/kit-detective/{challenge?}', [KitDetectiveController::class, 'play'])->name('games.kit.play');
-Route::post('/kits/{challenge}/check', [KitDetectiveController::class, 'checkAnswer'])->name('kits.check');
-Route::post('/kits/{challenge}/hint', [KitDetectiveController::class, 'getHint'])->name('kits.hint');
+Route::pattern('locale', 'en|ar');
 
-// Trophy Hunter Game Routes
-Route::get('/games/trophy-hunter/{video?}', [TrophyHunterController::class, 'play'])->name('games.trophy.play');
-Route::post('/trophies/{video}/check', [TrophyHunterController::class, 'checkAnswer'])->name('trophies.check');
-Route::post('/trophies/{video}/hint', [TrophyHunterController::class, 'getHint'])->name('trophies.hint');
+Route::get('/', function (Request $request) {
+    $locale = $request->hasSession()
+        ? $request->session()->get('locale', $request->cookie('locale', config('app.locale')))
+        : $request->cookie('locale', config('app.locale'));
 
-// Guess the Silhouette Game Routes
-Route::get('/games/guess-silhouette/{challenge?}', [SilhouetteController::class, 'play'])->name('games.silhouette.play');
-Route::post('/silhouettes/{challenge}/check', [SilhouetteController::class, 'checkAnswer'])->name('silhouettes.check');
-Route::post('/silhouettes/{challenge}/hint', [SilhouetteController::class, 'getHint'])->name('silhouettes.hint');
+    $locale = in_array($locale, ['en', 'ar'], true) ? $locale : config('app.locale');
 
-// Highlight Moments Game Routes
-Route::get('/games/highlight-moments/{video?}', [CelebrationStationController::class, 'play'])->name('games.celebration.play');
+    return redirect()->route('home', ['locale' => $locale]);
+});
 
-// Group Players Game Routes
-Route::get('/games/group-players/{challenge?}', [GroupChallengeController::class, 'play'])->name('games.group.play');
-Route::post('/group/{challenge}/check', [GroupChallengeController::class, 'checkAnswer'])->name('group.check');
-Route::post('/group/{challenge}/hint', [GroupChallengeController::class, 'getHint'])->name('group.hint');
-Route::get('/group/{challenge}/reveal', [GroupChallengeController::class, 'revealAnswer'])->name('group.reveal');
-Route::get('/group/players/search', [GroupChallengeController::class, 'searchPlayers'])->name('group.players.search');
+Route::get('/login', function (Request $request) {
+    $locale = $request->hasSession()
+        ? $request->session()->get('locale', $request->cookie('locale', config('app.locale')))
+        : $request->cookie('locale', config('app.locale'));
+    $locale = in_array($locale, ['en', 'ar'], true) ? $locale : config('app.locale');
+    return redirect()->route('login', ['locale' => $locale]);
+});
 
-// Black & White Game Routes (wildcard catches all other games)
-Route::get('/games/{game}/{video?}', [BlackWhiteController::class, 'play'])->name('games.bw.play');
-Route::post('/videos/{video}/check', [BlackWhiteController::class, 'checkAnswer'])->name('videos.check');
-Route::post('/videos/{video}/hint', [BlackWhiteController::class, 'getHint'])->name('videos.hint');
-Route::get('/videos/{video}/reveal', [BlackWhiteController::class, 'revealAnswer'])->name('videos.reveal');
+Route::get('/register', function (Request $request) {
+    $locale = $request->hasSession()
+        ? $request->session()->get('locale', $request->cookie('locale', config('app.locale')))
+        : $request->cookie('locale', config('app.locale'));
+    $locale = in_array($locale, ['en', 'ar'], true) ? $locale : config('app.locale');
+    return redirect()->route('register', ['locale' => $locale]);
+});
 
-Route::get('/career/{challenge}/reveal', [CareerController::class, 'revealAnswer'])->name('career.reveal');
-Route::get('/kits/{challenge}/reveal', [KitDetectiveController::class, 'revealAnswer'])->name('kits.reveal');
-Route::get('/silhouettes/{challenge}/reveal', [SilhouetteController::class, 'revealAnswer'])->name('silhouettes.reveal');
+Route::post('/preferences/locale', function (Request $request) {
+    $locale = $request->string('locale')->toString();
+    $currentUrl = $request->string('current_url')->toString();
 
-// Informational Pages
-Route::get('/about', [PageController::class, 'about'])->name('about');
-Route::get('/contact', [PageController::class, 'contact'])->name('contact');
-Route::get('/privacy', [PageController::class, 'privacy'])->name('privacy');
-Route::get('/terms', [PageController::class, 'terms'])->name('terms');
-Route::get('/disclaimer', [PageController::class, 'disclaimer'])->name('disclaimer');
+    abort_unless(in_array($locale, ['en', 'ar'], true), 422);
+
+    if ($request->hasSession()) {
+        $request->session()->put('locale', $locale);
+    }
+
+    Cookie::queue('locale', $locale, 60 * 24 * 365);
+
+    $redirectUrl = route('home', ['locale' => $locale]);
+
+    if ($currentUrl !== '') {
+        $parsed = parse_url($currentUrl);
+        $path = $parsed['path'] ?? '/';
+        $query = isset($parsed['query']) ? '?' . $parsed['query'] : '';
+
+        if (preg_match('#^/(en|ar)(/.*)?$#', $path, $matches)) {
+            $redirectUrl = '/' . $locale . ($matches[2] ?? '') . $query;
+        } else {
+            $redirectUrl = '/' . $locale . ($path === '/' ? '' : $path) . $query;
+        }
+    }
+
+    return response()->json([
+        'locale' => $locale,
+        'direction' => $locale === 'ar' ? 'rtl' : 'ltr',
+        'redirect_url' => $redirectUrl,
+    ]);
+})->name('preferences.locale');
+
+Route::prefix('{locale}')->group(function () {
+    Route::get('/', [HomeController::class, 'index'])->name('home');
+    
+    // Auth Routes (Localized)
+    Route::get('/login', fn() => view('auth.login'))->name('login');
+    Route::get('/register', fn() => view('auth.register'))->name('register');
+
+    // Unified Game Routes
+    Route::get('/games/{slug}/{challenge?}', [GamePlayController::class, 'play'])->name('games.play');
+
+    Route::get('/library', [HomeController::class, 'games'])->name('games.index');
+    Route::get('/library/{genre_slug}', [HomeController::class, 'genreGames'])->name('games.genre');
+    Route::post('/challenges/{challenge}/check', [GamePlayController::class, 'checkAnswer'])->name('challenges.check');
+    Route::post('/challenges/{challenge}/hint', [GamePlayController::class, 'getHint'])->name('challenges.hint');
+    Route::get('/challenges/{challenge}/reveal', [GamePlayController::class, 'revealAnswer'])->name('challenges.reveal');
+
+    // Search Utilities
+    Route::get('/search/{type}', [GamePlayController::class, 'search'])->name('search.unified');
+
+    // Bookmark Utility
+    Route::post('/bookmarks/toggle', [BookmarkController::class, 'toggle'])->name('bookmarks.toggle');
+
+    // Profile Management
+    Route::middleware('auth')->group(function () {
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    });
+
+    // Informational Pages
+    Route::get('/about', [PageController::class, 'about'])->name('about');
+    Route::get('/contact', [PageController::class, 'contact'])->name('contact');
+    Route::get('/privacy', [PageController::class, 'privacy'])->name('privacy');
+    Route::get('/terms', [PageController::class, 'terms'])->name('terms');
+    Route::get('/disclaimer', [PageController::class, 'disclaimer'])->name('disclaimer');
+});
+Route::get('/auth/expo/callback', function () { return view('auth.expo-proxy'); });

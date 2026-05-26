@@ -10,13 +10,13 @@
         <div class="page-content">
             <section>
                 <h2>1. Introduction</h2>
-                <p>Welcome to Football Mystery. We value your privacy and are committed to being transparent about how we
+                <p>Welcome to Games Hub. We value your privacy and are committed to being transparent about how we
                     handle any information you share with us while playing our games.</p>
             </section>
 
             <section>
                 <h2>2. Information We Collect</h2>
-                <p>Football Mystery is designed to be played without requiring an account for most features. We do not
+                <p>Games Hub is designed to be played without requiring an account for most features. We do not
                     collect personal identifying information (PII) like your name or address unless you explicitly provide
                     it through our contact forms or future authentication features.</p>
                 <p>We may collect non-personal information such as:</p>
@@ -58,7 +58,7 @@
             .static-page {
                 max-width: 800px;
                 margin: 0 auto;
-                padding: 4rem 2rem;
+                padding: 1rem 0;
             }
 
             .page-header {
@@ -67,14 +67,14 @@
             }
 
             .page-header h1 {
-                font-family: 'Outfit', sans-serif;
+                font-family: var(--font-display);
                 font-size: 2.25rem;
-                color: var(--pitch-dark);
+                color: var(--text);
                 margin-bottom: 0.5rem;
             }
 
             .subtitle {
-                color: var(--text-dim);
+                color: var(--text-soft);
                 font-size: 0.9rem;
             }
 
@@ -83,12 +83,12 @@
             }
 
             .page-content h2 {
-                font-family: 'Outfit', sans-serif;
+                font-family: var(--font-display);
                 font-size: 1.25rem;
-                color: var(--pitch-dark);
+                color: var(--text);
                 margin-bottom: 0.75rem;
-                border-left: 4px solid var(--stadium-green);
-                padding-left: 1rem;
+                border-inline-start: 4px solid var(--accent);
+                padding-inline-start: 1rem;
             }
 
             .page-content p {

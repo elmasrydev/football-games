@@ -6,6 +6,126 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    /* Fonts */
+    --font-sans: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Space Grotesk', sans-serif;
+
+    /* Colors - Default (Light) */
+    --color-primary: #006970;
+    --color-on-primary: #ffffff;
+    --color-primary-container: #00f0ff;
+    --color-on-primary-container: #006970;
+    
+    --color-secondary: #a900a9;
+    --color-on-secondary: #ffffff;
+    --color-secondary-container: #fe00fe;
+    --color-on-secondary-container: #500050;
+    
+    --color-tertiary: #506600;
+    --color-on-tertiary: #ffffff;
+    --color-tertiary-container: #bbea00;
+    --color-on-tertiary-container: #506600;
+    
+    --color-error: #ba1a1a;
+    --color-on-error: #ffffff;
+    --color-error-container: #ffdad6;
+    --color-on-error-container: #93000a;
+    
+    --color-surface: #f7f9fc;
+    --color-on-surface: #191c1e;
+    --color-surface-variant: #e0e3e6;
+    --color-on-surface-variant: #3b494b;
+    --color-outline: #6a7a7b;
+    --color-outline-variant: #b9cacb;
+    
+    --color-background: #f7f9fc;
+    --color-on-background: #191c1e;
+
+    /* Radii */
+    --radius-sm: 0.125rem;
+    --radius-md: 0.25rem;
+    --radius-lg: 0.5rem;
+    --radius-xl: 0.75rem;
+    --radius-2xl: 1rem;
+    --radius-3xl: 1.5rem;
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Dark Theme Overrides */
+.dark {
+    --color-primary: #adc6ff;
+    --color-on-primary: #002e6a;
+    --color-primary-container: #4d8eff;
+    --color-on-primary-container: #00285d;
+    
+    --color-secondary: #ddb7ff;
+    --color-on-secondary: #490080;
+    --color-secondary-container: #6f00be;
+    --color-on-secondary-container: #d6a9ff;
+    
+    --color-tertiary: #4ae176;
+    --color-on-tertiary: #003915;
+    --color-tertiary-container: #00a74b;
+    --color-on-tertiary-container: #003111;
+    
+    --color-error: #ffb4ab;
+    --color-on-error: #690005;
+    --color-error-container: #93000a;
+    --color-on-error-container: #ffdad6;
+    
+    --color-surface: #0b1326;
+    --color-on-surface: #dae2fd;
+    --color-surface-variant: #2d3449;
+    --color-on-surface-variant: #c2c6d6;
+    --color-outline: #8c909f;
+    --color-outline-variant: #424754;
+    
+    --color-background: #0b1326;
+    --color-on-background: #dae2fd;
+}
+
+@layer components {
+    .glass-card {
+        @apply bg-white/10 backdrop-blur-md border border-white/10;
+    }
+    
+    .dark .glass-card {
+        @apply bg-zinc-950/20 backdrop-blur-2xl border border-white/5;
+    }
+
+    .neon-border-blue {
+        @apply border border-primary/50 shadow-[0_0_15px_rgba(77,142,255,0.3)];
+    }
+
+    .neon-border-purple {
+        @apply border border-secondary/50 shadow-[0_0_15px_rgba(221,183,255,0.3)];
+    }
+
+    .text-glow {
+        @apply [text-shadow:0_0_10px_rgba(173,198,255,0.5)];
+    }
+
+    .autocomplete-item {
+        @apply px-6 py-3 cursor-pointer hover:bg-primary/10 hover:text-primary transition-colors font-display font-bold text-sm uppercase tracking-tight;
+    }
+
+    .autocomplete-active {
+        @apply bg-primary/10 text-primary;
+    }
+}
+
+@layer base {
+    body {
+        @apply bg-background text-on-background font-sans;
+    }
+
+    :lang(ar) {
+        --font-sans: 'Readex Pro', 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif;
+        --font-display: 'Readex Pro', 'Space Grotesk', sans-serif;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+        @apply font-display;
+    }
 }
