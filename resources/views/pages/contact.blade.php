@@ -2,45 +2,85 @@
 
 @section('content')
     <div class="container static-page">
-        <div class="page-header">
-            <h1>Contact Us</h1>
-            <p class="subtitle">Have a suggestion or found a bug? We'd love to hear from you.</p>
-        </div>
+        @if(app()->getLocale() === 'ar')
+            <div class="page-header">
+                <h1>اتصل بنا</h1>
+                <p class="subtitle">هل لديك اقتراح أو عثرت على مشكلة؟ يسعدنا دائماً الاستماع إليك.</p>
+            </div>
 
-        <div class="page-content">
-            <div class="contact-grid">
-                <div class="contact-info">
-                    <section>
-                        <h2>Get in Touch</h2>
-                        <p>We are always looking to improve the Games Hub experience. If you have ideas for new
-                            games, suggestions for challenges, or just want to say hi, feel free to reach out.</p>
-                    </section>
+            <div class="page-content">
+                <div class="contact-grid">
+                    <div class="contact-info">
+                        <section>
+                            <h2>تواصل معنا</h2>
+                            <p>نحن نسعى دائماً لتحسين تجربة ألعابنا. إذا كانت لديك أفكار لألعاب جديدة، أو اقتراحات لألغاز وتحديات مميزة، أو أردت فقط إلقاء التحية، فلا تتردد في مراسلتنا.</p>
+                        </section>
 
-                    <section>
-                        <h2>Support</h2>
-                        <p>For technical issues or bug reports, please include details about your device and browser to help
-                            us solve the problem faster.</p>
-                    </section>
+                        <section>
+                            <h2>الدعم الفني</h2>
+                            <p>بخصوص المشاكل التقنية أو تقارير الأخطاء البرمجية، يرجى تضمين تفاصيل عن نوع جهازك ومتصفحك لمساعدتنا على حل المشكلة بشكل أسرع.</p>
+                        </section>
 
-                    <div class="email-box">
-                        <strong>Email us at:</strong>
-                        <a href="mailto:support@gameshub.com" class="contact-email">support@gameshub.com</a>
+                        <div class="email-box">
+                            <strong>راسلنا عبر البريد الإلكتروني:</strong>
+                            <a href="mailto:support@gameshub.com" class="contact-email">support@gameshub.com</a>
+                        </div>
+                    </div>
+
+                    <div class="social-connect">
+                        <section>
+                            <h2>تابع التحديات</h2>
+                            <p>تابع آخر الأخبار، التحديات الأسبوعية، والمستجدات عبر قنواتنا الاجتماعية.</p>
+                            <div class="social-links">
+                                <span class="social-placeholder">تويتر / X</span>
+                                <span class="social-placeholder">إنستغرام</span>
+                                <span class="social-placeholder">تيك توك</span>
+                            </div>
+                        </section>
                     </div>
                 </div>
+            </div>
+        @else
+            <div class="page-header">
+                <h1>Contact Us</h1>
+                <p class="subtitle">Have a suggestion or found a bug? We'd love to hear from you.</p>
+            </div>
 
-                <div class="social-connect">
-                    <section>
-                        <h2>Follow the Mystery</h2>
-                        <p>Stay updated with our latest challenges and community news on our social channels.</p>
-                        <div class="social-links">
-                            <span class="social-placeholder">Twitter / X</span>
-                            <span class="social-placeholder">Instagram</span>
-                            <span class="social-placeholder">TikTok</span>
+            <div class="page-content">
+                <div class="contact-grid">
+                    <div class="contact-info">
+                        <section>
+                            <h2>Get in Touch</h2>
+                            <p>We are always looking to improve the Games Hub experience. If you have ideas for new
+                                games, suggestions for challenges, or just want to say hi, feel free to reach out.</p>
+                        </section>
+
+                        <section>
+                            <h2>Support</h2>
+                            <p>For technical issues or bug reports, please include details about your device and browser to help
+                                us solve the problem faster.</p>
+                        </section>
+
+                        <div class="email-box">
+                            <strong>Email us at:</strong>
+                            <a href="mailto:support@gameshub.com" class="contact-email">support@gameshub.com</a>
                         </div>
-                    </section>
+                    </div>
+
+                    <div class="social-connect">
+                        <section>
+                            <h2>Follow the Mystery</h2>
+                            <p>Stay updated with our latest challenges and community news on our social channels.</p>
+                            <div class="social-links">
+                                <span class="social-placeholder">Twitter / X</span>
+                                <span class="social-placeholder">Instagram</span>
+                                <span class="social-placeholder">TikTok</span>
+                            </div>
+                        </section>
+                    </div>
                 </div>
             </div>
-        </div>
+        @endif
     </div>
 
     @push('styles')

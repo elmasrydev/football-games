@@ -55,7 +55,17 @@ class Genre extends Model implements HasMedia
 
     public function getGamesCountAttribute(): int
     {
-        return $this->games()->where('is_active', true)->count();
+        $locale = app()->getLocale();
+        return $this->games()
+            ->where('is_active', true)
+            ->where(function($q) {
+                $q->whereNull('game_type')
+                  ->orWhere('game_type', '!=', 'multiplayer');
+            })
+            ->whereHas('challenges', function($sub) use ($locale) {
+                $sub->where('language', $locale)->where('is_active', true);
+            })
+            ->count();
     }
 
     public function scopeActiveWithChallenges($query, $args = null)

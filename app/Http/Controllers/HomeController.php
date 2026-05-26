@@ -45,11 +45,14 @@ class HomeController extends Controller
         
         $genres = Genre::whereHas('challenges', function ($q) use ($locale) {
             $q->where('language', $locale)->where('is_active', true);
-        })->withCount(['games' => function($q) {
+        })->withCount(['games' => function($q) use ($locale) {
             $q->where('is_active', true)
               ->where(function($sub) {
                   $sub->whereNull('game_type')
                       ->orWhere('game_type', '!=', 'multiplayer');
+              })
+              ->whereHas('challenges', function($sub) use ($locale) {
+                  $sub->where('language', $locale)->where('is_active', true);
               });
         }])->get();
 
@@ -57,6 +60,9 @@ class HomeController extends Controller
             ->where(function($q) {
                 $q->whereNull('game_type')
                   ->orWhere('game_type', '!=', 'multiplayer');
+            })
+            ->whereHas('challenges', function($sub) use ($locale) {
+                $sub->where('language', $locale)->where('is_active', true);
             })
             ->count();
 

@@ -371,6 +371,23 @@ class MazadTest extends TestCase
             'is_active' => true,
         ]);
 
+        $genre = \App\Models\Genre::create([
+            'name_en' => 'Test Genre',
+            'name_ar' => 'قسم تجريبي',
+            'slug' => 'test-genre',
+            'is_active' => true,
+        ]);
+
+        $singleGame->genres()->sync([$genre->id]);
+
+        \App\Models\Challenge::create([
+            'game_id' => $singleGame->id,
+            'genre_id' => $genre->id,
+            'language' => 'en',
+            'is_active' => true,
+            'answer' => 'test',
+        ]);
+
         // Access multiplayer list page
         $response = $this->get('/en/multiplayer');
         $response->assertStatus(200);
