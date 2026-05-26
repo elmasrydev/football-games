@@ -32,7 +32,7 @@ class GameController extends Controller
     {
         $room = MazadRoom::where('code', $code)->firstOrFail();
 
-        if ($room->owner_id !== Auth::id()) {
+        if ((int)$room->owner_id !== (int)Auth::id()) {
             return response()->json(['message' => 'Only the room owner can start the game'], 403);
         }
 
