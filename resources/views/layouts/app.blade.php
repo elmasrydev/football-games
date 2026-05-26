@@ -23,6 +23,15 @@
             document.documentElement.classList.remove('light', 'dark');
             document.documentElement.classList.add(savedTheme);
         })();
+        window.Laravel = {
+            broadcaster: "{{ config('broadcasting.default') }}",
+            reverbKey: "{{ config('broadcasting.connections.reverb.key') }}",
+            reverbHost: "{{ config('broadcasting.connections.reverb.options.host') }}",
+            reverbPort: "{{ config('broadcasting.connections.reverb.options.port') }}",
+            reverbScheme: "{{ config('broadcasting.connections.reverb.options.scheme') }}",
+            pusherKey: "{{ config('broadcasting.connections.pusher.key') }}",
+            pusherCluster: "{{ config('broadcasting.connections.pusher.options.cluster') }}",
+        };
     </script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
