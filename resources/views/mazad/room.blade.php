@@ -260,7 +260,42 @@ document.addEventListener('DOMContentLoaded', function () {
         switch (room.status) {
             case 'waiting': renderWaiting(); break;
             case 'starting': showCountdown(3); break;
-            case 'in_progress': showState('game'); break;
+            case 'in_progress':
+                if (room.current_question) {
+                    const cq = room.current_question;
+                    if (cq.is_active) {
+                        // Restore active question
+                        showQuestion({
+                            question_index: cq.question_index,
+                            total_questions: cq.total_questions,
+                            question_text: cq.question_text,
+                            question_text_ar: cq.question_text_ar,
+                            end_time: cq.end_time,
+                            time_seconds: cq.time_seconds
+                        });
+
+                        // Restore my answers
+                        myAnswers = cq.my_answers || [];
+                        renderMyAnswers();
+
+                        // Restore my correct count in the DOM
+                        const correctCount = myAnswers.filter(a => a.correct).length;
+                        document.getElementById('my-correct-count').textContent = correctCount;
+
+                        // Restore live scores
+                        liveScores = cq.live_scores || {};
+                        renderLiveScores();
+                    } else if (cq.is_rest) {
+                        // Restore rest state
+                        showRoundResults({
+                            rest_time_seconds: cq.rest_remaining_seconds,
+                            round_results: cq.rest_results ? cq.rest_results.round_results : {}
+                        });
+                    }
+                } else {
+                    showState('game');
+                }
+                break;
             case 'finished': loadResults(); break;
             case 'closed':
                 alert(isAr ? 'تم إغلاق الغرفة' : 'Room has been closed');
@@ -628,15 +663,38 @@ document.addEventListener('DOMContentLoaded', function () {
         lbEl.innerHTML = lb.map((entry, i) => {
             const isWinner = i === 0;
             const name = entry.name || entry.team_name;
+            
+            // Format members if they exist
+            let membersHtml = '';
+            if (entry.members && entry.members.length > 0) {
+                const membersList = entry.members.map(member => {
+                    const avatarHtml = member.avatar 
+                        ? `<img src="${member.avatar}" class="w-4 h-4 rounded-full object-cover">` 
+                        : `<span class="material-symbols-outlined text-[14px] opacity-60">person</span>`;
+                    return `
+                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-variant/40 dark:bg-zinc-800/40 text-[11px] font-semibold text-on-surface-variant border border-outline-variant/5">
+                        ${avatarHtml}
+                        <span>${member.name}</span>
+                        <span class="opacity-65 font-bold">(${member.score})</span>
+                    </div>`;
+                }).join('');
+                
+                membersHtml = `
+                <div class="flex flex-wrap gap-1.5 mt-2.5">
+                    ${membersList}
+                </div>`;
+            }
+
             return `
-            <div class="flex items-center gap-4 p-4 rounded-2xl ${isWinner ? 'bg-primary/10 border border-primary/20' : 'bg-surface-variant/20 border border-outline-variant/10'}">
-                <div class="w-10 h-10 rounded-full ${isWinner ? 'bg-primary text-on-primary' : 'bg-surface-variant text-on-surface-variant'} flex items-center justify-center font-display font-black text-lg">
+            <div class="flex items-start gap-4 p-4 rounded-2xl ${isWinner ? 'bg-primary/10 border border-primary/20' : 'bg-surface-variant/20 border border-outline-variant/10'}">
+                <div class="w-10 h-10 rounded-full ${isWinner ? 'bg-primary text-on-primary' : 'bg-surface-variant text-on-surface-variant'} flex items-center justify-center font-display font-black text-lg shrink-0 mt-0.5">
                     ${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : entry.rank}
                 </div>
-                <div class="flex-1">
-                    <div class="font-display font-bold text-on-surface">${name}</div>
+                <div class="flex-1 min-w-0">
+                    <div class="font-display font-bold text-on-surface text-base truncate">${name}</div>
+                    ${membersHtml}
                 </div>
-                <div class="font-display font-black text-lg ${isWinner ? 'text-primary' : 'text-on-surface-variant'}">${entry.score}</div>
+                <div class="font-display font-black text-xl shrink-0 mt-0.5 ${isWinner ? 'text-primary' : 'text-on-surface-variant'}">${entry.score}</div>
             </div>`;
         }).join('');
     }

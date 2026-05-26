@@ -383,4 +383,113 @@ class MazadTest extends TestCase
         // The count on index page lists single player games count
         $this->assertEquals(1, $response->viewData('totalGamesCount'));
     }
+
+    public function test_reconnection_state_restoration(): void
+    {
+        $owner = User::factory()->create();
+        $room = MazadRoom::create([
+            'owner_id' => $owner->id,
+            'visibility' => 'public',
+            'status' => 'in_progress',
+            'max_players' => 4,
+            'min_players_to_start' => 2,
+            'num_questions' => 1,
+            'question_time_seconds' => 30,
+            'rest_time_seconds' => 5,
+            'mode' => 'individual',
+        ]);
+
+        $player = MazadPlayer::create([
+            'room_id' => $room->id,
+            'user_id' => $owner->id,
+            'is_owner' => true,
+        ]);
+
+        $question = MazadQuestion::first();
+        $roomQuestion = MazadRoomQuestion::create([
+            'room_id' => $room->id,
+            'question_id' => $question->id,
+            'question_order' => 0,
+            'started_at' => now(),
+        ]);
+
+        // Submit one correct answer and one incorrect answer
+        MazadAnswer::create([
+            'room_question_id' => $roomQuestion->id,
+            'player_id' => $player->id,
+            'answer_text' => 'Paris',
+            'matched_answer' => 'Paris',
+            'is_correct' => true,
+        ]);
+        MazadAnswer::create([
+            'room_question_id' => $roomQuestion->id,
+            'player_id' => $player->id,
+            'answer_text' => 'Berlin',
+            'matched_answer' => 'Berlin',
+            'is_correct' => true,
+        ]);
+
+        // Fetch room details simulating reconnection/refresh
+        $response = $this->actingAs($owner)->getJson("/en/mazad/rooms/{$room->code}");
+        $response->assertStatus(200);
+        $response->assertJsonPath('room.current_question.is_active', true);
+        $response->assertJsonPath('room.current_question.question_text', 'European capitals');
+        $response->assertJsonCount(2, 'room.current_question.my_answers');
+        $this->assertEquals(2, $response->json('room.current_question.live_scores.' . $player->id));
+    }
+
+    public function test_team_results_contain_members(): void
+    {
+        $owner = User::factory()->create();
+        $room = MazadRoom::create([
+            'owner_id' => $owner->id,
+            'visibility' => 'public',
+            'status' => 'finished',
+            'max_players' => 4,
+            'min_players_to_start' => 2,
+            'num_questions' => 1,
+            'question_time_seconds' => 30,
+            'rest_time_seconds' => 5,
+            'mode' => 'teams',
+        ]);
+
+        $team = MazadTeam::create([
+            'room_id' => $room->id,
+            'name' => 'Team Alpha',
+            'color' => 'blue',
+        ]);
+
+        $player = MazadPlayer::create([
+            'room_id' => $room->id,
+            'user_id' => $owner->id,
+            'team_id' => $team->id,
+            'is_owner' => true,
+            'total_score' => 10,
+        ]);
+
+        $response = $this->actingAs($owner)->getJson("/en/mazad/rooms/{$room->code}/results");
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'leaderboard' => [
+                '*' => [
+                    'team_id',
+                    'team_name',
+                    'team_color',
+                    'score',
+                    'members' => [
+                        '*' => [
+                            'player_id',
+                            'name',
+                            'avatar',
+                            'score',
+                        ]
+                    ]
+                ]
+            ],
+            'rounds',
+            'mode',
+        ]);
+
+        $this->assertEquals($player->user->name, $response->json('leaderboard.0.members.0.name'));
+    }
 }

@@ -94,10 +94,6 @@ Route::prefix('{locale}')->group(function () {
 
     Route::get('/library', [HomeController::class, 'games'])->name('games.index');
     Route::get('/multiplayer', [HomeController::class, 'multiplayer'])->name('multiplayer.index');
-    Route::get('/huroof', function (string $locale) {
-        app()->setLocale($locale);
-        return view('huroof.lobby');
-    })->name('huroof.lobby');
     Route::get('/library/{genre_slug}', [HomeController::class, 'genreGames'])->name('games.genre');
     Route::post('/challenges/{challenge}/check', [GamePlayController::class, 'checkAnswer'])->name('challenges.check');
     Route::post('/challenges/{challenge}/hint', [GamePlayController::class, 'getHint'])->name('challenges.hint');

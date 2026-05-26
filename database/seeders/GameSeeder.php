@@ -193,18 +193,6 @@ class GameSeeder extends Seeder
                 'answer_type' => 'term',
                 'image_file' => 'mazad.png'
             ],
-            [
-                'title' => 'Huroof',
-                'name_ar' => 'حروف',
-                'slug' => 'huroof',
-                'description' => 'Compete in real-time speed vocabulary! Name as many correct terms starting with a specific letter as you can.',
-                'description_ar' => 'تنافس في الوقت الفعلي في سرعة البديهة! اذكر أكبر عدد من الكلمات التي تبدأ بحرف معين للقسم المطلوب.',
-                'how_to_play' => "1. Create or join a public or private room.\n2. Wait for players to join.\n3. Type as many correct words as you can that start with the target letter within the selected categories before the timer ends!",
-                'how_to_play_ar' => "1. أنشئ أو انضم إلى غرفة عامة أو خاصة.\n2. انتظر انضمام اللاعبين الآخرين.\n3. اكتب أكبر عدد ممكن من الكلمات التي تبدأ بالحرف المطلوب للقسم المحدد قبل انتهاء المؤقت!",
-                'game_type' => 'multiplayer',
-                'answer_type' => 'term',
-                'image_file' => 'huroof.png'
-            ],
         ];
 
         $allGenres = \App\Models\Genre::all();

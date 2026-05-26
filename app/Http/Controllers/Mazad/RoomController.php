@@ -199,6 +199,63 @@ class RoomController extends Controller
             ])
             ->firstOrFail();
 
+        $currentQuestionData = null;
+        if ($room->status === 'in_progress') {
+            $rq = $room->currentRoomQuestion();
+            if ($rq) {
+                $isRest = $rq->ended_at !== null;
+                $now = now();
+
+                $myPlayer = $room->getPlayer(Auth::id());
+                $myAnswers = [];
+                if ($myPlayer) {
+                    $myAnswers = \App\Models\MazadAnswer::where('room_question_id', $rq->id)
+                        ->where('player_id', $myPlayer->id)
+                        ->get()
+                        ->map(fn($ans) => [
+                            'text' => $ans->answer_text,
+                            'correct' => (bool)$ans->is_correct,
+                        ])
+                        ->toArray();
+                }
+
+                $liveScores = [];
+                foreach ($room->players as $p) {
+                    $liveScores[$p->id] = $p->correctCountForQuestion($rq->id);
+                }
+
+                $endTime = $rq->started_at ? $rq->started_at->addSeconds($room->question_time_seconds) : null;
+
+                $restRemaining = 0;
+                $restResults = null;
+                if ($isRest && $rq->ended_at) {
+                    $restEnd = $rq->ended_at->addSeconds($room->rest_time_seconds);
+                    $restRemaining = max(0, $restEnd->diffInSeconds($now, false) * -1);
+
+                    $scoringService = resolve(\App\Services\Mazad\ScoringService::class);
+                    $restResults = $room->mode === 'teams'
+                        ? $scoringService->scoreTeamRound($rq)
+                        : $scoringService->scoreIndividualRound($rq);
+                }
+
+                $currentQuestionData = [
+                    'question_index' => $rq->question_order,
+                    'total_questions' => $room->num_questions,
+                    'question_text' => $rq->question->text,
+                    'question_text_ar' => $rq->question->text_ar ?? $rq->question->text,
+                    'started_at' => $rq->started_at ? $rq->started_at->toISOString() : null,
+                    'end_time' => $endTime ? $endTime->toISOString() : null,
+                    'time_seconds' => $room->question_time_seconds,
+                    'is_active' => !$isRest,
+                    'is_rest' => $isRest,
+                    'rest_remaining_seconds' => (int)$restRemaining,
+                    'my_answers' => $myAnswers,
+                    'live_scores' => $liveScores,
+                    'rest_results' => $restResults,
+                ];
+            }
+        }
+
         return response()->json([
             'room' => [
                 'code' => $room->code,
@@ -239,6 +296,7 @@ class RoomController extends Controller
                 ]),
                 'is_current_user_owner' => $room->owner_id === Auth::id(),
                 'is_current_user_player' => $room->hasPlayer(Auth::id()),
+                'current_question' => $currentQuestionData,
             ],
         ]);
     }

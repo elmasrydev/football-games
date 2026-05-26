@@ -46,9 +46,7 @@
                 if ($game->slug === 'mazad') {
                     $themeColor = '#adc6ff';
                 }
-                $playUrl = $game->slug === 'mazad' 
-                    ? route('mazad.lobby', ['locale' => app()->getLocale()]) 
-                    : route('huroof.lobby', ['locale' => app()->getLocale()]);
+                $playUrl = route($game->slug . '.lobby', ['locale' => app()->getLocale()]);
             @endphp
             <div class="group relative flex flex-col bg-surface-variant/40 dark:bg-zinc-900/40 backdrop-blur-xl rounded-[2.5rem] overflow-hidden border border-outline-variant/10 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/20 hover:border-primary/30">
                 
