@@ -294,7 +294,7 @@ class RoomController extends Controller
                     'name' => $t->name,
                     'color' => $t->color,
                 ]),
-                'is_current_user_owner' => $room->owner_id === Auth::id(),
+                'is_current_user_owner' => (int)$room->owner_id === (int)Auth::id(),
                 'is_current_user_player' => $room->hasPlayer(Auth::id()),
                 'current_question' => $currentQuestionData,
             ],

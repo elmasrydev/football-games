@@ -149,7 +149,7 @@
                 </button>
 
                 <!-- Mobile Menu Toggle -->
-                <button class="md:hidden p-2.5 rounded-full hover:bg-surface-variant/50 text-on-surface-variant">
+                <button id="mobile-menu-toggle" class="md:hidden p-2.5 rounded-full hover:bg-surface-variant/50 text-on-surface-variant">
                     <span class="material-symbols-outlined">menu</span>
                 </button>
 
@@ -200,6 +200,51 @@
             </div>
         </div>
     </nav>
+    
+    <!-- Mobile Menu Drawer -->
+    <div id="mobile-menu" class="fixed inset-0 z-[110] hidden">
+        <!-- Backdrop -->
+        <div id="mobile-menu-backdrop" class="absolute inset-0 bg-zinc-950/60 backdrop-blur-sm"></div>
+        <!-- Drawer Content -->
+        <div class="absolute inset-y-0 start-0 max-w-xs w-full bg-surface dark:bg-zinc-900 border-e border-outline-variant/20 p-6 flex flex-col justify-between shadow-2xl z-10 transition-transform duration-300">
+            <div class="space-y-6">
+                <!-- Header -->
+                <div class="flex items-center justify-between border-b border-outline-variant/10 pb-4">
+                    <div class="overflow-hidden">
+                        <img src="/images/logo_dark.png" alt="Gamesiano Logo" class="h-8 w-auto hidden dark:block mix-blend-screen">
+                        <img src="/images/logo_light.png" alt="Gamesiano Logo" class="h-8 w-auto block dark:hidden mix-blend-multiply">
+                    </div>
+                    <button id="mobile-menu-close" class="p-1 rounded-full hover:bg-surface-variant/50 text-on-surface-variant">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+
+                <!-- Nav Links -->
+                <nav class="flex flex-col gap-4 font-display font-bold uppercase tracking-wide text-base">
+                    <a href="{{ route('home', ['locale' => app()->getLocale()]) }}"
+                       class="py-2.5 px-4 rounded-xl transition-all hover:bg-primary/5 hover:text-primary {{ request()->routeIs('home') ? 'bg-primary/10 text-primary' : 'text-on-surface-variant' }}">
+                        {{ __('Home') }}
+                    </a>
+                    
+                    <a href="{{ route('games.index', ['locale' => app()->getLocale()]) }}"
+                       class="py-2.5 px-4 rounded-xl transition-all hover:bg-primary/5 hover:text-primary {{ request()->routeIs('games.index', 'games.play', 'games.genre') ? 'bg-primary/10 text-primary' : 'text-on-surface-variant' }}">
+                        {{ __('Games') }}
+                    </a>
+
+                    <a href="{{ route('multiplayer.index', ['locale' => app()->getLocale()]) }}"
+                       class="py-2.5 px-4 rounded-xl transition-all hover:bg-primary/5 hover:text-primary {{ request()->routeIs('multiplayer.index') ? 'bg-primary/10 text-primary' : 'text-on-surface-variant' }}">
+                        {{ __('Multiplayer') }}
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Footer -->
+            <div class="border-t border-outline-variant/10 pt-4 flex flex-col gap-3">
+                <a href="{{ route('about', ['locale' => app()->getLocale()]) }}" class="text-xs font-display font-bold uppercase tracking-wider text-on-surface-variant/70 hover:text-primary">{{ __('About') }}</a>
+                <a href="{{ route('contact', ['locale' => app()->getLocale()]) }}" class="text-xs font-display font-bold uppercase tracking-wider text-on-surface-variant/70 hover:text-primary">{{ __('Contact') }}</a>
+            </div>
+        </div>
+    </div>
 
     <!-- Main Content -->
     <div class="pt-20"></div>
@@ -351,6 +396,25 @@
             });
 
             updateThemeIcon();
+
+            // Mobile Menu Toggle
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+            const mobileMenuClose = document.getElementById('mobile-menu-close');
+            const mobileMenuBackdrop = document.getElementById('mobile-menu-backdrop');
+
+            if (mobileMenu && mobileMenuToggle) {
+                mobileMenuToggle.addEventListener('click', () => {
+                    mobileMenu.classList.remove('hidden');
+                });
+                
+                const closeDrawer = () => {
+                    mobileMenu.classList.add('hidden');
+                };
+                
+                mobileMenuClose?.addEventListener('click', closeDrawer);
+                mobileMenuBackdrop?.addEventListener('click', closeDrawer);
+            }
         })();
 
         // Ad Modal Logic (Hints & Reveal)
