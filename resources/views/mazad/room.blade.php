@@ -293,8 +293,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Players list
         const playersEl = document.getElementById('players-list');
-        playersEl.innerHTML = room.players.map(p => `
-            <div class="flex items-center gap-3 bg-surface-variant/30 dark:bg-surface-variant/20 border border-outline-variant/20 rounded-xl p-3 ${!p.is_connected ? 'opacity-40' : ''}">
+        const displayedPlayers = room.mode === 'teams'
+            ? room.players.filter(p => !p.team)
+            : room.players;
+
+        playersEl.innerHTML = displayedPlayers.map(p => `
+            <div class="player-card flex items-center gap-3 bg-surface-variant/30 dark:bg-surface-variant/20 border border-outline-variant/20 rounded-xl p-3 ${!p.is_connected ? 'opacity-40' : ''} ${room.is_current_user_owner && room.mode === 'teams' ? 'cursor-grab active:cursor-grabbing' : ''}" 
+                 draggable="${room.is_current_user_owner && room.mode === 'teams' ? 'true' : 'false'}" 
+                 data-player-id="${p.id}">
                 <div class="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-display font-black text-sm">
                     ${p.name.charAt(0).toUpperCase()}
                 </div>
@@ -302,11 +308,17 @@ document.addEventListener('DOMContentLoaded', function () {
                     <div class="font-display font-bold text-sm text-on-surface truncate">${p.name}</div>
                     <div class="text-[9px] font-display font-bold uppercase tracking-widest text-on-surface-variant/60">
                         ${p.is_owner ? (isAr ? '👑 المالك' : '👑 Owner') : ''}
-                        ${p.team ? `<span style="color:${p.team.color}">${p.team.name}</span>` : ''}
                     </div>
                 </div>
+                ${room.is_current_user_owner && room.mode === 'teams' ? `
+                    <span class="material-symbols-outlined text-xs text-on-surface-variant/40 select-none">drag_indicator</span>
+                ` : ''}
             </div>
-        `).join('');
+        `).join('') || (room.mode === 'teams' ? `
+            <div class="col-span-full py-6 text-center border-2 border-dashed border-outline-variant/20 rounded-2xl text-xs text-on-surface-variant/40 italic">
+                ${isAr ? 'اسحب اللاعبين هنا لإلغاء تعيينهم' : 'Drag players here to unassign'}
+            </div>
+        ` : '');
 
         // Teams section
         if (room.mode === 'teams' && room.teams.length > 0) {
@@ -318,12 +330,24 @@ document.addEventListener('DOMContentLoaded', function () {
             teamsGrid.innerHTML = room.teams.map(team => {
                 const teamPlayers = room.players.filter(p => p.team?.id === team.id);
                 return `
-                <div class="border-2 rounded-2xl p-4" style="border-color: ${team.color}20; background: ${team.color}08">
-                    <div class="font-display font-black uppercase tracking-tight text-sm mb-3" style="color: ${team.color}">${team.name}</div>
-                    <div class="space-y-2">
+                <div class="team-zone border-2 rounded-2xl p-4 transition-all duration-200" 
+                     data-team-id="${team.id}" 
+                     style="border-color: ${team.color}20; background: ${team.color}08">
+                    <div class="font-display font-black uppercase tracking-tight text-sm mb-3 flex items-center justify-between" style="color: ${team.color}">
+                        <span>${team.name}</span>
+                        <span class="px-2 py-0.5 rounded bg-surface-variant/30 text-[10px] font-bold text-on-surface-variant">${teamPlayers.length}</span>
+                    </div>
+                    <div class="space-y-2 min-h-[60px] flex flex-col justify-center">
                         ${teamPlayers.map(p => `
-                            <div class="text-sm font-display font-bold text-on-surface">${p.name}</div>
-                        `).join('') || `<div class="text-xs text-on-surface-variant/40 italic">${isAr ? 'لا يوجد لاعبين' : 'No players'}</div>`}
+                            <div class="player-card flex items-center justify-between p-2.5 rounded-xl bg-surface-variant/20 border border-outline-variant/10 text-sm font-display font-bold text-on-surface ${room.is_current_user_owner ? 'cursor-grab active:cursor-grabbing' : ''}" 
+                                 draggable="${room.is_current_user_owner ? 'true' : 'false'}" 
+                                 data-player-id="${p.id}">
+                                <span>${p.name}</span>
+                                ${room.is_current_user_owner ? `
+                                    <span class="material-symbols-outlined text-xs text-on-surface-variant/40 select-none">drag_indicator</span>
+                                ` : ''}
+                            </div>
+                        `).join('') || `<div class="text-xs text-on-surface-variant/40 italic py-2 text-center select-none">${isAr ? 'اسحب اللاعبين هنا' : 'Drag players here'}</div>`}
                     </div>
                 </div>`;
             }).join('');
@@ -335,6 +359,89 @@ document.addEventListener('DOMContentLoaded', function () {
             startBtn.classList.remove('hidden');
         } else {
             startBtn.classList.add('hidden');
+        }
+
+        // Initialize drag and drop event listeners
+        initDragAndDrop();
+    }
+
+    let draggedPlayerId = null;
+
+    function initDragAndDrop() {
+        if (!room || !room.is_current_user_owner || room.mode !== 'teams') return;
+
+        // Player cards (draggable items)
+        document.querySelectorAll('.player-card').forEach(el => {
+            el.addEventListener('dragstart', (e) => {
+                draggedPlayerId = el.dataset.playerId;
+                e.dataTransfer.setData('text/plain', draggedPlayerId);
+                el.classList.add('opacity-50');
+            });
+
+            el.addEventListener('dragend', () => {
+                el.classList.remove('opacity-50');
+                document.querySelectorAll('.team-zone, #players-list').forEach(zone => {
+                    zone.classList.remove('border-primary', 'bg-primary/5', 'bg-surface-variant/50');
+                });
+            });
+        });
+
+        // Team Zones (Drop targets)
+        document.querySelectorAll('.team-zone').forEach(zone => {
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                zone.classList.add('border-primary', 'bg-primary/5');
+            });
+
+            zone.addEventListener('dragleave', () => {
+                zone.classList.remove('border-primary', 'bg-primary/5');
+            });
+
+            zone.addEventListener('drop', async (e) => {
+                e.preventDefault();
+                zone.classList.remove('border-primary', 'bg-primary/5');
+                const playerId = e.dataTransfer.getData('text/plain') || draggedPlayerId;
+                const teamId = zone.dataset.teamId;
+
+                if (playerId && teamId) {
+                    await assignPlayerToTeam(playerId, teamId);
+                }
+            });
+        });
+
+        // Lobby list container (Drop target to unassign)
+        const lobbyZone = document.getElementById('players-list');
+        if (lobbyZone) {
+            lobbyZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                lobbyZone.classList.add('border-primary', 'bg-surface-variant/50');
+            });
+
+            lobbyZone.addEventListener('dragleave', () => {
+                lobbyZone.classList.remove('border-primary', 'bg-surface-variant/50');
+            });
+
+            lobbyZone.addEventListener('drop', async (e) => {
+                e.preventDefault();
+                lobbyZone.classList.remove('border-primary', 'bg-surface-variant/50');
+                const playerId = e.dataTransfer.getData('text/plain') || draggedPlayerId;
+
+                if (playerId) {
+                    await assignPlayerToTeam(playerId, null);
+                }
+            });
+        }
+    }
+
+    async function assignPlayerToTeam(playerId, teamId) {
+        const { ok, data } = await api('/teams/assign', 'POST', {
+            player_id: playerId,
+            team_id: teamId
+        });
+        if (ok) {
+            await loadRoom();
+        } else {
+            alert(data.message || 'Failed to assign player');
         }
     }
 

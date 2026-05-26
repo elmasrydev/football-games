@@ -415,18 +415,22 @@ class RoomController extends Controller
 
         $validated = $request->validate([
             'player_id' => ['required', 'exists:mazad_players,id'],
-            'team_id' => ['required', 'exists:mazad_teams,id'],
+            'team_id' => ['nullable', 'exists:mazad_teams,id'],
         ]);
 
         $player = MazadPlayer::where('id', $validated['player_id'])
             ->where('room_id', $room->id)
             ->firstOrFail();
 
-        $team = MazadTeam::where('id', $validated['team_id'])
-            ->where('room_id', $room->id)
-            ->firstOrFail();
-
-        $player->update(['team_id' => $team->id]);
+        $team = null;
+        if (!empty($validated['team_id'])) {
+            $team = MazadTeam::where('id', $validated['team_id'])
+                ->where('room_id', $room->id)
+                ->firstOrFail();
+            $player->update(['team_id' => $team->id]);
+        } else {
+            $player->update(['team_id' => null]);
+        }
 
         $playerPayload = [
             'id' => $player->id,
@@ -435,15 +439,15 @@ class RoomController extends Controller
             'avatar' => $player->user->avatar,
             'is_owner' => $player->is_owner,
             'is_connected' => $player->is_connected,
-            'team' => [
+            'team' => $team ? [
                 'id' => $team->id,
                 'name' => $team->name,
                 'color' => $team->color,
-            ],
+            ] : null,
             'total_score' => $player->total_score,
         ];
         broadcast(new PlayerJoined($room, $playerPayload))->toOthers();
 
-        return response()->json(['message' => 'Player assigned to team']);
+        return response()->json(['message' => 'Player team assignment updated']);
     }
 }
