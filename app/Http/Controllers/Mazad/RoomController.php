@@ -65,6 +65,9 @@ class RoomController extends Controller
             'rest_time_seconds' => ['required', 'integer', 'min:5', 'max:30'],
             'mode' => ['required', Rule::in(['individual', 'teams'])],
             'num_teams' => ['nullable', 'integer', 'min:2', 'max:6'],
+            'language' => ['nullable', Rule::in(['en', 'ar', 'mix'])],
+            'genres' => ['nullable', 'array'],
+            'genres.*' => ['string', 'exists:genres,slug'],
         ]);
 
         // Ensure min_players_to_start <= max_players
@@ -83,9 +86,17 @@ class RoomController extends Controller
             $validated['num_teams'] = 2;
         }
 
-        $room = DB::transaction(function () use ($validated) {
+        $genreToCategoryMap = [
+            'football' => ['football', 'sports'],
+            'actors' => ['entertainment', 'music'],
+            'movies' => ['cinema'],
+            'geography' => ['geography', 'general', 'history', 'science', 'language', 'animals', 'food']
+        ];
+
+        $room = DB::transaction(function () use ($validated, $genreToCategoryMap) {
             $room = MazadRoom::create(array_merge($validated, [
                 'owner_id' => Auth::id(),
+                'language' => $validated['language'] ?? 'mix',
             ]));
 
             // Add owner as first player
@@ -107,10 +118,49 @@ class RoomController extends Controller
                 }
             }
 
-            // Pre-select random questions for this room
-            $questions = MazadQuestion::inRandomOrder()
+            // Pre-select random questions for this room based on language and genres
+            $query = MazadQuestion::query();
+
+            if ($room->language === 'ar') {
+                $query->whereNotNull('text_ar');
+            } elseif ($room->language === 'en') {
+                $query->whereNotNull('text');
+            }
+
+            if (!empty($room->genres)) {
+                $categories = [];
+                foreach ($room->genres as $genreSlug) {
+                    if (isset($genreToCategoryMap[$genreSlug])) {
+                        $categories = array_merge($categories, $genreToCategoryMap[$genreSlug]);
+                    }
+                }
+                if (!empty($categories)) {
+                    $query->whereIn('category', $categories);
+                }
+            }
+
+            $questions = $query->inRandomOrder()
                 ->limit($room->num_questions)
                 ->get();
+
+            // Fallback: if we don't have enough matching questions, fill in the rest
+            if ($questions->count() < $room->num_questions) {
+                $missingCount = $room->num_questions - $questions->count();
+                $excludeIds = $questions->pluck('id')->toArray();
+
+                $extraQuery = MazadQuestion::whereNotIn('id', $excludeIds);
+                if ($room->language === 'ar') {
+                    $extraQuery->whereNotNull('text_ar');
+                } elseif ($room->language === 'en') {
+                    $extraQuery->whereNotNull('text');
+                }
+
+                $extraQuestions = $extraQuery->inRandomOrder()
+                    ->limit($missingCount)
+                    ->get();
+
+                $questions = $questions->concat($extraQuestions);
+            }
 
             foreach ($questions as $index => $question) {
                 MazadRoomQuestion::create([

@@ -100,6 +100,10 @@
                             </div>
                         </div>
                     </div>
+                    <a href="{{ route('multiplayer.index', ['locale' => app()->getLocale()]) }}"
+                        class="transition-all hover:text-primary {{ request()->routeIs('multiplayer.index') ? 'text-primary' : 'text-on-surface-variant' }}">
+                        {{ __('Multiplayer') }}
+                    </a>
                 </div>
             </div>
 

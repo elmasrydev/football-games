@@ -25,6 +25,8 @@ class MazadRoom extends Model
         'current_question_index',
         'started_at',
         'finished_at',
+        'language',
+        'genres',
     ];
 
     protected $casts = [
@@ -38,6 +40,7 @@ class MazadRoom extends Model
         'rest_time_seconds' => 'integer',
         'num_teams' => 'integer',
         'current_question_index' => 'integer',
+        'genres' => 'array',
     ];
 
     protected static function booted(): void

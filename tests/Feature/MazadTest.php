@@ -302,4 +302,85 @@ class MazadTest extends TestCase
         // Player 2 contribution: 2 ('Paris', 'London')
         $this->assertEquals(2, $roundResults['player_contributions'][$player2->id]);
     }
+
+    public function test_user_can_create_room_with_genres_and_language(): void
+    {
+        // Seed another question in a different category and language
+        MazadQuestion::create([
+            'text' => 'Some actors question',
+            'text_ar' => 'سؤال ممثلين',
+            'category' => 'entertainment',
+            'difficulty' => 'easy',
+            'accepted_answers' => ['Ahmed', 'أحمد'],
+        ]);
+
+        // Create a genre in DB for validation
+        \App\Models\Genre::updateOrCreate(['slug' => 'football'], [
+            'name_en' => 'Football',
+            'name_ar' => 'كرة القدم',
+            'icon' => '⚽',
+        ]);
+        \App\Models\Genre::updateOrCreate(['slug' => 'actors'], [
+            'name_en' => 'Actors',
+            'name_ar' => 'الممثلين',
+            'icon' => '🎭',
+        ]);
+
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->postJson('/en/mazad/rooms', [
+            'visibility' => 'public',
+            'max_players' => 10,
+            'min_players_to_start' => 2,
+            'num_questions' => 2,
+            'question_time_seconds' => 60,
+            'rest_time_seconds' => 10,
+            'mode' => 'individual',
+            'language' => 'ar',
+            'genres' => ['football', 'actors'],
+        ]);
+
+        $response->assertStatus(201);
+
+        $room = MazadRoom::where('owner_id', $user->id)->first();
+        $this->assertEquals('ar', $room->language);
+        $this->assertEquals(['football', 'actors'], $room->genres);
+
+        // Ensure questions seeded to the room have text_ar not null
+        $roomQuestions = $room->roomQuestions()->with('question')->get();
+        $this->assertNotEmpty($roomQuestions);
+        foreach ($roomQuestions as $rq) {
+            $this->assertNotNull($rq->question->text_ar);
+        }
+    }
+
+    public function test_multiplayer_games_are_listed_on_multiplayer_page_and_excluded_from_library(): void
+    {
+        // Create an active multiplayer game and a single player game
+        $multiGame = \App\Models\Game::updateOrCreate(['slug' => 'mazad'], [
+            'title' => 'Mazad',
+            'name_ar' => 'مزاد',
+            'game_type' => 'multiplayer',
+            'is_active' => true,
+        ]);
+
+        $singleGame = \App\Models\Game::updateOrCreate(['slug' => 'guess-silhouette'], [
+            'title' => 'Silhouette Identity',
+            'name_ar' => 'هوية الظل',
+            'game_type' => 'image_guess',
+            'is_active' => true,
+        ]);
+
+        // Access multiplayer list page
+        $response = $this->get('/en/multiplayer');
+        $response->assertStatus(200);
+        $response->assertSee('Mazad');
+        $response->assertDontSee('Silhouette Identity');
+
+        // Access library page (single player)
+        $response = $this->get('/en/library');
+        $response->assertStatus(200);
+        // The count on index page lists single player games count
+        $this->assertEquals(1, $response->viewData('totalGamesCount'));
+    }
 }

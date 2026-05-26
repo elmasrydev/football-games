@@ -138,6 +138,62 @@
                 <input type="number" name="num_teams" value="2" min="2" max="6"
                     class="w-full bg-surface-variant/50 border border-outline-variant/30 rounded-xl px-4 py-3 font-display font-bold text-center focus:outline-none focus:border-primary transition-all">
             </div>
+            
+            {{-- Language --}}
+            <div>
+                <label class="block text-[10px] font-display font-black uppercase tracking-[0.2em] text-on-surface-variant mb-3">{{ __('Language') }}</label>
+                <div class="grid grid-cols-3 gap-3">
+                    <label class="relative cursor-pointer">
+                        <input type="radio" name="language" value="en" class="peer sr-only">
+                        <div class="p-3.5 rounded-2xl border-2 border-outline-variant/30 peer-checked:border-primary peer-checked:bg-primary/5 transition-all text-center">
+                            <div class="text-xs font-display font-black uppercase tracking-widest">EN</div>
+                        </div>
+                    </label>
+                    <label class="relative cursor-pointer">
+                        <input type="radio" name="language" value="ar" class="peer sr-only">
+                        <div class="p-3.5 rounded-2xl border-2 border-outline-variant/30 peer-checked:border-primary peer-checked:bg-primary/5 transition-all text-center">
+                            <div class="text-xs font-display font-black uppercase tracking-widest">AR</div>
+                        </div>
+                    </label>
+                    <label class="relative cursor-pointer">
+                        <input type="radio" name="language" value="mix" checked class="peer sr-only">
+                        <div class="p-3.5 rounded-2xl border-2 border-outline-variant/30 peer-checked:border-primary peer-checked:bg-primary/5 transition-all text-center">
+                            <div class="text-xs font-display font-black uppercase tracking-widest">{{ __('Mix') }}</div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            {{-- Genres --}}
+            <div>
+                <label class="block text-[10px] font-display font-black uppercase tracking-[0.2em] text-on-surface-variant mb-3">{{ __('Genres') }}</label>
+                <div class="grid grid-cols-2 gap-3">
+                    <label class="relative cursor-pointer">
+                        <input type="checkbox" name="genres[]" value="football" checked class="peer sr-only">
+                        <div class="p-3 rounded-2xl border-2 border-outline-variant/30 peer-checked:border-primary peer-checked:bg-primary/5 transition-all text-center text-xs font-display font-bold">
+                            ⚽ {{ __('Football') }}
+                        </div>
+                    </label>
+                    <label class="relative cursor-pointer">
+                        <input type="checkbox" name="genres[]" value="actors" checked class="peer sr-only">
+                        <div class="p-3 rounded-2xl border-2 border-outline-variant/30 peer-checked:border-primary peer-checked:bg-primary/5 transition-all text-center text-xs font-display font-bold">
+                            🎭 {{ __('Actors') }}
+                        </div>
+                    </label>
+                    <label class="relative cursor-pointer">
+                        <input type="checkbox" name="genres[]" value="movies" checked class="peer sr-only">
+                        <div class="p-3 rounded-2xl border-2 border-outline-variant/30 peer-checked:border-primary peer-checked:bg-primary/5 transition-all text-center text-xs font-display font-bold">
+                            🎬 {{ __('Movies') }}
+                        </div>
+                    </label>
+                    <label class="relative cursor-pointer">
+                        <input type="checkbox" name="genres[]" value="geography" checked class="peer sr-only">
+                        <div class="p-3 rounded-2xl border-2 border-outline-variant/30 peer-checked:border-primary peer-checked:bg-primary/5 transition-all text-center text-xs font-display font-bold">
+                            🌍 {{ __('Geography') }}
+                        </div>
+                    </label>
+                </div>
+            </div>
 
             {{-- Players --}}
             <div class="grid grid-cols-2 gap-4">
@@ -345,7 +401,17 @@ document.addEventListener('DOMContentLoaded', function () {
         e.preventDefault();
         const form = e.target;
         const formData = new FormData(form);
-        const data = Object.fromEntries(formData.entries());
+        const data = {};
+        
+        formData.forEach((value, key) => {
+            if (key.endsWith('[]')) {
+                const cleanKey = key.slice(0, -2);
+                if (!data[cleanKey]) data[cleanKey] = [];
+                data[cleanKey].push(value);
+            } else {
+                data[key] = value;
+            }
+        });
 
         // Convert numbers
         ['max_players', 'min_players_to_start', 'auto_start_at', 'num_questions', 'question_time_seconds', 'rest_time_seconds', 'num_teams'].forEach(k => {
