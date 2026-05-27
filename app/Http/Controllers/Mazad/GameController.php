@@ -85,6 +85,10 @@ class GameController extends Controller
         $question = $roomQuestion->question;
         $answerText = trim($validated['answer']);
 
+        // Match against accepted answers
+        $gameItemId = $this->answerMatcher->match($answerText, $question->accepted_answers ?? []);
+        $isCorrect = $gameItemId !== null;
+
         // Check if this player already submitted this exact answer (normalized) for this question
         $normalizedInput = $this->answerMatcher->normalize($answerText);
         $existingAnswer = MazadAnswer::where('room_question_id', $roomQuestion->id)
@@ -101,15 +105,11 @@ class GameController extends Controller
             ]);
         }
 
-        // Match against accepted answers
-        $matchedAnswer = $this->answerMatcher->match($answerText, $question->accepted_answers);
-        $isCorrect = $matchedAnswer !== null;
-
-        // Check if this correct answer was already submitted by this player (different spelling)
+        // Check if this correct answer was already submitted by this player (different spelling/language)
         if ($isCorrect) {
             $alreadyMatchedThis = MazadAnswer::where('room_question_id', $roomQuestion->id)
                 ->where('player_id', $player->id)
-                ->where('matched_answer', $matchedAnswer)
+                ->where('game_item_id', $gameItemId)
                 ->exists();
 
             if ($alreadyMatchedThis) {
@@ -118,14 +118,14 @@ class GameController extends Controller
                     'room_question_id' => $roomQuestion->id,
                     'player_id' => $player->id,
                     'answer_text' => $answerText,
-                    'matched_answer' => $matchedAnswer,
+                    'game_item_id' => $gameItemId,
                     'is_correct' => false, // Don't double-count
                     'submitted_at' => now(),
                 ]);
 
                 return response()->json([
                     'status' => 'duplicate',
-                    'message' => 'Already submitted (different spelling)',
+                    'message' => 'Already submitted (different spelling/language)',
                 ]);
             }
         }
@@ -135,7 +135,7 @@ class GameController extends Controller
             'room_question_id' => $roomQuestion->id,
             'player_id' => $player->id,
             'answer_text' => $answerText,
-            'matched_answer' => $matchedAnswer,
+            'game_item_id' => $gameItemId,
             'is_correct' => $isCorrect,
             'submitted_at' => now(),
         ]);

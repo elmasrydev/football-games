@@ -193,6 +193,18 @@ class GameSeeder extends Seeder
                 'answer_type' => 'term',
                 'image_file' => 'mazad.png'
             ],
+            [
+                'title' => 'Silhouette Arena',
+                'name_ar' => 'ساحة هوية الظل',
+                'slug' => 'silhouette',
+                'description' => 'Compete in real-time speed silhouette guess! Identify the person/stadium from their shadow first.',
+                'description_ar' => 'تنافس في الوقت الفعلي لتخمين هويات الظلال! خمن اسم الشخص أو الملعب من ظله أولاً لتكسب النقطة.',
+                'how_to_play' => "1. Create or join a public or private room.\n2. Wait for players to join.\n3. Be the fastest player to type the correct answer to gain the point!",
+                'how_to_play_ar' => "1. أنشئ أو انضم إلى غرفة عامة أو خاصة.\n2. انتظر انضمام اللاعبين الآخرين.\n3. كن أسرع لاعب يكتب الإجابة الصحيحة لكسب النقطة!",
+                'game_type' => 'multiplayer',
+                'answer_type' => 'player',
+                'image_file' => 'guess-silhouette.png'
+            ],
         ];
 
         $allGenres = \App\Models\Genre::all();

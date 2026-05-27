@@ -536,13 +536,134 @@ class MazadQuestionSeeder extends Seeder
             ],
         ];
 
+        $categoryToType = [
+            'football' => 'player',
+            'entertainment' => 'actor',
+            'cinema' => 'movie',
+            'geography' => 'country',
+            'sports' => 'competition',
+            'food' => 'general',
+            'history' => 'general',
+            'music' => 'player',
+            'science' => 'general',
+            'language' => 'general',
+            'animals' => 'general',
+            'general' => 'general',
+        ];
+
         foreach ($questions as $q) {
+            $type = $categoryToType[$q['category']] ?? 'general';
+            $acceptedAnswers = $q['accepted_answers'];
+            $resolvedIds = [];
+            
+            $i = 0;
+            $count = count($acceptedAnswers);
+            while ($i < $count) {
+                $current = trim($acceptedAnswers[$i]);
+                if ($current === '') {
+                    $i++;
+                    continue;
+                }
+
+                // Check exact matches or synonym contains
+                $existing = \App\Models\GameItem::where('type', $type)
+                    ->where(function($query) use ($current) {
+                        $query->where('name_en', $current)
+                              ->orWhere('name_ar', $current)
+                              ->orWhereJsonContains('metadata->synonyms', $current);
+                    })->first();
+
+                if ($existing) {
+                    $resolvedIds[] = $existing->id;
+                    $i++;
+                    continue;
+                }
+
+                // Look for common pairs: if current is Arabic and next is English (or vice versa)
+                $next = ($i + 1 < $count) ? trim($acceptedAnswers[$i + 1]) : null;
+                if ($next) {
+                    $nextExisting = \App\Models\GameItem::where('type', $type)
+                        ->where(function($query) use ($next) {
+                            $query->where('name_en', $next)
+                                  ->orWhere('name_ar', $next)
+                                  ->orWhereJsonContains('metadata->synonyms', $next);
+                        })->first();
+
+                    if ($nextExisting) {
+                        // Maybe $current is a synonym/alias, let's append it to synonyms of $nextExisting
+                        $metadata = $nextExisting->metadata ?? [];
+                        $synonyms = $metadata['synonyms'] ?? [];
+                        if (!in_array($current, $synonyms)) {
+                            $synonyms[] = $current;
+                            $metadata['synonyms'] = $synonyms;
+                            $nextExisting->update(['metadata' => $metadata]);
+                        }
+                        $resolvedIds[] = $nextExisting->id;
+                        $i += 2;
+                        continue;
+                    }
+
+                    $isCurrentArabic = preg_match('/[\x{0600}-\x{06FF}]/u', $current);
+                    $isNextEnglish = preg_match('/^[a-zA-Z0-9\s\'\-\.\&\(\)]+$/', $next);
+
+                    if (($isCurrentArabic && $isNextEnglish) || (!$isCurrentArabic && !$isNextEnglish)) {
+                        // Let's create a new GameItem with both name_ar and name_en
+                        $item = \App\Models\GameItem::create([
+                            'type' => $type,
+                            'name_ar' => $isCurrentArabic ? $current : $next,
+                            'name_en' => $isCurrentArabic ? $next : $current,
+                            'is_active' => true,
+                        ]);
+                        $resolvedIds[] = $item->id;
+                        $i += 2;
+                        continue;
+                    }
+                }
+
+                // Fallback: create as single item or see if it's a partial match for a synonym
+                // e.g. "messi" matching "Lionel Messi"
+                if (strlen($current) > 3) {
+                    $partial = \App\Models\GameItem::where('type', $type)
+                        ->where(function($query) use ($current) {
+                            $query->where('name_en', 'like', "%{$current}%")
+                                  ->orWhere('name_ar', 'like', "%{$current}%");
+                        })->first();
+                    if ($partial) {
+                        $metadata = $partial->metadata ?? [];
+                        $synonyms = $metadata['synonyms'] ?? [];
+                        if (!in_array($current, $synonyms)) {
+                            $synonyms[] = $current;
+                            $metadata['synonyms'] = $synonyms;
+                            $partial->update(['metadata' => $metadata]);
+                        }
+                        $resolvedIds[] = $partial->id;
+                        $i++;
+                        continue;
+                    }
+                }
+
+                $isArabic = preg_match('/[\x{0600}-\x{06FF}]/u', $current);
+                $item = \App\Models\GameItem::create([
+                    'type' => $type,
+                    'name_ar' => $isArabic ? $current : null,
+                    'name_en' => $isArabic ? '' : $current,
+                    'is_active' => true,
+                ]);
+                $resolvedIds[] = $item->id;
+                $i++;
+            }
+
             MazadQuestion::updateOrCreate(
                 ['text' => $q['text']],
-                $q
+                [
+                    'text_ar' => $q['text_ar'],
+                    'category' => $q['category'],
+                    'difficulty' => $q['difficulty'],
+                    'accepted_answers' => array_values(array_unique($resolvedIds)),
+                ]
             );
         }
 
-        $this->command->info('Seeded ' . count($questions) . ' Mazad questions.');
+        $this->command->info('Seeded ' . count($questions) . ' Mazad questions linked to GameItems.');
     }
 }

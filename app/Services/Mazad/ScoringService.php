@@ -42,8 +42,7 @@ class ScoringService
             $allTeamAnswers = MazadAnswer::where('room_question_id', $roomQuestion->id)
                 ->whereIn('player_id', $team->players->pluck('id'))
                 ->where('is_correct', true)
-                ->pluck('matched_answer')
-                ->map(fn($a) => mb_strtolower(trim($a)))
+                ->pluck('game_item_id')
                 ->unique();
 
             $teamScore = $allTeamAnswers->count();
@@ -108,8 +107,7 @@ class ScoringService
                 $totalTeamScore += MazadAnswer::where('room_question_id', $rqId)
                     ->whereIn('player_id', $team->players->pluck('id'))
                     ->where('is_correct', true)
-                    ->pluck('matched_answer')
-                    ->map(fn($a) => mb_strtolower(trim($a)))
+                    ->pluck('game_item_id')
                     ->unique()
                     ->count();
             }
@@ -142,7 +140,7 @@ class ScoringService
         return $player->answers()
             ->where('room_question_id', $roomQuestion->id)
             ->where('is_correct', true)
-            ->distinct('matched_answer')
-            ->count('matched_answer');
+            ->distinct('game_item_id')
+            ->count('game_item_id');
     }
 }

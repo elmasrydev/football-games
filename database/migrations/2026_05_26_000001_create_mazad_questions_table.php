@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('text_ar')->nullable();
             $table->string('category');
             $table->enum('difficulty', ['easy', 'medium', 'hard'])->default('medium');
-            $table->json('accepted_answers'); // ["paris", "باريس", "london", "لندن", ...]
+            $table->json('accepted_answers'); // [1, 2, 3, ... (GameItem IDs)]
             $table->timestamps();
         });
     }

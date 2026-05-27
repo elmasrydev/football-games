@@ -22,13 +22,18 @@ class MazadTest extends TestCase
     {
         parent::setUp();
 
-        // Seed some base questions
+        // Seed some base questions and game items
+        $item1 = \App\Models\GameItem::create(['type' => 'country', 'name_en' => 'Paris', 'name_ar' => 'باريس']);
+        $item2 = \App\Models\GameItem::create(['type' => 'country', 'name_en' => 'London', 'name_ar' => 'لندن']);
+        $item3 = \App\Models\GameItem::create(['type' => 'country', 'name_en' => 'Rome', 'name_ar' => 'روما']);
+        $item4 = \App\Models\GameItem::create(['type' => 'country', 'name_en' => 'Berlin', 'name_ar' => 'برلين']);
+
         MazadQuestion::create([
             'text' => 'European capitals',
             'text_ar' => 'عواصم أوروبية',
             'category' => 'geography',
             'difficulty' => 'easy',
-            'accepted_answers' => ['Paris', 'باريس', 'London', 'لندن', 'Rome', 'روما', 'Berlin', 'برلين'],
+            'accepted_answers' => [$item1->id, $item2->id, $item3->id, $item4->id],
         ]);
     }
 
@@ -203,15 +208,15 @@ class MazadTest extends TestCase
         ]);
         $response->assertJson(['status' => 'duplicate']);
 
-        // Exact match (Arabic) - new spelling, should be correct
+        // Exact match (Arabic) for different item - new spelling, should be correct
         $response = $this->actingAs($owner)->postJson("/en/mazad/rooms/{$room->code}/answer", [
-            'answer' => 'باريس',
+            'answer' => 'لندن',
         ]);
         $response->assertJson(['status' => 'correct']);
 
-        // Arabic normalization check: 'بَارِيس' (with tashkeel) normalizes to 'باريس', should be duplicate
+        // Arabic normalization check: 'لَندَن' (with tashkeel) normalizes to 'لندن', should be duplicate
         $response = $this->actingAs($owner)->postJson("/en/mazad/rooms/{$room->code}/answer", [
-            'answer' => 'بَارِيس',
+            'answer' => 'لَندَن',
         ]);
         $response->assertJson(['status' => 'duplicate']);
 
@@ -305,13 +310,14 @@ class MazadTest extends TestCase
 
     public function test_user_can_create_room_with_genres_and_language(): void
     {
+        $item = \App\Models\GameItem::create(['type' => 'actor', 'name_en' => 'Ahmed', 'name_ar' => 'أحمد']);
         // Seed another question in a different category and language
         MazadQuestion::create([
             'text' => 'Some actors question',
             'text_ar' => 'سؤال ممثلين',
             'category' => 'entertainment',
             'difficulty' => 'easy',
-            'accepted_answers' => ['Ahmed', 'أحمد'],
+            'accepted_answers' => [$item->id],
         ]);
 
         // Create a genre in DB for validation
@@ -435,14 +441,14 @@ class MazadTest extends TestCase
             'room_question_id' => $roomQuestion->id,
             'player_id' => $player->id,
             'answer_text' => 'Paris',
-            'matched_answer' => 'Paris',
+            'game_item_id' => 1,
             'is_correct' => true,
         ]);
         MazadAnswer::create([
             'room_question_id' => $roomQuestion->id,
             'player_id' => $player->id,
             'answer_text' => 'Berlin',
-            'matched_answer' => 'Berlin',
+            'game_item_id' => 4,
             'is_correct' => true,
         ]);
 

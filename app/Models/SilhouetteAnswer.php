@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class MazadAnswer extends Model
+class SilhouetteAnswer extends Model
 {
     public $timestamps = false;
 
@@ -15,22 +15,24 @@ class MazadAnswer extends Model
         'answer_text',
         'game_item_id',
         'is_correct',
+        'is_winning',
         'submitted_at',
     ];
 
     protected $casts = [
         'is_correct' => 'boolean',
+        'is_winning' => 'boolean',
         'submitted_at' => 'datetime',
     ];
 
     public function roomQuestion(): BelongsTo
     {
-        return $this->belongsTo(MazadRoomQuestion::class, 'room_question_id');
+        return $this->belongsTo(SilhouetteRoomQuestion::class, 'room_question_id');
     }
 
     public function player(): BelongsTo
     {
-        return $this->belongsTo(MazadPlayer::class, 'player_id');
+        return $this->belongsTo(SilhouettePlayer::class, 'player_id');
     }
 
     public function gameItem(): BelongsTo

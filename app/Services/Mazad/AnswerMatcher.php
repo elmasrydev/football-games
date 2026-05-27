@@ -5,40 +5,59 @@ namespace App\Services\Mazad;
 class AnswerMatcher
 {
     /**
-     * Check if the player's input matches any accepted answer.
-     * Returns the canonical matched answer or null.
+     * Check if the player's input matches any accepted answer (by GameItem IDs).
+     * Returns the matched GameItem ID or null.
      */
-    public function match(string $input, array $acceptedAnswers): ?string
+    public function match(string $input, array $acceptedAnswerIds): ?int
     {
         $normalized = $this->normalize($input);
 
-        if ($normalized === '') {
+        if ($normalized === '' || empty($acceptedAnswerIds)) {
             return null;
         }
 
+        // Fetch matching items
+        $items = \App\Models\GameItem::whereIn('id', $acceptedAnswerIds)->get();
+
         // 1. Exact match (after normalization)
-        foreach ($acceptedAnswers as $answer) {
-            if ($this->normalize($answer) === $normalized) {
-                return $answer;
+        foreach ($items as $item) {
+            $options = [$item->name_en, $item->name_ar];
+            if (isset($item->metadata['synonyms']) && is_array($item->metadata['synonyms'])) {
+                $options = array_merge($options, $item->metadata['synonyms']);
+            }
+
+            foreach ($options as $option) {
+                if ($option && $this->normalize($option) === $normalized) {
+                    return $item->id;
+                }
             }
         }
 
         // 2. Fuzzy match (Levenshtein)
         $threshold = mb_strlen($normalized) >= 5 ? 2 : 1;
-        $bestMatch = null;
+        $bestMatchId = null;
         $bestDistance = PHP_INT_MAX;
 
-        foreach ($acceptedAnswers as $answer) {
-            $normalizedAnswer = $this->normalize($answer);
-            $distance = $this->mbLevenshtein($normalizedAnswer, $normalized);
+        foreach ($items as $item) {
+            $options = [$item->name_en, $item->name_ar];
+            if (isset($item->metadata['synonyms']) && is_array($item->metadata['synonyms'])) {
+                $options = array_merge($options, $item->metadata['synonyms']);
+            }
 
-            if ($distance <= $threshold && $distance < $bestDistance) {
-                $bestDistance = $distance;
-                $bestMatch = $answer;
+            foreach ($options as $option) {
+                if (!$option) continue;
+                
+                $normalizedOption = $this->normalize($option);
+                $distance = $this->mbLevenshtein($normalizedOption, $normalized);
+
+                if ($distance <= $threshold && $distance < $bestDistance) {
+                    $bestDistance = $distance;
+                    $bestMatchId = $item->id;
+                }
             }
         }
 
-        return $bestMatch;
+        return $bestMatchId;
     }
 
     /**

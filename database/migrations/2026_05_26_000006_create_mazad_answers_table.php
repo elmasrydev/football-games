@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('room_question_id')->constrained('mazad_room_questions')->cascadeOnDelete();
             $table->foreignId('player_id')->constrained('mazad_players')->cascadeOnDelete();
             $table->string('answer_text');
-            $table->string('matched_answer')->nullable(); // the canonical answer it matched
+            $table->foreignId('game_item_id')->nullable()->constrained('game_items')->cascadeOnDelete();
             $table->boolean('is_correct')->default(false);
             $table->timestamp('submitted_at')->useCurrent();
         });

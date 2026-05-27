@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             CategoryCrusherSeeder::class,
             ArabicCategoryCrusherSeeder::class,
             MazadQuestionSeeder::class,
+            SilhouetteChallengeSeeder::class,
         ]);
     }
 }

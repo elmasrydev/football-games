@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class MazadPlayer extends Model
+class SilhouettePlayer extends Model
 {
     public $timestamps = false;
 
@@ -31,7 +31,7 @@ class MazadPlayer extends Model
 
     public function room(): BelongsTo
     {
-        return $this->belongsTo(MazadRoom::class, 'room_id');
+        return $this->belongsTo(SilhouetteRoom::class, 'room_id');
     }
 
     public function user(): BelongsTo
@@ -41,17 +41,14 @@ class MazadPlayer extends Model
 
     public function team(): BelongsTo
     {
-        return $this->belongsTo(MazadTeam::class, 'team_id');
+        return $this->belongsTo(SilhouetteTeam::class, 'team_id');
     }
 
     public function answers(): HasMany
     {
-        return $this->hasMany(MazadAnswer::class, 'player_id');
+        return $this->hasMany(SilhouetteAnswer::class, 'player_id');
     }
 
-    /**
-     * Get unique correct answers count for a specific room question.
-     */
     public function correctCountForQuestion(int $roomQuestionId): int
     {
         return $this->answers()

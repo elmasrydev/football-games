@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div id="mazad-app" class="min-h-screen" data-code="{{ $code }}" data-locale="{{ app()->getLocale() }}" data-user-id="{{ auth()->id() }}" data-csrf="{{ csrf_token() }}">
+<div id="silhouette-app" class="min-h-screen" data-code="{{ $code }}" data-locale="{{ app()->getLocale() }}" data-user-id="{{ auth()->id() }}" data-csrf="{{ csrf_token() }}">
 
     {{-- ═══ WAITING ROOM STATE ═══ --}}
     <div id="state-waiting" class="hidden py-8 px-4 sm:px-8">
@@ -94,7 +94,12 @@
                 <div id="timer-bar" class="h-full bg-gradient-to-r from-primary to-error rounded-full transition-all duration-1000 ease-linear" style="width: 100%"></div>
             </div>
 
-            {{-- Question --}}
+            {{-- Silhouette Image --}}
+            <div id="silhouette-image-container" class="hidden flex justify-center mb-6">
+                <img id="silhouette-image" class="max-h-[320px] max-w-full object-contain rounded-3xl border border-outline-variant/10 shadow-2xl transition-all duration-500" src="" alt="Silhouette">
+            </div>
+
+            {{-- Question Clue/Text --}}
             <div class="bg-surface-variant/30 dark:bg-surface-variant/20 border border-outline-variant/20 rounded-3xl p-8 mb-6 text-center">
                 <p id="question-text" class="text-2xl sm:text-3xl font-display font-black text-on-surface leading-snug"></p>
             </div>
@@ -109,15 +114,9 @@
                 </div>
             </div>
 
-            {{-- My Answers --}}
-            <div class="mb-6">
-                <div class="flex items-center gap-3 mb-3">
-                    <span class="text-[10px] font-display font-black uppercase tracking-[0.2em] text-on-surface-variant">{{ __('My Answers') }}</span>
-                    <span id="my-correct-count" class="px-2.5 py-0.5 rounded-full bg-tertiary/10 text-tertiary text-xs font-display font-bold">0</span>
-                </div>
-                <div id="my-answers-list" class="flex flex-wrap gap-2">
-                    {{-- Filled by JS --}}
-                </div>
+            {{-- Status Alert --}}
+            <div id="game-status-alert" class="hidden p-4 rounded-xl border mb-6 text-center text-sm font-display font-bold uppercase tracking-wider">
+                {{-- Filled dynamically --}}
             </div>
 
             {{-- Live Scoreboard --}}
@@ -134,9 +133,18 @@
     <div id="state-rest" class="hidden min-h-[80vh] flex items-center justify-center py-8 px-4">
         <div class="max-w-[600px] w-full text-center">
             <h2 class="text-2xl font-display font-black uppercase tracking-widest text-on-surface-variant mb-4">{{ __('Round Results') }}</h2>
+            
+            {{-- Reveal Area --}}
+            <div id="rest-reveal-card" class="bg-surface-variant/30 border border-outline-variant/20 rounded-3xl p-6 mb-8 flex flex-col items-center">
+                <img id="reveal-image" class="max-h-[260px] object-contain rounded-2xl shadow-xl mb-4 hidden" src="" alt="Revealed Answer">
+                <div class="text-[10px] font-display font-black uppercase tracking-[0.2em] text-primary mb-1">{{ __('Correct Answer') }}</div>
+                <div id="reveal-answer-text" class="text-2xl font-display font-black text-on-surface"></div>
+            </div>
+
             <div id="rest-round-results" class="mb-8">
                 {{-- Filled by JS --}}
             </div>
+            
             <div class="flex items-center justify-center gap-2 text-on-surface-variant">
                 <span class="material-symbols-outlined text-sm">timer</span>
                 <span class="text-sm font-display font-bold uppercase tracking-widest">{{ __('Next question in') }}</span>
@@ -167,14 +175,14 @@
 
             {{-- Actions --}}
             <div class="flex items-center justify-center gap-4">
-                <a href="/{{ app()->getLocale() }}/mazad" class="px-6 py-3 rounded-xl bg-surface-variant/50 text-on-surface font-display font-bold text-xs uppercase tracking-widest hover:bg-primary/10 hover:text-primary transition-all">
+                <a href="/{{ app()->getLocale() }}/silhouette" class="px-6 py-3 rounded-xl bg-surface-variant/50 text-on-surface font-display font-bold text-xs uppercase tracking-widest hover:bg-primary/10 hover:text-primary transition-all">
                     {{ __('Back to Lobby') }}
                 </a>
             </div>
         </div>
     </div>
 
-    {{-- ═══ NOT JOINED STATE (for private rooms accessed without joining) ═══ --}}
+    {{-- ═══ NOT JOINED STATE ═══ --}}
     <div id="state-join" class="hidden min-h-[80vh] flex items-center justify-center py-8 px-4">
         <div class="max-w-[400px] w-full text-center">
             <div class="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
@@ -199,14 +207,13 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const app = document.getElementById('mazad-app');
+    const app = document.getElementById('silhouette-app');
     const code = app.dataset.code;
     const locale = app.dataset.locale;
     const userId = parseInt(app.dataset.userId) || null;
     const csrfToken = app.dataset.csrf;
     const isAr = locale === 'ar';
 
-    // State references
     const states = {
         waiting: document.getElementById('state-waiting'),
         countdown: document.getElementById('state-countdown'),
@@ -219,17 +226,15 @@ document.addEventListener('DOMContentLoaded', function () {
     let room = null;
     let myPlayerId = null;
     let timerInterval = null;
-    let liveScores = {}; // { playerId: correctCount }
+    let liveScores = {};
     let currentQuestionIndex = null;
     let currentQuestionState = null;
 
-    // ── Show State ──
     function showState(name) {
         Object.values(states).forEach(s => s.classList.add('hidden'));
         states[name].classList.remove('hidden');
     }
 
-    // ── API helpers ──
     async function api(endpoint, method = 'GET', body = null) {
         const opts = {
             method,
@@ -240,11 +245,10 @@ document.addEventListener('DOMContentLoaded', function () {
             },
         };
         if (body) opts.body = JSON.stringify(body);
-        const res = await fetch(`/${locale}/mazad/rooms/${code}${endpoint}`, opts);
+        const res = await fetch(`/${locale}/silhouette/rooms/${code}${endpoint}`, opts);
         return { ok: res.ok, data: await res.json() };
     }
 
-    // ── Load Room ──
     async function loadRoom() {
         const { ok, data } = await api('', 'GET');
         if (!ok) return;
@@ -268,32 +272,24 @@ document.addEventListener('DOMContentLoaded', function () {
                     currentQuestionIndex = cq.question_index;
                     currentQuestionState = cq.is_active ? 'active' : 'rest';
                     if (cq.is_active) {
-                        // Restore active question
                         showQuestion({
                             question_index: cq.question_index,
                             total_questions: cq.total_questions,
                             question_text: cq.question_text,
                             question_text_ar: cq.question_text_ar,
+                            image_path: cq.image_path,
                             end_time: cq.end_time,
                             time_seconds: cq.time_seconds
                         });
 
-                        // Restore my answers
-                        myAnswers = cq.my_answers || [];
-                        renderMyAnswers();
-
-                        // Restore my correct count in the DOM
-                        const correctCount = myAnswers.filter(a => a.correct).length;
-                        document.getElementById('my-correct-count').textContent = correctCount;
-
-                        // Restore live scores
                         liveScores = cq.live_scores || {};
                         renderLiveScores();
                     } else if (cq.is_rest) {
-                        // Restore rest state
                         showRoundResults({
                             rest_time_seconds: cq.rest_remaining_seconds,
-                            round_results: cq.rest_results ? cq.rest_results.round_results : {}
+                            round_results: cq.rest_results ? cq.rest_results.round_results : {},
+                            correct_answer: cq.rest_results ? cq.rest_results.correct_answer : '',
+                            reveal_image_path: cq.rest_results ? cq.rest_results.reveal_image_path : null
                         });
                     }
                 } else {
@@ -303,19 +299,17 @@ document.addEventListener('DOMContentLoaded', function () {
             case 'finished': loadResults(); break;
             case 'closed':
                 alert(isAr ? 'تم إغلاق الغرفة' : 'Room has been closed');
-                window.location.href = `/${locale}/mazad`;
+                window.location.href = `/${locale}/silhouette`;
                 break;
         }
     }
 
-    // ── Render Waiting Room ──
     function renderWaiting() {
         showState('waiting');
         document.getElementById('player-count-text').textContent =
             `${room.players.length} / ${room.max_players} ${isAr ? 'لاعبين' : 'players'}`;
         document.getElementById('share-link').value = room.share_link;
 
-        // Config cards
         const configEl = document.getElementById('room-config');
         configEl.innerHTML = [
             { icon: 'quiz', label: isAr ? 'أسئلة' : 'Questions', value: room.num_questions },
@@ -330,11 +324,8 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
         `).join('');
 
-        // Players list
         const playersEl = document.getElementById('players-list');
-        const displayedPlayers = room.mode === 'teams'
-            ? room.players.filter(p => !p.team)
-            : room.players;
+        const displayedPlayers = room.mode === 'teams' ? room.players.filter(p => !p.team) : room.players;
 
         playersEl.innerHTML = displayedPlayers.map(p => `
             <div class="player-card flex items-center gap-3 bg-surface-variant/30 dark:bg-surface-variant/20 border border-outline-variant/20 rounded-xl p-3 ${!p.is_connected ? 'opacity-40' : ''} ${room.is_current_user_owner && room.mode === 'teams' ? 'cursor-grab active:cursor-grabbing' : ''}" 
@@ -349,17 +340,9 @@ document.addEventListener('DOMContentLoaded', function () {
                         ${p.is_owner ? (isAr ? '👑 المالك' : '👑 Owner') : ''}
                     </div>
                 </div>
-                ${room.is_current_user_owner && room.mode === 'teams' ? `
-                    <span class="material-symbols-outlined text-xs text-on-surface-variant/40 select-none">drag_indicator</span>
-                ` : ''}
             </div>
-        `).join('') || (room.mode === 'teams' ? `
-            <div class="col-span-full py-6 text-center border-2 border-dashed border-outline-variant/20 rounded-2xl text-xs text-on-surface-variant/40 italic">
-                ${isAr ? 'اسحب اللاعبين هنا لإلغاء تعيينهم' : 'Drag players here to unassign'}
-            </div>
-        ` : '');
+        `).join('') || (room.mode === 'teams' ? `<div class="col-span-full py-6 text-center border-2 border-dashed border-outline-variant/20 rounded-2xl text-xs text-on-surface-variant/40 italic">${isAr ? 'اسحب اللاعبين هنا لإلغاء تعيينهم' : 'Drag players here to unassign'}</div>` : '');
 
-        // Teams section
         if (room.mode === 'teams' && room.teams.length > 0) {
             document.getElementById('teams-section').classList.remove('hidden');
             if (room.is_current_user_owner) {
@@ -369,22 +352,15 @@ document.addEventListener('DOMContentLoaded', function () {
             teamsGrid.innerHTML = room.teams.map(team => {
                 const teamPlayers = room.players.filter(p => p.team?.id === team.id);
                 return `
-                <div class="team-zone border-2 rounded-2xl p-4 transition-all duration-200" 
-                     data-team-id="${team.id}" 
-                     style="border-color: ${team.color}20; background: ${team.color}08">
+                <div class="team-zone border-2 rounded-2xl p-4 transition-all duration-200" data-team-id="${team.id}" style="border-color: ${team.color}20; background: ${team.color}08">
                     <div class="font-display font-black uppercase tracking-tight text-sm mb-3 flex items-center justify-between" style="color: ${team.color}">
                         <span>${team.name}</span>
                         <span class="px-2 py-0.5 rounded bg-surface-variant/30 text-[10px] font-bold text-on-surface-variant">${teamPlayers.length}</span>
                     </div>
                     <div class="space-y-2 min-h-[60px] flex flex-col justify-center">
                         ${teamPlayers.map(p => `
-                            <div class="player-card flex items-center justify-between p-2.5 rounded-xl bg-surface-variant/20 border border-outline-variant/10 text-sm font-display font-bold text-on-surface ${room.is_current_user_owner ? 'cursor-grab active:cursor-grabbing' : ''}" 
-                                 draggable="${room.is_current_user_owner ? 'true' : 'false'}" 
-                                 data-player-id="${p.id}">
+                            <div class="player-card flex items-center justify-between p-2.5 rounded-xl bg-surface-variant/20 border border-outline-variant/10 text-sm font-display font-bold text-on-surface ${room.is_current_user_owner ? 'cursor-grab active:cursor-grabbing' : ''}" draggable="${room.is_current_user_owner ? 'true' : 'false'}" data-player-id="${p.id}">
                                 <span>${p.name}</span>
-                                ${room.is_current_user_owner ? `
-                                    <span class="material-symbols-outlined text-xs text-on-surface-variant/40 select-none">drag_indicator</span>
-                                ` : ''}
                             </div>
                         `).join('') || `<div class="text-xs text-on-surface-variant/40 italic py-2 text-center select-none">${isAr ? 'اسحب اللاعبين هنا' : 'Drag players here'}</div>`}
                     </div>
@@ -392,99 +368,55 @@ document.addEventListener('DOMContentLoaded', function () {
             }).join('');
         }
 
-        // Show/hide start button
         const startBtn = document.getElementById('start-game-btn');
         if (room.is_current_user_owner && room.players.length >= room.min_players_to_start) {
             startBtn.classList.remove('hidden');
         } else {
             startBtn.classList.add('hidden');
         }
-
-        // Initialize drag and drop event listeners
         initDragAndDrop();
     }
 
     let draggedPlayerId = null;
-
     function initDragAndDrop() {
         if (!room || !room.is_current_user_owner || room.mode !== 'teams') return;
-
-        // Player cards (draggable items)
         document.querySelectorAll('.player-card').forEach(el => {
             el.addEventListener('dragstart', (e) => {
                 draggedPlayerId = el.dataset.playerId;
                 e.dataTransfer.setData('text/plain', draggedPlayerId);
                 el.classList.add('opacity-50');
             });
-
             el.addEventListener('dragend', () => {
                 el.classList.remove('opacity-50');
-                document.querySelectorAll('.team-zone, #players-list').forEach(zone => {
-                    zone.classList.remove('border-primary', 'bg-primary/5', 'bg-surface-variant/50');
-                });
             });
         });
 
-        // Team Zones (Drop targets)
         document.querySelectorAll('.team-zone').forEach(zone => {
-            zone.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                zone.classList.add('border-primary', 'bg-primary/5');
-            });
-
-            zone.addEventListener('dragleave', () => {
-                zone.classList.remove('border-primary', 'bg-primary/5');
-            });
-
+            zone.addEventListener('dragover', (e) => e.preventDefault());
             zone.addEventListener('drop', async (e) => {
                 e.preventDefault();
-                zone.classList.remove('border-primary', 'bg-primary/5');
                 const playerId = e.dataTransfer.getData('text/plain') || draggedPlayerId;
                 const teamId = zone.dataset.teamId;
-
-                if (playerId && teamId) {
-                    await assignPlayerToTeam(playerId, teamId);
-                }
+                if (playerId && teamId) await assignPlayerToTeam(playerId, teamId);
             });
         });
 
-        // Lobby list container (Drop target to unassign)
         const lobbyZone = document.getElementById('players-list');
         if (lobbyZone) {
-            lobbyZone.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                lobbyZone.classList.add('border-primary', 'bg-surface-variant/50');
-            });
-
-            lobbyZone.addEventListener('dragleave', () => {
-                lobbyZone.classList.remove('border-primary', 'bg-surface-variant/50');
-            });
-
+            lobbyZone.addEventListener('dragover', (e) => e.preventDefault());
             lobbyZone.addEventListener('drop', async (e) => {
                 e.preventDefault();
-                lobbyZone.classList.remove('border-primary', 'bg-surface-variant/50');
                 const playerId = e.dataTransfer.getData('text/plain') || draggedPlayerId;
-
-                if (playerId) {
-                    await assignPlayerToTeam(playerId, null);
-                }
+                if (playerId) await assignPlayerToTeam(playerId, null);
             });
         }
     }
 
     async function assignPlayerToTeam(playerId, teamId) {
-        const { ok, data } = await api('/teams/assign', 'POST', {
-            player_id: playerId,
-            team_id: teamId
-        });
-        if (ok) {
-            await loadRoom();
-        } else {
-            alert(data.message || 'Failed to assign player');
-        }
+        const { ok } = await api('/teams/assign', 'POST', { player_id: playerId, team_id: teamId });
+        if (ok) await loadRoom();
     }
 
-    // ── Countdown ──
     function showCountdown(seconds) {
         showState('countdown');
         const el = document.getElementById('countdown-number');
@@ -495,14 +427,12 @@ document.addEventListener('DOMContentLoaded', function () {
             if (s <= 0) {
                 clearInterval(iv);
                 el.textContent = '🚀';
-                // Game state will be set by QuestionStarted event or by polling
             } else {
                 el.textContent = s;
             }
         }, 1000);
     }
 
-    // ── Game Timer ──
     function startTimer(endTimeISO) {
         clearInterval(timerInterval);
         const endTime = new Date(endTimeISO).getTime();
@@ -515,22 +445,15 @@ document.addEventListener('DOMContentLoaded', function () {
             const pct = Math.max(0, (endTime - Date.now()) / totalMs * 100);
             document.getElementById('timer-bar').style.width = `${pct}%`;
 
-            // Color changes
             const timerEl = document.getElementById('timer-display');
-            if (remaining <= 10) {
-                timerEl.classList.add('animate-pulse');
-            }
-
-            if (remaining <= 0) {
-                clearInterval(timerInterval);
-            }
+            if (remaining <= 10) timerEl.classList.add('animate-pulse');
+            if (remaining <= 0) clearInterval(timerInterval);
         }, 100);
     }
 
-    // ── Answer Submission ──
     const answerInput = document.getElementById('answer-input');
     const feedbackEl = document.getElementById('answer-feedback');
-    let myAnswers = [];
+    const alertEl = document.getElementById('game-status-alert');
 
     answerInput?.addEventListener('keydown', async (e) => {
         if (e.key !== 'Enter') return;
@@ -538,45 +461,35 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!answer) return;
 
         answerInput.value = '';
+        answerInput.disabled = true;
 
         const { ok, data } = await api('/answer', 'POST', { answer });
+        answerInput.disabled = false;
+        answerInput.focus();
 
-        // Show feedback
         feedbackEl.classList.remove('hidden');
         const iconEl = feedbackEl.querySelector('.material-symbols-outlined');
 
         if (data.status === 'correct') {
             iconEl.textContent = 'check_circle';
             iconEl.className = 'material-symbols-outlined text-2xl text-tertiary';
-            myAnswers.push({ text: answer, correct: true });
-            document.getElementById('my-correct-count').textContent = data.correct_count;
-            liveScores[myPlayerId] = data.correct_count;
-            renderLiveScores();
+            answerInput.disabled = true;
+            answerInput.placeholder = isAr ? 'إجابة صحيحة! تم إنهاء الجولة...' : 'Correct answer! Round ending...';
         } else if (data.status === 'duplicate') {
             iconEl.textContent = 'info';
             iconEl.className = 'material-symbols-outlined text-2xl text-on-surface-variant';
+        } else if (data.status === 'too_late') {
+            iconEl.textContent = 'block';
+            iconEl.className = 'material-symbols-outlined text-2xl text-error';
+            answerInput.disabled = true;
+            answerInput.placeholder = isAr ? 'متأخر جداً! قام لاعب آخر بالحل' : 'Too late! Someone else got it';
         } else {
             iconEl.textContent = 'cancel';
             iconEl.className = 'material-symbols-outlined text-2xl text-error';
-            myAnswers.push({ text: answer, correct: false });
         }
 
-        renderMyAnswers();
         setTimeout(() => feedbackEl.classList.add('hidden'), 1500);
     });
-
-    function renderMyAnswers() {
-        const el = document.getElementById('my-answers-list');
-        el.innerHTML = myAnswers.map(a => `
-            <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-display font-bold ${
-                a.correct
-                    ? 'bg-tertiary/10 text-tertiary border border-tertiary/20'
-                    : 'bg-error/10 text-error/60 border border-error/10 line-through'
-            }">
-                ${a.correct ? '✓' : '✗'} ${a.text}
-            </span>
-        `).join('');
-    }
 
     function renderLiveScores() {
         if (!room) return;
@@ -597,50 +510,74 @@ document.addEventListener('DOMContentLoaded', function () {
         `).join('');
     }
 
-    // ── Show Question ──
     function showQuestion(data) {
         showState('game');
-        myAnswers = [];
         liveScores = {};
         room.players.forEach(p => liveScores[p.id] = 0);
 
         document.getElementById('question-counter').textContent = `${data.question_index + 1}/${data.total_questions}`;
         document.getElementById('question-text').textContent = isAr ? data.question_text_ar : data.question_text;
-        document.getElementById('my-correct-count').textContent = '0';
-        document.getElementById('my-answers-list').innerHTML = '';
         document.getElementById('timer-bar').style.width = '100%';
 
+        const imgEl = document.getElementById('silhouette-image');
+        const imgContainer = document.getElementById('silhouette-image-container');
+        if (data.image_path) {
+            imgEl.src = data.image_path;
+            imgEl.style.filter = 'brightness(0)'; // Force silhouette
+            imgContainer.classList.remove('hidden');
+        } else {
+            imgContainer.classList.add('hidden');
+        }
+
+        alertEl.classList.add('hidden');
         answerInput.value = '';
+        answerInput.disabled = false;
+        answerInput.placeholder = isAr ? 'اكتب إجابتك واضغط Enter...' : 'Type your answer and press Enter...';
         answerInput.focus();
 
         renderLiveScores();
         startTimer(data.end_time);
     }
 
-    // ── Show Round Results ──
     function showRoundResults(data) {
         showState('rest');
         clearInterval(timerInterval);
 
         const resultsEl = document.getElementById('rest-round-results');
-        if (typeof data.round_results === 'object' && !Array.isArray(data.round_results)) {
-            // Team mode
-            resultsEl.innerHTML = '<div class="text-on-surface-variant text-sm">' + (isAr ? 'نتائج الجولة' : 'Round scores loaded') + '</div>';
+        
+        // Handle image reveal
+        const revealImg = document.getElementById('reveal-image');
+        if (data.reveal_image_path) {
+            revealImg.src = data.reveal_image_path;
+            revealImg.classList.remove('hidden');
         } else {
-            // Individual mode: data.round_results is { playerId: score }
-            const entries = Object.entries(data.round_results || {});
-            resultsEl.innerHTML = entries
-                .sort((a, b) => b[1] - a[1])
-                .map(([pid, score]) => {
-                    const p = room?.players.find(pl => pl.id == pid);
-                    return `<div class="flex items-center justify-between py-2">
-                        <span class="font-display font-bold text-on-surface">${p?.name || pid}</span>
-                        <span class="font-display font-black text-primary">${score}</span>
-                    </div>`;
-                }).join('');
+            revealImg.classList.add('hidden');
         }
 
-        // Rest countdown
+        document.getElementById('reveal-answer-text').textContent = data.correct_answer || '';
+
+        if (typeof data.round_results === 'object' && !Array.isArray(data.round_results)) {
+            // Team Mode
+            const teamEntries = Object.entries(data.round_results.team_scores || {});
+            resultsEl.innerHTML = teamEntries.map(([tid, score]) => {
+                const t = room?.teams.find(tm => tm.id == tid);
+                return `<div class="flex items-center justify-between py-2 border-b border-outline-variant/10">
+                    <span class="font-display font-bold" style="color: ${t?.color || 'inherit'}">${t?.name || tid}</span>
+                    <span class="font-display font-black text-primary">${score}</span>
+                </div>`;
+            }).join('') || `<div class="text-xs text-on-surface-variant/40 italic py-4">${isAr ? 'لم يفز أي فريق بهذه الجولة' : 'No teams won this round'}</div>`;
+        } else {
+            // Individual Mode
+            const entries = Object.entries(data.round_results || {});
+            resultsEl.innerHTML = entries.map(([pid, score]) => {
+                const p = room?.players.find(pl => pl.id == pid);
+                return `<div class="flex items-center justify-between py-2 border-b border-outline-variant/10">
+                    <span class="font-display font-bold text-on-surface">${p?.name || pid}</span>
+                    <span class="font-display font-black text-primary">+${score}</span>
+                </div>`;
+            }).join('') || `<div class="text-xs text-on-surface-variant/40 italic py-4">${isAr ? 'انتهى الوقت دون إجابة صحيحة!' : 'Time ran out with no correct answers!'}</div>`;
+        }
+
         let restTime = data.rest_time_seconds;
         document.getElementById('rest-timer').textContent = restTime;
         const restIv = setInterval(() => {
@@ -650,7 +587,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 1000);
     }
 
-    // ── Show Results ──
     async function loadResults() {
         showState('finished');
         const { ok, data } = await api('/results');
@@ -658,7 +594,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const lb = data.leaderboard;
         if (lb.length > 0) {
-            const winner = data.mode === 'teams' ? lb[0] : lb[0];
+            const winner = lb[0];
             document.getElementById('winner-name').textContent = winner.name || winner.team_name || '';
             document.getElementById('winner-score').textContent = `${winner.score} ${isAr ? 'نقطة' : 'points'}`;
         }
@@ -668,7 +604,6 @@ document.addEventListener('DOMContentLoaded', function () {
             const isWinner = i === 0;
             const name = entry.name || entry.team_name;
             
-            // Format members if they exist
             let membersHtml = '';
             if (entry.members && entry.members.length > 0) {
                 const membersList = entry.members.map(member => {
@@ -683,10 +618,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     </div>`;
                 }).join('');
                 
-                membersHtml = `
-                <div class="flex flex-wrap gap-1.5 mt-2.5">
-                    ${membersList}
-                </div>`;
+                membersHtml = `<div class="flex flex-wrap gap-1.5 mt-2.5">${membersList}</div>`;
             }
 
             return `
@@ -703,9 +635,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }).join('');
     }
 
-    // ── Event Handlers ──
-
-    // Start game
     document.getElementById('start-game-btn')?.addEventListener('click', async () => {
         const btn = document.getElementById('start-game-btn');
         btn.disabled = true;
@@ -720,23 +649,16 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Leave room
     document.getElementById('leave-room-btn')?.addEventListener('click', async () => {
         await api('/leave', 'POST');
-        window.location.href = `/${locale}/mazad`;
+        window.location.href = `/${locale}/silhouette`;
     });
 
-    // Join this room (private room join button)
     document.getElementById('join-this-room-btn')?.addEventListener('click', async () => {
-        const { ok, data } = await api('/join', 'POST');
-        if (ok) {
-            loadRoom();
-        } else {
-            alert(data.message);
-        }
+        const { ok } = await api('/join', 'POST');
+        if (ok) loadRoom();
     });
 
-    // Copy link
     document.getElementById('copy-link-btn')?.addEventListener('click', () => {
         const input = document.getElementById('share-link');
         navigator.clipboard.writeText(input.value);
@@ -745,15 +667,10 @@ document.addEventListener('DOMContentLoaded', function () {
         setTimeout(() => btn.textContent = isAr ? 'نسخ' : 'Copy', 2000);
     });
 
-    // Auto-assign teams
     document.getElementById('auto-teams-btn')?.addEventListener('click', async () => {
         await api('/teams/auto', 'POST');
         loadRoom();
     });
-
-    // ── WebSocket / Polling ──
-    // For now, use polling. Reverb/Echo integration will be wired in Phase 2.
-    // This ensures the game works even before Echo JS is set up.
 
     function pollForUpdates() {
         setInterval(async () => {
@@ -766,7 +683,6 @@ document.addEventListener('DOMContentLoaded', function () {
             room = data.room;
             myPlayerId = room.players.find(p => p.user_id === userId)?.id || null;
 
-            // Handle state transitions
             if (oldStatus !== room.status) {
                 switch (room.status) {
                     case 'waiting': renderWaiting(); break;
@@ -776,7 +692,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         break;
                     case 'finished': loadResults(); break;
                     case 'closed':
-                        window.location.href = `/${locale}/mazad`;
+                        window.location.href = `/${locale}/silhouette`;
                         break;
                 }
             } else if (room.status === 'waiting') {
@@ -795,32 +711,29 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 3000);
     }
 
-    // ── Listen for broadcast events (Echo will replace polling) ──
     if (window.Echo) {
-        window.Echo.channel(`mazad.room.${code}`)
-            .listen('.App\\Events\\Mazad\\PlayerJoined', (e) => { loadRoom(); })
-            .listen('.App\\Events\\Mazad\\PlayerLeft', (e) => { loadRoom(); })
-            .listen('.App\\Events\\Mazad\\GameStarting', (e) => { showCountdown(e.countdown); })
-            .listen('.App\\Events\\Mazad\\QuestionStarted', (e) => {
+        window.Echo.channel(`silhouette.room.${code}`)
+            .listen('.App\\Events\\Silhouette\\PlayerJoined', () => loadRoom())
+            .listen('.App\\Events\\Silhouette\\PlayerLeft', () => loadRoom())
+            .listen('.App\\Events\\Silhouette\\GameStarting', (e) => showCountdown(e.countdown_seconds))
+            .listen('.App\\Events\\Silhouette\\QuestionStarted', (e) => {
                 currentQuestionIndex = e.questionIndex;
                 currentQuestionState = 'active';
                 showQuestion(e);
             })
-            .listen('.App\\Events\\Mazad\\ScoreUpdate', (e) => {
+            .listen('.App\\Events\\Silhouette\\ScoreUpdate', (e) => {
                 liveScores[e.player_id] = e.correct_count;
                 renderLiveScores();
             })
-            .listen('.App\\Events\\Mazad\\QuestionEnded', (e) => {
+            .listen('.App\\Events\\Silhouette\\QuestionEnded', (e) => {
                 currentQuestionState = 'rest';
                 showRoundResults(e);
             })
-            .listen('.App\\Events\\Mazad\\GameFinished', (e) => { loadResults(); });
+            .listen('.App\\Events\\Silhouette\\GameFinished', () => loadResults());
     } else {
-        // Fallback polling
         pollForUpdates();
     }
 
-    // ── Initial Load ──
     loadRoom();
 });
 </script>

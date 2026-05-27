@@ -25,6 +25,14 @@ class MazadQuestion extends Model
     }
 
     /**
+     * Get the associated GameItem models for accepted answers.
+     */
+    public function acceptedGameItems()
+    {
+        return \App\Models\GameItem::whereIn('id', $this->accepted_answers ?? [])->get();
+    }
+
+    /**
      * Get localized question text.
      */
     public function getLocalizedTextAttribute(): string
