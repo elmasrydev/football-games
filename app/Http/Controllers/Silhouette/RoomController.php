@@ -9,6 +9,7 @@ use App\Models\SilhouetteRoom;
 use App\Models\SilhouetteRoomQuestion;
 use App\Models\SilhouetteTeam;
 use App\Models\Genre;
+use App\Models\Game;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -103,13 +104,16 @@ class RoomController extends Controller
                 }
             }
 
-            // Pre-select random questions for this room based on language and genres from Challenges table (game_id = 1)
-            $query = Challenge::where('game_id', 1)->where('is_active', true);
+            $silhouetteGame = Game::where('slug', 'guess-silhouette')->first();
+            $gameId = $silhouetteGame ? $silhouetteGame->id : 1;
+
+            // Pre-select random questions for this room based on language and genres from Challenges table
+            $query = Challenge::where('game_id', $gameId)->where('is_active', true);
 
             if ($room->language === 'ar') {
-                $query->where('language', 'ar');
+                $query->whereIn('language', ['ar', 'mix']);
             } elseif ($room->language === 'en') {
-                $query->where('language', 'en');
+                $query->whereIn('language', ['en', 'mix']);
             }
 
             if (!empty($room->genres)) {
@@ -128,14 +132,14 @@ class RoomController extends Controller
                 $missingCount = $room->num_questions - $challenges->count();
                 $excludeIds = $challenges->pluck('id')->toArray();
 
-                $extraQuery = Challenge::where('game_id', 1)
+                $extraQuery = Challenge::where('game_id', $gameId)
                     ->where('is_active', true)
                     ->whereNotIn('id', $excludeIds);
 
                 if ($room->language === 'ar') {
-                    $extraQuery->where('language', 'ar');
+                    $extraQuery->whereIn('language', ['ar', 'mix']);
                 } elseif ($room->language === 'en') {
-                    $extraQuery->where('language', 'en');
+                    $extraQuery->whereIn('language', ['en', 'mix']);
                 }
 
                 $extraChallenges = $extraQuery->inRandomOrder()
