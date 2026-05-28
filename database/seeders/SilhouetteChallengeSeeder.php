@@ -29,8 +29,8 @@ class SilhouetteChallengeSeeder extends Seeder
                 'answer_type' => 'player',
                 'autocomplete_type' => 'player',
                 'stimulus_data' => [
-                    'image_path' => '/storage/games/guess-silhouette.png',
-                    'reveal_image_path' => '/storage/games/guess-silhouette.png',
+                    'image_path' => '/images/challenges/salah_silhouette.png',
+                    'reveal_image_path' => '/images/challenges/salah_reveal.png',
                     'question' => 'Who is this famous Premier League winger?',
                     'question_ar' => 'من هو هذا الجناح الشهير في الدوري الإنجليزي الممتاز؟',
                 ]
@@ -44,8 +44,8 @@ class SilhouetteChallengeSeeder extends Seeder
                 'answer_type' => 'player',
                 'autocomplete_type' => 'player',
                 'stimulus_data' => [
-                    'image_path' => '/storage/games/guess-silhouette.png',
-                    'reveal_image_path' => '/storage/games/guess-silhouette.png',
+                    'image_path' => '/images/challenges/messi_silhouette.png',
+                    'reveal_image_path' => '/images/challenges/messi_reveal.png',
                     'question' => 'Who is this Inter Miami forward?',
                     'question_ar' => 'من هو مهاجم إنتر ميامي الحالي؟',
                 ]
@@ -59,8 +59,8 @@ class SilhouetteChallengeSeeder extends Seeder
                 'answer_type' => 'actor',
                 'autocomplete_type' => 'actor',
                 'stimulus_data' => [
-                    'image_path' => '/storage/games/guess-silhouette.png',
-                    'reveal_image_path' => '/storage/games/guess-silhouette.png',
+                    'image_path' => '/images/challenges/adelemam_silhouette.png',
+                    'reveal_image_path' => '/images/challenges/adelemam_reveal.png',
                     'question' => 'Who is this legendary Egyptian comedy actor?',
                     'question_ar' => 'من هو هذا الممثل الكوميدي المصري الأسطوري؟',
                 ]
@@ -74,8 +74,8 @@ class SilhouetteChallengeSeeder extends Seeder
                 'answer_type' => 'term',
                 'autocomplete_type' => 'term',
                 'stimulus_data' => [
-                    'image_path' => '/storage/games/guess-silhouette.png',
-                    'reveal_image_path' => '/storage/games/guess-silhouette.png',
+                    'image_path' => '/images/challenges/egypt_silhouette.png',
+                    'reveal_image_path' => '/images/challenges/egypt_reveal.png',
                     'question' => 'Which country has this silhouette?',
                     'question_ar' => 'أي بلد يملك هذا الظل؟',
                 ]
