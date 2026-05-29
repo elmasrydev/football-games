@@ -13,11 +13,13 @@ class GameItem extends Model
         'country',
         'external_id',
         'metadata',
+        'fuzzy_variants',
         'is_active',
     ];
 
     protected $casts = [
         'metadata' => 'json',
+        'fuzzy_variants' => 'json',
         'is_active' => 'boolean',
     ];
 

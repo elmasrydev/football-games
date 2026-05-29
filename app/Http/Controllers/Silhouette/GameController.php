@@ -207,6 +207,9 @@ class GameController extends Controller
                 if (isset($item->metadata['synonyms']) && is_array($item->metadata['synonyms'])) {
                     $options = array_merge($options, $item->metadata['synonyms']);
                 }
+                if (is_array($item->fuzzy_variants)) {
+                    $options = array_merge($options, $item->fuzzy_variants);
+                }
                 foreach ($options as $opt) {
                     if ($opt && $this->normalize($opt) === $normalizedInput) {
                         return true;
@@ -238,6 +241,9 @@ class GameController extends Controller
                 $options = [$item->name_en, $item->name_ar];
                 if (isset($item->metadata['synonyms']) && is_array($item->metadata['synonyms'])) {
                     $options = array_merge($options, $item->metadata['synonyms']);
+                }
+                if (is_array($item->fuzzy_variants)) {
+                    $options = array_merge($options, $item->fuzzy_variants);
                 }
                 foreach ($options as $opt) {
                     if ($opt && $this->normalize($opt) === $normalizedInput) {

@@ -25,6 +25,9 @@ class AnswerMatcher
             if (isset($item->metadata['synonyms']) && is_array($item->metadata['synonyms'])) {
                 $options = array_merge($options, $item->metadata['synonyms']);
             }
+            if (is_array($item->fuzzy_variants)) {
+                $options = array_merge($options, $item->fuzzy_variants);
+            }
 
             foreach ($options as $option) {
                 if ($option && $this->normalize($option) === $normalized) {
@@ -42,6 +45,9 @@ class AnswerMatcher
             $options = [$item->name_en, $item->name_ar];
             if (isset($item->metadata['synonyms']) && is_array($item->metadata['synonyms'])) {
                 $options = array_merge($options, $item->metadata['synonyms']);
+            }
+            if (is_array($item->fuzzy_variants)) {
+                $options = array_merge($options, $item->fuzzy_variants);
             }
 
             foreach ($options as $option) {
